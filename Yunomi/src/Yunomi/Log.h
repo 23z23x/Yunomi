@@ -23,3 +23,16 @@ namespace ynm {
 	};
 
 }
+
+//Macros
+//Core
+#define YNM_CORE_ERROR(...) ::ynm::Log::GetCoreLogger()->error(__VA_ARGS__)
+#define YNM_CORE_WARN(...) ::ynm::Log::GetCoreLogger()->warn(__VA_ARGS__)
+#define YNM_CORE_INFO(...) ::ynm::Log::GetCoreLogger()->info(__VA_ARGS__)
+#define YNM_CORE_TRACE(...) ::ynm::Log::GetCoreLogger()->trace(__VA_ARGS__)
+
+//Client
+#define YNM_ERROR(...) ::ynm::Log::GetClientLogger()->error(__VA_ARGS__)
+#define YNM_WARN(...) ::ynm::Log::GetClientLogger()->warn(__VA_ARGS__)
+#define YNM_INFO(...) ::ynm::Log::GetClientLogger()->info(__VA_ARGS__)
+#define YNM_TRACE(...) ::ynm::Log::GetClientLogger()->trace(__VA_ARGS__)

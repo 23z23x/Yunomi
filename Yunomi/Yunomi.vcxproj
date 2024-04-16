@@ -19,12 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Yunomi\Log.h" />
     <ClInclude Include="src\Yunomi.h" />
     <ClInclude Include="src\Yunomi\Application.h" />
     <ClInclude Include="src\Yunomi\Core.h" />
     <ClInclude Include="src\Yunomi\EntryPoint.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Yunomi\Log.cpp" />
     <ClCompile Include="src\Yunomi\Application.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -119,9 +121,10 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>YNM_PLATFORM_WINDOWS;YNM_BUILD_DLL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>YNM_PLATFORM_WINDOWS;YNM_BUILD_DLL;_SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -134,9 +137,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>YNM_PLATFORM_WINDOWS;YNM_BUILD_DLL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>YNM_PLATFORM_WINDOWS;YNM_BUILD_DLL;_SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

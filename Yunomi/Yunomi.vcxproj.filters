@@ -27,9 +27,15 @@
     <ClInclude Include="src\Yunomi\EntryPoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Yunomi\Log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Yunomi\Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Yunomi\Log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
