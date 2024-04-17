@@ -2,3 +2,10 @@
 .vs/
 bin/
 bin-int/
+
+# File types
+
+#Visual Studio
+*.vcxproj
+*.vcxproj.filters
+*.sln
