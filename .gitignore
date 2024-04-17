@@ -8,4 +8,5 @@ bin-int/
 #Visual Studio
 *.vcxproj
 *.vcxproj.filters
+*.vcxproj.user
 *.sln
