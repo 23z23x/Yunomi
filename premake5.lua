@@ -9,6 +9,11 @@ workspace "Yunomi"
 
 outputdir = "%{cfg.buildcfg}%{cfg.system}%{cfg.architecture}"
 
+IncludeDir = {}
+IncludeDir["GLFW"] = "Yunomi/vendor/GLFW/include"
+
+include "Yunomi/vendor/GLFW"
+
 project "Yunomi"
     location "Yunomi"
     kind "SharedLib"
@@ -29,7 +34,16 @@ project "Yunomi"
 
     includedirs
     {
-        "%{prj.name}/vendor/spdlog/include"
+        "%{prj.name}/src",
+        "%{prj.name}/vendor/spdlog/include",
+        "%{IncludeDir.GLFW}"
+        
+    }
+
+    links
+    {
+        "GLFW",
+        "opengl32.lib"
     }
 
     filter "system:windows"
