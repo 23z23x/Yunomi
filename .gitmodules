@@ -4,3 +4,9 @@
 [submodule "Yunomi/vendor/GLFW"]
 	path = Yunomi/vendor/GLFW
 	url = https://github.com/glfw/glfw
+[submodule "vendor/glm"]
+	path = vendor/glm
+	url = https://github.com/icaven/glm
+[submodule "Yunomi/vendor/glm"]
+	path = Yunomi/vendor/glm
+	url = https://github.com/icaven/glm

@@ -13,6 +13,7 @@ IncludeDir = {}
 IncludeDir["GLFW"] = "Yunomi/vendor/GLFW/include"
 
 include "Yunomi/vendor/GLFW"
+--include "Yunomi/vendor/glm"                
 
 project "Yunomi"
     location "Yunomi"
@@ -28,7 +29,7 @@ project "Yunomi"
     files
     {
         "%{prj.name}/src/**.h",
-        "%{prj.name}/src/**.cpp"
+        "%{prj.name}/src/**.cpp",
 
     }
 
@@ -36,7 +37,8 @@ project "Yunomi"
     {
         "%{prj.name}/src",
         "%{prj.name}/vendor/spdlog/include",
-        "%{IncludeDir.GLFW}"
+        "%{IncludeDir.GLFW}",
+        "%{prj.name}/vendor/glm"
         
     }
 
@@ -88,14 +90,17 @@ project "Sandbox"
         files
         {
             "%{prj.name}/src/**.h",
-            "%{prj.name}/src/**.cpp"
+            "%{prj.name}/src/**.cpp",
+            "%{prj.name}/vendor/glm/glm/**.hpp",
+            "%{prj.name}/vendor/glm/glm/**.inl"
     
         }
     
         includedirs
         {
             "Yunomi/vendor/spdlog/include",
-            "Yunomi/src"
+            "Yunomi/src",
+            "Yunomi/vendor/glm"
         }
 
         links

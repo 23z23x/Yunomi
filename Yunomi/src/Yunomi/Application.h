@@ -2,6 +2,9 @@
 #include "Core.h"
 #include "Window.h"
 
+#include "glm/glm.hpp"
+#include "glm/ext.hpp"
+
 namespace ynm {
 
 	class YNM_API Application {
