@@ -11,9 +11,9 @@ outputdir = "%{cfg.buildcfg}%{cfg.system}%{cfg.architecture}"
 
 IncludeDir = {}
 IncludeDir["GLFW"] = "Yunomi/vendor/GLFW/include"
+IncludeDir["Vulkan"] = "C:/VulkanSDK/1.3.280.0/Include"
 
-include "Yunomi/vendor/GLFW"
---include "Yunomi/vendor/glm"                
+include "Yunomi/vendor/GLFW"             
 
 project "Yunomi"
     location "Yunomi"
@@ -30,7 +30,8 @@ project "Yunomi"
     {
         "%{prj.name}/src/**.h",
         "%{prj.name}/src/**.cpp",
-
+        "%{prj.name}/vendor/glm/glm/**.hpp",
+        "%{prj.name}/vendor/glm/glm/**.inl"
     }
 
     includedirs
@@ -38,14 +39,16 @@ project "Yunomi"
         "%{prj.name}/src",
         "%{prj.name}/vendor/spdlog/include",
         "%{IncludeDir.GLFW}",
-        "%{prj.name}/vendor/glm"
-        
+        "%{prj.name}/vendor/glm",
+        "%{IncludeDir.Vulkan}"
     }
 
     links
     {
         "GLFW",
-        "opengl32.lib"
+        "opengl32.lib",
+        "C:/VulkanSDK/1.3.280.0/lib/vulkan-1.lib"
+
     }
 
     filter "system:windows"
