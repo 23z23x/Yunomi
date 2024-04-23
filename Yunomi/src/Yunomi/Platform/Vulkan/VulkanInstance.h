@@ -18,6 +18,8 @@ namespace ynm
     private:
         //Vulkan instance
         VkInstance instance;
+        //Debug Messenger
+        VkDebugUtilsMessengerEXT debugMessenger;
         //Class Variables
         std::vector<const char*> validationLayers;
 
@@ -30,8 +32,11 @@ namespace ynm
         VkInstance getInstance();
 
         //Debug
-        void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+        void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);    
         static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
+        void setupDebugMessenger();
+        VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
+    
     };
 
 }
