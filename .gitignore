@@ -2,6 +2,10 @@
 .vs/
 bin/
 bin-int/
+Vendor/
+Yunomi/Vendor/
+Sandbox/Vendor/
+Yunomi/src/Yunomi/TestAssets/
 
 # File types
 
