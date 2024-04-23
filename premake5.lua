@@ -31,7 +31,8 @@ project "Yunomi"
         "%{prj.name}/src/**.h",
         "%{prj.name}/src/**.cpp",
         "%{prj.name}/vendor/glm/glm/**.hpp",
-        "%{prj.name}/vendor/glm/glm/**.inl"
+        "%{prj.name}/vendor/glm/glm/**.inl",
+        "%{prj.name}/vendor/stb_image.h"
     }
 
     includedirs
@@ -40,7 +41,8 @@ project "Yunomi"
         "%{prj.name}/vendor/spdlog/include",
         "%{IncludeDir.GLFW}",
         "%{prj.name}/vendor/glm",
-        "%{IncludeDir.Vulkan}"
+        "%{IncludeDir.Vulkan}",
+        "%{prj.name}/vendor"
     }
 
     links
@@ -48,7 +50,6 @@ project "Yunomi"
         "GLFW",
         "opengl32.lib",
         "C:/VulkanSDK/1.3.280.0/lib/vulkan-1.lib"
-
     }
 
     filter "system:windows"
@@ -96,14 +97,14 @@ project "Sandbox"
             "%{prj.name}/src/**.cpp",
             "%{prj.name}/vendor/glm/glm/**.hpp",
             "%{prj.name}/vendor/glm/glm/**.inl"
-    
         }
     
         includedirs
         {
             "Yunomi/vendor/spdlog/include",
             "Yunomi/src",
-            "Yunomi/vendor/glm"
+            "Yunomi/vendor/glm",
+            "Yunomi/vendor"
         }
 
         links
