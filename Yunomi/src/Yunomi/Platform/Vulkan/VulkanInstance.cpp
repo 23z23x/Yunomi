@@ -71,6 +71,8 @@ namespace ynm
         }
 
         vkDestroyInstance(instance, nullptr);
+
+        YNM_CORE_INFO("Vulkan instance destroyed!");
     }
 
     //Class Methods
@@ -140,8 +142,23 @@ namespace ynm
     }
 
     VKAPI_ATTR VkBool32 VKAPI_CALL VulkanInstance::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
-        YNM_CORE_ERROR("Vulkan Validation Layer: {0}", pCallbackData->pMessage);
-
+        if (messageSeverity < VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
+        {
+            //Off for now, can uncomment this if they are ever needed
+            //YNM_CORE_INFO("Vulkan Validation Layer Verbose: {0}", pCallbackData->pMessage);
+        }
+        if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT && messageSeverity < VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+        {
+            YNM_CORE_INFO("Vulkan Validation Layer Info: {0}", pCallbackData->pMessage);
+        }
+        if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT && messageSeverity < VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+        {
+            YNM_CORE_WARN("Vulkan Validation Layer Warning : {0}", pCallbackData->pMessage);
+        }
+        if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+        {
+            YNM_CORE_ERROR("Vulkan Validation Layer Error: {0}", pCallbackData->pMessage);
+        }
         return VK_FALSE;
     }
 
