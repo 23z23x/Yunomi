@@ -12,8 +12,8 @@
 #endif
 
 #ifdef YNM_ENABLE_ASSERTS
-	#define YNM_ASSERT(x, ...) { if(!(x)) { HZ_ERROR("ASSERT FAILED: {0}", __VA_ARGS__); __debugbreak(); } }
-	#define YNM_CORE_ASSERT(x, ...) { if(!(x)) { HZ_ERROR("ASSERT FAILED: {0}", __VA_ARGS__); __debugbreak(); } }
+	#define YNM_ASSERT(x, ...) { if(!(x)) { YNM_ERROR("ASSERT FAILED: {0}", __VA_ARGS__); __debugbreak(); } }
+	#define YNM_CORE_ASSERT(x, ...) { if(!(x)) { YNM_CORE_ERROR("ASSERT FAILED: {0}", __VA_ARGS__); __debugbreak(); } }
 #else
 	#define YNM_ASSERT(x, ...)
 	#define YNM_CORE_ASSERT(x, ...)
