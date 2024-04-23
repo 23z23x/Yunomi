@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "WindowsWindow.h"
-#include "Yunomi/Log.h"
 
 namespace ynm
 {
