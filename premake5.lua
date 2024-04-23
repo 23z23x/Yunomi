@@ -103,6 +103,8 @@ project "Sandbox"
         {
             "Yunomi/vendor/spdlog/include",
             "Yunomi/src",
+            "%{IncludeDir.GLFW}",
+            "%{IncludeDir.Vulkan}",
             "Yunomi/vendor/glm",
             "Yunomi/vendor"
         }
