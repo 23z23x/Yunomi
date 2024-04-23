@@ -19,11 +19,6 @@ namespace ynm {
 	{
 		m_Window = std::unique_ptr<Window>(Window::Create());
 
-		uint32_t extensionCount = 0;
-		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-
-		std::cout << extensionCount << " extensions supported\n";
-
 		glm::mat4 matrix;
 		glm::vec4 vec;
 		auto test = matrix * vec;
@@ -37,6 +32,11 @@ namespace ynm {
 
 	void Application::Run() 
 	{
+		const std::vector<const char*> validationLayers = {
+			"VK_LAYER_KHRONOS_validation"
+		};
+
+		VulkanInstance vkInstance = VulkanInstance(validationLayers);
 		while (m_Running)
 		{
 			m_Window->OnUpdate();

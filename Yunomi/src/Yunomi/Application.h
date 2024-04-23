@@ -1,6 +1,7 @@
 #pragma once
 #include "Core.h"
 #include "Window.h"
+#include "Platform/Vulkan/VulkanInstance.h"
 
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
