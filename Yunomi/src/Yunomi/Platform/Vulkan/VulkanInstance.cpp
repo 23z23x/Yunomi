@@ -77,6 +77,8 @@ namespace ynm
 
     VulkanInstance::~VulkanInstance()
     {
+        vkDestroySurfaceKHR(instance, surface, nullptr);
+
         auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
         if (func != nullptr) {
             func(instance, debugMessenger, nullptr);
