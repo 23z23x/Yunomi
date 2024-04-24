@@ -1,4 +1,6 @@
 #pragma once
+#include "Yunomi/Render/Instance.h"
+#include "Yunomi/Render/Window.h"
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
@@ -8,10 +10,10 @@ const bool enableValidationLayers = true;
 
 namespace ynm
 {
-    class VulkanInstance
+    class VulkanInstance : public Instance
     {
     public:
-        VulkanInstance(std::vector<const char*> validationLayers, GLFWwindow* window);
+        VulkanInstance(GLFWwindow* m_Window, const InstanceProps& props);
 
         ~VulkanInstance();
 

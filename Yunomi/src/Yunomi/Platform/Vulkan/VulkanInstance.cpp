@@ -3,13 +3,18 @@
 
 namespace ynm
 {
-    VulkanInstance::VulkanInstance(std::vector<const char*> validationLayers, GLFWwindow* window)
+    Instance* Instance::Create(Window* m_Window, const InstanceProps& props)
     {
-        this->validationLayers = validationLayers;
+        return new VulkanInstance((GLFWwindow*) m_Window->getWindow(), props);
+    }
+
+    VulkanInstance::VulkanInstance(GLFWwindow* m_Window, const InstanceProps& props)
+    {
+        this->validationLayers = props.vk_ValidationLayers;
 
         //Check for necessary validation layers, throw error if not avalible
         if (enableValidationLayers && !checkValidationLayerSupport()) {
-            YNM_CORE_ERROR("validation layers requested, but not available!");
+            YNM_CORE_ERROR("Vulkan: Validation layers requested, but not available!");
             throw std::runtime_error("");
         }
 
@@ -62,7 +67,7 @@ namespace ynm
         YNM_CORE_INFO("Vulkan instance created!");
 
         //Create surface using window
-        if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
+        if (glfwCreateWindowSurface(instance, m_Window, nullptr, &surface) != VK_SUCCESS) {
             YNM_CORE_ERROR("Vulkan: Failed to create window surface!");
         }
 
