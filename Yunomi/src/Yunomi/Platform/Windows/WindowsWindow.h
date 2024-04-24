@@ -1,6 +1,6 @@
 #pragma once
 #include "pch.h"
-#include "Yunomi/Window.h"
+#include "Yunomi/Render/Window.h"
 
 namespace ynm {
 	class WindowsWindow : public Window
@@ -13,6 +13,7 @@ namespace ynm {
 
 		inline unsigned int GetWidth() const override { return m_Data.Width; }
 		inline unsigned int GetHeight() const override { return m_Data.Height; }
+		inline void* getWindow() const override { return m_Window; }
 
 		inline void SetEventCallback(const EventCallbackFunc& callback) override { m_Data.EventCallback = callback; }
 		void SetVSync(bool enabled) override;
