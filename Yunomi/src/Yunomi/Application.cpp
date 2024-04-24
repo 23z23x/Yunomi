@@ -3,8 +3,6 @@
 #include "Application.h"
 #include "Log.h"
 
-
-
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/vec4.hpp>
@@ -16,7 +14,8 @@ namespace ynm {
 	
 	Application::Application() 
 	{
-		m_Window = std::unique_ptr<Window>(Window::Create());
+		m_Window = Window::Create();
+		m_Instance = Instance::Create(m_Window);
 
 		glm::mat4 matrix;
 		glm::vec4 vec;
@@ -31,11 +30,6 @@ namespace ynm {
 
 	void Application::Run() 
 	{
-		const std::vector<const char*> validationLayers = {
-			"VK_LAYER_KHRONOS_validation"
-		};
-
-		VulkanInstance vkInstance = VulkanInstance(validationLayers);
 		while (m_Running)
 		{
 			m_Window->OnUpdate();

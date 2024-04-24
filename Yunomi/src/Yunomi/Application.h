@@ -1,7 +1,7 @@
 #pragma once
 #include "Core.h"
-#include "Window.h"
-#include "Platform/Vulkan/VulkanInstance.h"
+#include "Render/Window.h"
+#include "Render/Instance.h"
 
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
@@ -15,7 +15,8 @@ namespace ynm {
 
 		void Run();
 	private:
-		std::unique_ptr<Window> m_Window;
+		Window* m_Window;
+		Instance* m_Instance;
 		bool m_Running = true;
 
 	};
