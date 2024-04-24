@@ -11,7 +11,7 @@ namespace ynm
     class VulkanInstance
     {
     public:
-        VulkanInstance(std::vector<const char*> validationLayers);
+        VulkanInstance(std::vector<const char*> validationLayers, GLFWwindow* window);
 
         ~VulkanInstance();
 
@@ -20,8 +20,10 @@ namespace ynm
         VkInstance instance;
         //Debug Messenger
         VkDebugUtilsMessengerEXT debugMessenger;
-        //Class Variables
+        //Vector of strings that holds the names of validation layers
         std::vector<const char*> validationLayers;
+        //Vulkan surface object
+        VkSurfaceKHR surface;
 
         //Class Methods
         bool checkValidationLayerSupport();

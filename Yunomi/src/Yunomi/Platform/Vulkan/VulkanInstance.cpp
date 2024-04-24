@@ -3,7 +3,7 @@
 
 namespace ynm
 {
-    VulkanInstance::VulkanInstance(std::vector<const char*> validationLayers)
+    VulkanInstance::VulkanInstance(std::vector<const char*> validationLayers, GLFWwindow* window)
     {
         this->validationLayers = validationLayers;
 
@@ -60,6 +60,13 @@ namespace ynm
         }
 
         YNM_CORE_INFO("Vulkan instance created!");
+
+        //Create surface using window
+        if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
+            YNM_CORE_ERROR("Vulkan: Failed to create window surface!");
+        }
+
+        YNM_CORE_INFO("Vulkan: Created window surface!");
 
     }
 
