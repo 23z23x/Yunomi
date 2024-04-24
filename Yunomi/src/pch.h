@@ -11,6 +11,8 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <set>
+#include <optional>
 
 //Allows GLFW to include Vulkan for us
 #define GLFW_INCLUDE_VULKAN
