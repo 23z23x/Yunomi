@@ -45,7 +45,7 @@ namespace ynm
         //Vulkan surface object
         VkSurfaceKHR surface;
         //Physical Device chosen
-        VkPhysicalDevice physicalDevice;
+        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
         //Logical Device created
         VkDevice device;
         //Queue for graphics rendering
