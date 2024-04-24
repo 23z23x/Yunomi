@@ -46,6 +46,12 @@ namespace ynm
         VkSurfaceKHR surface;
         //Physical Device chosen
         VkPhysicalDevice physicalDevice;
+        //Logical Device created
+        VkDevice device;
+        //Queue for graphics rendering
+        VkQueue graphicsQueue;
+        //Queue for displaying to screen
+        VkQueue presentQueue;
 
 
         //Class Methods
@@ -65,9 +71,14 @@ namespace ynm
         //Physical Device
         void pickPhysicalDevice();
         bool isDeviceSuitable(VkPhysicalDevice device);
-        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
         bool checkDeviceExtensionSupport(VkPhysicalDevice device);
         SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+
+        //Logical Device
+        void createLogicalDevice();
+
+        //Helper Methods
+        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     };
 
 }

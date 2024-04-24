@@ -76,13 +76,22 @@ namespace ynm
 
         pickPhysicalDevice();
 
-        YNM_CORE_INFO("Vulkan: Created physical device!");
+        YNM_CORE_INFO("Vulkan: Picked physical device!");
+
+        createLogicalDevice();
+
 
     }
 
     VulkanInstance::~VulkanInstance()
     {
+        vkDestroyDevice(device, nullptr);
+
+        YNM_CORE_INFO("Vulkan: Logical device destroyed!");
+
         vkDestroySurfaceKHR(instance, surface, nullptr);
+
+        YNM_CORE_INFO("Vulkan: Surface destroyed!");
 
         auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
         if (func != nullptr) {
@@ -91,7 +100,7 @@ namespace ynm
 
         vkDestroyInstance(instance, nullptr);
 
-        YNM_CORE_INFO("Vulkan instance destroyed!");
+        YNM_CORE_INFO("Vulkan: Instance destroyed!");
     }
 
     //Class Methods
@@ -253,40 +262,6 @@ namespace ynm
         return indices.isComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
     }
 
-    QueueFamilyIndices VulkanInstance::findQueueFamilies(VkPhysicalDevice device) {
-        QueueFamilyIndices indices;
-
-        //Vulkan ritual
-        uint32_t queueFamilyCount = 0;
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-
-        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
-
-        //for all avalible queue families, see if they support our needs for graphics and present
-        int i = 0;
-        for (const auto& queueFamily : queueFamilies) {
-            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-                indices.graphicsFamily = i;
-            }
-
-            VkBool32 presentSupport = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
-
-            if (presentSupport) {
-                indices.presentFamily = i;
-            }
-
-            if (indices.isComplete()) {
-                break;
-            }
-
-            i++;
-        }
-
-        return indices;
-    }
-
     bool VulkanInstance::checkDeviceExtensionSupport(VkPhysicalDevice device) {
         //Standard vulkan ritual
         uint32_t extensionCount;
@@ -334,4 +309,100 @@ namespace ynm
 
         return details;
     }
+
+    //Logical Device
+    void VulkanInstance::createLogicalDevice() {
+        //Find all queue families avalible
+        QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+
+        std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+        std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+
+        //Create info struct for each unique queue type
+        float queuePriority = 1.0f;
+        for (uint32_t queueFamily : uniqueQueueFamilies) {
+            VkDeviceQueueCreateInfo queueCreateInfo{};
+            queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            queueCreateInfo.queueFamilyIndex = queueFamily;
+            queueCreateInfo.queueCount = 1;
+            queueCreateInfo.pQueuePriorities = &queuePriority;
+            queueCreateInfos.push_back(queueCreateInfo);
+        }
+
+        //Check out the features of the physical device
+        VkPhysicalDeviceFeatures deviceFeatures{};
+        //Enable anistropic filtering
+        deviceFeatures.samplerAnisotropy = VK_TRUE;
+
+        VkDeviceCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+
+        createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+        createInfo.pQueueCreateInfos = queueCreateInfos.data();
+
+        createInfo.pEnabledFeatures = &deviceFeatures;
+
+        createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+        createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+
+        //If in debug, activate validation layers
+        if (enableValidationLayers) {
+            createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+            createInfo.ppEnabledLayerNames = validationLayers.data();
+        }
+        //else, do nothing
+        else {
+            createInfo.enabledLayerCount = 0;
+        }
+
+        //check for successful creation
+        if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
+            YNM_CORE_ERROR("Vulkan: Failed to create logical device!");
+            throw std::runtime_error("");
+        }
+        YNM_CORE_INFO("Vulkan: Created logical device!");
+
+        //Create the queues required
+        vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+        YNM_CORE_INFO("Vulkan: Graphics queue created!");
+        vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
+        YNM_CORE_INFO("Vulkan: Present queue created!");
+    }
+
+    //Helper Methods
+    QueueFamilyIndices VulkanInstance::findQueueFamilies(VkPhysicalDevice device) {
+        QueueFamilyIndices indices;
+
+        //Vulkan ritual
+        uint32_t queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+        //for all avalible queue families, see if they support our needs for graphics and present
+        int i = 0;
+        for (const auto& queueFamily : queueFamilies) {
+            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+                indices.graphicsFamily = i;
+            }
+
+            VkBool32 presentSupport = false;
+            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+
+            if (presentSupport) {
+                indices.presentFamily = i;
+            }
+
+            if (indices.isComplete()) {
+                break;
+            }
+
+            i++;
+        }
+
+        return indices;
+    }
+
+
 }
