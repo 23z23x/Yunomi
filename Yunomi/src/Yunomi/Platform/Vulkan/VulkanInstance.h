@@ -8,6 +8,22 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
+//Structs
+struct QueueFamilyIndices {
+    std::optional<uint32_t> graphicsFamily;
+    std::optional<uint32_t> presentFamily;
+
+    bool isComplete() {
+        return graphicsFamily.has_value() && presentFamily.has_value();
+    }
+};
+struct SwapChainSupportDetails {
+    VkSurfaceCapabilitiesKHR capabilities;
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR> presentModes;
+};
+
+
 namespace ynm
 {
     class VulkanInstance : public Instance
@@ -22,10 +38,15 @@ namespace ynm
         VkInstance instance;
         //Debug Messenger
         VkDebugUtilsMessengerEXT debugMessenger;
-        //Vector of strings that holds the names of validation layers
+        //Holds the names of validation layers
         std::vector<const char*> validationLayers;
+        //Holds the names of device extensions
+        std::vector<const char*> deviceExtensions;
         //Vulkan surface object
         VkSurfaceKHR surface;
+        //Physical Device chosen
+        VkPhysicalDevice physicalDevice;
+
 
         //Class Methods
         bool checkValidationLayerSupport();
@@ -41,6 +62,12 @@ namespace ynm
         void setupDebugMessenger();
         VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
     
+        //Physical Device
+        void pickPhysicalDevice();
+        bool isDeviceSuitable(VkPhysicalDevice device);
+        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+        bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+        SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
     };
 
 }
