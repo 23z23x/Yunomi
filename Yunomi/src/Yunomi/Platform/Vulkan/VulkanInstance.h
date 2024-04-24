@@ -34,24 +34,43 @@ namespace ynm
         ~VulkanInstance();
 
     private:
+        //Window
+        GLFWwindow* window;
         //Vulkan instance
         VkInstance instance;
         //Debug Messenger
         VkDebugUtilsMessengerEXT debugMessenger;
+
         //Holds the names of validation layers
         std::vector<const char*> validationLayers;
         //Holds the names of device extensions
         std::vector<const char*> deviceExtensions;
+
         //Vulkan surface object
         VkSurfaceKHR surface;
+
         //Physical Device chosen
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
         //Logical Device created
         VkDevice device;
+
         //Queue for graphics rendering
         VkQueue graphicsQueue;
         //Queue for displaying to screen
         VkQueue presentQueue;
+
+        //Swap chain
+        VkSwapchainKHR swapChain;
+        //Images on the swap chain
+        std::vector<VkImage> swapChainImages;
+        //Image format of the swap chain
+        VkFormat swapChainImageFormat;
+        //Resolution of the images
+        VkExtent2D swapChainExtent;
+        //Image views for the images
+        std::vector<VkImageView> swapChainImageViews;
+        //Swap chain framebuffers
+        std::vector<VkFramebuffer> swapChainFramebuffers;
 
 
         //Class Methods
@@ -72,13 +91,20 @@ namespace ynm
         void pickPhysicalDevice();
         bool isDeviceSuitable(VkPhysicalDevice device);
         bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-        SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 
         //Logical Device
         void createLogicalDevice();
 
+        //Swap Chain
+        void createSwapChain();
+        VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+        VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+        void cleanupSwapChain();
+
         //Helper Methods
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+        SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
     };
 
 }

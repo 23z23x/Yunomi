@@ -12,6 +12,7 @@ namespace ynm
     {
         this->validationLayers = props.vk_ValidationLayers;
         this->deviceExtensions = props.vk_DeviceExtensions;
+        this->window = m_Window;
 
         //Check for necessary validation layers, throw error if not avalible
         if (enableValidationLayers && !checkValidationLayerSupport()) {
@@ -80,11 +81,14 @@ namespace ynm
 
         createLogicalDevice();
 
+        createSwapChain();
 
     }
 
     VulkanInstance::~VulkanInstance()
     {
+        cleanupSwapChain();
+
         vkDestroyDevice(device, nullptr);
 
         YNM_CORE_INFO("Vulkan: Logical device destroyed!");
@@ -282,34 +286,6 @@ namespace ynm
         return requiredExtensions.empty();
     }
 
-    SwapChainSupportDetails VulkanInstance::querySwapChainSupport(VkPhysicalDevice device) {
-        SwapChainSupportDetails details;
-
-        //Get capabilities
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
-
-        //Vulkan ritual
-        uint32_t formatCount;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
-
-        //If we don't have any formats, don't query
-        if (formatCount != 0) {
-            details.formats.resize(formatCount);
-            vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
-        }
-
-        //Vulkan ritual II
-        uint32_t presentModeCount;
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
-
-        if (presentModeCount != 0) {
-            details.presentModes.resize(presentModeCount);
-            vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data());
-        }
-
-        return details;
-    }
-
     //Logical Device
     void VulkanInstance::createLogicalDevice() {
         //Find all queue families avalible
@@ -369,6 +345,136 @@ namespace ynm
         YNM_CORE_INFO("Vulkan: Present queue created!");
     }
 
+    //Swap Chain
+    void VulkanInstance::createSwapChain()
+    {
+        //Query for swap chain support
+        SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
+
+        //Choose surface format and present mode
+        VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
+        VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
+
+        //Choose resolution from capabilities
+        VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
+        //Record the minimum iamge count plus one
+        uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+
+        //If swap chain supports more than the minimum, set it to the maximum
+        if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
+            imageCount = swapChainSupport.capabilities.maxImageCount;
+        }
+
+        //Create info struct for swap chain
+        VkSwapchainCreateInfoKHR createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        createInfo.surface = surface;
+
+        createInfo.minImageCount = imageCount;
+        createInfo.imageFormat = surfaceFormat.format;
+        createInfo.imageColorSpace = surfaceFormat.colorSpace;
+        createInfo.imageExtent = extent;
+        createInfo.imageArrayLayers = 1;
+        createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+        createInfo.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+
+        //TO DO: Says this is the only thing supported, look into this at a later date when alpha is needed.
+        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+
+
+
+        QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+        uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+
+        //If our present and graphics queues are different, set the sharing mode to concurrent, else exclusive (for efficency in the case they are the same)
+        if (indices.graphicsFamily != indices.presentFamily) {
+            createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+            createInfo.queueFamilyIndexCount = 2;
+            createInfo.pQueueFamilyIndices = queueFamilyIndices;
+        }
+        else {
+            createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            createInfo.queueFamilyIndexCount = 0; // Optional
+            createInfo.pQueueFamilyIndices = nullptr; // Optional
+        }
+
+        //Create swap chain with info
+        if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
+            YNM_CORE_ERROR("Vulkan: Failed to create swap chain!");
+            throw std::runtime_error("");
+        }
+
+        YNM_CORE_INFO("Vulkan: Created swap chain!");
+
+        //Get the images in the swap chain and the extent and save them for later
+        vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
+        swapChainImages.resize(imageCount);
+        vkGetSwapchainImagesKHR(device, swapChain, &imageCount, swapChainImages.data());
+
+        swapChainImageFormat = surfaceFormat.format;
+        swapChainExtent = extent;
+
+    }
+
+    VkSurfaceFormatKHR VulkanInstance::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
+        //Choose one that has 32 bit RGBA and with nonlinear color space
+        for (const auto& availableFormat : availableFormats) {
+            if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+                return availableFormat;
+            }
+        }
+
+        //If none exist, just return the first
+        return availableFormats[0];
+    }
+
+    VkPresentModeKHR VulkanInstance::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) {
+        //from avalible modes, see if we have mailbox
+        for (const auto& availablePresentMode : availablePresentModes) {
+            if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+                return availablePresentMode;
+            }
+        }
+
+        //If not, this one is always there
+        return VK_PRESENT_MODE_FIFO_KHR;
+    }
+
+    VkExtent2D VulkanInstance::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
+        //if window manager tells us that we're working with a 1:1 pixel ratio, we're good
+        if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
+            return capabilities.currentExtent;
+        }
+        //Else, (if someone is using a fancy monitor, high DPI) we need to scale the pixel size
+        else {
+            int width, height;
+            glfwGetFramebufferSize(window, &width, &height);
+
+            VkExtent2D actualExtent = {
+                static_cast<uint32_t>(width),
+                static_cast<uint32_t>(height)
+            };
+
+            actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+            actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+
+            return actualExtent;
+        }
+    }
+
+    void VulkanInstance::cleanupSwapChain() {
+        for (size_t i = 0; i < swapChainFramebuffers.size(); i++) {
+            vkDestroyFramebuffer(device, swapChainFramebuffers[i], nullptr);
+        }
+
+        for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+            vkDestroyImageView(device, swapChainImageViews[i], nullptr);
+        }
+
+        vkDestroySwapchainKHR(device, swapChain, nullptr);
+    }
+
     //Helper Methods
     QueueFamilyIndices VulkanInstance::findQueueFamilies(VkPhysicalDevice device) {
         QueueFamilyIndices indices;
@@ -402,6 +508,34 @@ namespace ynm
         }
 
         return indices;
+    }
+
+    SwapChainSupportDetails VulkanInstance::querySwapChainSupport(VkPhysicalDevice device) {
+        SwapChainSupportDetails details;
+
+        //Get capabilities
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
+
+        //Vulkan ritual
+        uint32_t formatCount;
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+
+        //If we don't have any formats, don't query
+        if (formatCount != 0) {
+            details.formats.resize(formatCount);
+            vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
+        }
+
+        //Vulkan ritual II
+        uint32_t presentModeCount;
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
+
+        if (presentModeCount != 0) {
+            details.presentModes.resize(presentModeCount);
+            vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data());
+        }
+
+        return details;
     }
 
 
