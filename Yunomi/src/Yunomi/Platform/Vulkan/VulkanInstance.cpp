@@ -62,11 +62,11 @@ namespace ynm
 
         //Create instance with info
         if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
-            YNM_CORE_ERROR("Failed to create Vulkan instance!");
+            YNM_CORE_ERROR("Vulkan: Failed to create Vulkan instance!");
             throw std::runtime_error("");
         }
 
-        YNM_CORE_INFO("Vulkan instance created!");
+        YNM_CORE_INFO("Vulkan: Instance created!");
 
         //Create surface using window
         if (glfwCreateWindowSurface(instance, m_Window, nullptr, &surface) != VK_SUCCESS) {
@@ -83,10 +83,16 @@ namespace ynm
 
         createSwapChain();
 
+        createImageViews();
+
     }
 
     VulkanInstance::~VulkanInstance()
     {
+        for (auto imageView : swapChainImageViews) {
+            vkDestroyImageView(device, imageView, nullptr);
+        }
+
         cleanupSwapChain();
 
         vkDestroyDevice(device, nullptr);
@@ -223,10 +229,10 @@ namespace ynm
         vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
         if (deviceCount == 0) {
-            YNM_CORE_ERROR("Vulkan failed to find GPUs with Vulkan support!");
+            YNM_CORE_ERROR("Vulkan: Failed to find GPUs with Vulkan support!");
             throw std::runtime_error("");
         }
-        YNM_CORE_INFO("Vulkan found at least one GPU with Vulkan support!");
+        YNM_CORE_INFO("Vulkan: Found at least one GPU with Vulkan support!");
 
         std::vector<VkPhysicalDevice> devices(deviceCount);
         vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
@@ -241,10 +247,10 @@ namespace ynm
 
         //Throw if no device found
         if (physicalDevice == VK_NULL_HANDLE) {
-            YNM_CORE_ERROR("Vulkan failed to find a suitable GPU!");
+            YNM_CORE_ERROR("Vulkan: Failed to find a suitable GPU!");
             throw std::runtime_error("");
         }
-        YNM_CORE_INFO("Vulkan found a suitable GPU!");
+        YNM_CORE_INFO("Vulkan: Found a suitable GPU!");
     }
 
     bool VulkanInstance::isDeviceSuitable(VkPhysicalDevice device) {
@@ -475,6 +481,17 @@ namespace ynm
         vkDestroySwapchainKHR(device, swapChain, nullptr);
     }
 
+    //Image Views
+    void VulkanInstance::createImageViews() {
+        swapChainImageViews.resize(swapChainImages.size());
+
+        for (uint32_t i = 0; i < swapChainImages.size(); i++) {
+            swapChainImageViews[i] = createImageView(swapChainImages[i], swapChainImageFormat);
+        }
+
+        YNM_CORE_INFO("Vulkan: Image Views created!");
+    }
+
     //Helper Methods
     QueueFamilyIndices VulkanInstance::findQueueFamilies(VkPhysicalDevice device) {
         QueueFamilyIndices indices;
@@ -536,6 +553,26 @@ namespace ynm
         }
 
         return details;
+    }
+
+    VkImageView VulkanInstance::createImageView(VkImage image, VkFormat format) {
+        VkImageViewCreateInfo viewInfo{};
+        viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        viewInfo.image = image;
+        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        viewInfo.format = format;
+        viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        viewInfo.subresourceRange.baseMipLevel = 0;
+        viewInfo.subresourceRange.levelCount = 1;
+        viewInfo.subresourceRange.baseArrayLayer = 0;
+        viewInfo.subresourceRange.layerCount = 1;
+
+        VkImageView imageView;
+        if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create texture image view!");
+        }
+
+        return imageView;
     }
 
 

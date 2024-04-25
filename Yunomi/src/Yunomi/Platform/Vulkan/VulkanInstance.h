@@ -102,9 +102,13 @@ namespace ynm
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
         void cleanupSwapChain();
 
+        //Image Views
+        void createImageViews();
+
         //Helper Methods
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
         SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+        VkImageView createImageView(VkImage image, VkFormat format);
     };
 
 }
