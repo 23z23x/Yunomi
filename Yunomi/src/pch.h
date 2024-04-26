@@ -5,6 +5,7 @@
 #include <utility>
 #include <algorithm>
 #include <functional>
+#include <fstream>
 
 #include <string>
 #include <sstream>
@@ -22,3 +23,4 @@
 
 #include "Yunomi/Log.h"
 #include "Yunomi/Core.h"
+#include "Yunomi/Utility/Utility.h"

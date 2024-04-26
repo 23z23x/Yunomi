@@ -1,6 +1,5 @@
 #pragma once
 #include "pch.h"
-#include "Yunomi/Core.h"
 #include "Window.h"
 
 //Vritual interface class
