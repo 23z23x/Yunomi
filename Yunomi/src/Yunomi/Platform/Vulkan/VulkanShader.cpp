@@ -44,7 +44,7 @@ namespace ynm
 
 	VulkanShader::~VulkanShader()
 	{
-
+		
 	}
 
 	std::vector<uint32_t> VulkanShader::CompileShader(shaderc_shader_kind type, const std::string& pshader, const std::string& filename)
