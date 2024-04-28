@@ -2,6 +2,7 @@
 #include "Core.h"
 #include "Render/Window.h"
 #include "Render/Instance.h"
+#include "Render/Shader.h"
 
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
