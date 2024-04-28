@@ -18,7 +18,7 @@ namespace ynm {
 		Shader* fragShader = Shader::Create("C:/repos/Yunomi/Yunomi/src/Yunomi/Shaders/shader.frag", ShaderType::Fragment);
 
 		m_Window = Window::Create();
-		m_Instance = Instance::Create(m_Window);
+		m_Instance = Instance::Create(m_Window, vertShader, fragShader);
 
 		glm::mat4 matrix;
 		glm::vec4 vec;
