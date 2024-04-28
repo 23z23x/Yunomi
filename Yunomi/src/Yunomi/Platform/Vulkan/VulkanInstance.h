@@ -29,7 +29,7 @@ namespace ynm
     class VulkanInstance : public Instance
     {
     public:
-        VulkanInstance(GLFWwindow* m_Window, const InstanceProps& props);
+        VulkanInstance(GLFWwindow* m_Window, Shader* vertex, Shader* fragment, const InstanceProps& props);
 
         ~VulkanInstance();
 
@@ -72,6 +72,12 @@ namespace ynm
         //Swap chain framebuffers
         std::vector<VkFramebuffer> swapChainFramebuffers;
 
+        //Graphics pipeline
+        VkPipeline graphicsPipeline;
+        VkPipelineLayout pipelineLayout;
+        VkDescriptorSetLayout descriptorSetLayout;
+        VkRenderPass renderPass;
+
 
         //Class Methods
         bool checkValidationLayerSupport();
@@ -104,6 +110,12 @@ namespace ynm
 
         //Image Views
         void createImageViews();
+
+        //Graphics pipeline
+        void createGraphicsPipeline(Shader* vertex, Shader* fragment);
+        VkShaderModule createShaderModule(const std::vector<uint32_t>& code);
+        void createRenderPass();
+        void createDescriptorSetLayout();
 
         //Helper Methods
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
