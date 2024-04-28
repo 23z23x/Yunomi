@@ -49,7 +49,8 @@ project "Yunomi"
     {
         "GLFW",
         "opengl32.lib",
-        "C:/VulkanSDK/1.3.280.0/lib/vulkan-1.lib"
+        "C:/VulkanSDK/1.3.280.0/Lib/vulkan-1.lib",
+        "C:/VulkanSDK/1.3.280.0/Lib/shaderc_shared.lib"
     }
 
     filter "system:windows"
