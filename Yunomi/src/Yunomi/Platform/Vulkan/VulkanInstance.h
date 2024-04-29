@@ -85,6 +85,13 @@ namespace ynm
         VkCommandPool commandPool;
         std::vector<VkCommandBuffer> commandBuffers;
 
+        //Asynch primitives
+        std::vector<VkSemaphore> imageAvailableSemaphores;
+        std::vector<VkSemaphore> renderFinishedSemaphores;
+        std::vector<VkFence> inFlightFences;
+        uint32_t currentFrame = 0;
+        bool framebufferResized = false;
+
 
         //Class Methods
         bool checkValidationLayerSupport();
@@ -130,6 +137,9 @@ namespace ynm
         //Command pool/buffer
         void createCommandPool();
         void createCommandBuffers();
+
+        //Asynch Primatives
+        void createSyncObjects();
 
         //Helper Methods
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
