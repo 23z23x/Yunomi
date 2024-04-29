@@ -93,6 +93,8 @@ namespace ynm
 
         createFramebuffers();
 
+        createCommandPool();
+
     }
 
     VulkanInstance::~VulkanInstance()
@@ -114,6 +116,8 @@ namespace ynm
         vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 
         vkDestroyRenderPass(device, renderPass, nullptr);
+
+        vkDestroyCommandPool(device, commandPool, nullptr);
 
         vkDestroyDevice(device, nullptr);
 
@@ -799,6 +803,22 @@ namespace ynm
             YNM_CORE_INFO("Vulkan: Successfully created framebuffer!");
         }
 
+    }
+
+    //Command Pool/Buffer
+    void VulkanInstance::createCommandPool() {
+        QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
+
+        VkCommandPoolCreateInfo poolInfo{};
+        poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+        poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+
+        if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+            YNM_CORE_ERROR("Vulkan: Failed to create command pool!");
+            throw std::runtime_error("");
+        }
+        YNM_CORE_INFO("Vulkan: Successfully created command pool!");
     }
 
     //Helper Methods

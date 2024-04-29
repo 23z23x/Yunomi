@@ -78,6 +78,9 @@ namespace ynm
         VkDescriptorSetLayout descriptorSetLayout;
         VkRenderPass renderPass;
 
+        //Command pool/buffers
+        VkCommandPool commandPool;
+
 
         //Class Methods
         bool checkValidationLayerSupport();
@@ -119,6 +122,9 @@ namespace ynm
 
         //Frame buffer
         void createFramebuffers();
+
+        //Command pool/buffer
+        void createCommandPool();
 
         //Helper Methods
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
