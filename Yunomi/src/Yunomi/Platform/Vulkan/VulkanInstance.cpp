@@ -91,10 +91,17 @@ namespace ynm
 
         createGraphicsPipeline(vert, frag);
 
+        createFramebuffers();
+
     }
 
     VulkanInstance::~VulkanInstance()
     {
+
+        for (auto framebuffer : swapChainFramebuffers) {
+            vkDestroyFramebuffer(device, framebuffer, nullptr);
+        }
+
         for (auto imageView : swapChainImageViews) {
             vkDestroyImageView(device, imageView, nullptr);
         }
@@ -765,6 +772,33 @@ namespace ynm
             throw std::runtime_error("");
         }
         YNM_CORE_INFO("Vulkan: Successfully created descriptor set layout!");
+    }
+
+    //Frame buffer
+    void VulkanInstance::createFramebuffers() {
+        swapChainFramebuffers.resize(swapChainImageViews.size());
+
+        for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+            VkImageView attachments[] = {
+                swapChainImageViews[i]
+            };
+
+            VkFramebufferCreateInfo framebufferInfo{};
+            framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            framebufferInfo.renderPass = renderPass;
+            framebufferInfo.attachmentCount = 1;
+            framebufferInfo.pAttachments = attachments;
+            framebufferInfo.width = swapChainExtent.width;
+            framebufferInfo.height = swapChainExtent.height;
+            framebufferInfo.layers = 1;
+
+            if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+                YNM_CORE_ERROR("Vulkan: Failed to create framebuffer!");
+                throw std::runtime_error("");
+            }
+            YNM_CORE_INFO("Vulkan: Successfully created framebuffer!");
+        }
+
     }
 
     //Helper Methods

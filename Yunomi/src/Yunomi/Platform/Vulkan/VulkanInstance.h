@@ -117,6 +117,9 @@ namespace ynm
         void createRenderPass();
         void createDescriptorSetLayout();
 
+        //Frame buffer
+        void createFramebuffers();
+
         //Helper Methods
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
         SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
