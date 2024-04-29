@@ -34,6 +34,9 @@ namespace ynm
         ~VulkanInstance();
 
     private:
+        //Frames in flight
+        const int MAX_FRAMES_IN_FLIGHT = 2;
+
         //Window
         GLFWwindow* window;
         //Vulkan instance
@@ -80,6 +83,7 @@ namespace ynm
 
         //Command pool/buffers
         VkCommandPool commandPool;
+        std::vector<VkCommandBuffer> commandBuffers;
 
 
         //Class Methods
@@ -125,6 +129,7 @@ namespace ynm
 
         //Command pool/buffer
         void createCommandPool();
+        void createCommandBuffers();
 
         //Helper Methods
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);

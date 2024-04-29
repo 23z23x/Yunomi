@@ -95,6 +95,8 @@ namespace ynm
 
         createCommandPool();
 
+        createCommandBuffers();
+
     }
 
     VulkanInstance::~VulkanInstance()
@@ -117,6 +119,7 @@ namespace ynm
 
         vkDestroyRenderPass(device, renderPass, nullptr);
 
+        //This also cleans up the command buffers
         vkDestroyCommandPool(device, commandPool, nullptr);
 
         vkDestroyDevice(device, nullptr);
@@ -819,6 +822,22 @@ namespace ynm
             throw std::runtime_error("");
         }
         YNM_CORE_INFO("Vulkan: Successfully created command pool!");
+    }
+
+    void VulkanInstance::createCommandBuffers() {
+        commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+        VkCommandBufferAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocInfo.commandPool = commandPool;
+        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocInfo.commandBufferCount = 1;
+        allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
+
+        if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
+            YNM_CORE_ERROR("Vulkan: Failed to allocate command buffers!");
+            throw std::runtime_error("");
+        }
+        YNM_CORE_INFO("Vulkan: Successfully allocated command buffers");
     }
 
     //Helper Methods
