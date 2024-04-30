@@ -8,12 +8,12 @@ namespace ynm
 	//Enum to allow shader type to be declared in a platform independent way
 	enum ShaderType
 	{
-		Vertex,
-		TessellationControl,
-		TesselationEvaluation,
-		Geometry,
-		Fragment,
-		Compute
+		VRTX,
+		TESSCTRL,
+		TESSEVAL,
+		GMTRY,
+		FRAG,
+		COMP
 	};
 
 	class YNM_API Shader

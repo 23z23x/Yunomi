@@ -9,17 +9,17 @@ namespace ynm
 		//Switch statement, just calls constructor with correct Vulkan shader type provided.
 		switch (type)
 		{
-		case Vertex:
+		case VRTX:
 			return new VulkanShader(filename, VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT, type, shaderc_shader_kind::shaderc_glsl_vertex_shader);
-		case TessellationControl:
+		case TESSCTRL:
 			return new VulkanShader(filename, VkShaderStageFlagBits::VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT, type, shaderc_shader_kind::shaderc_glsl_tess_control_shader);
-		case TesselationEvaluation:
+		case TESSEVAL:
 			return new VulkanShader(filename, VkShaderStageFlagBits::VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT, type, shaderc_shader_kind::shaderc_glsl_tess_evaluation_shader);
-		case Geometry:
+		case GMTRY:
 			return new VulkanShader(filename, VkShaderStageFlagBits::VK_SHADER_STAGE_GEOMETRY_BIT, type, shaderc_shader_kind::shaderc_glsl_geometry_shader);
-		case Fragment:
+		case FRAG:
 			return new VulkanShader(filename, VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT, type, shaderc_shader_kind::shaderc_glsl_fragment_shader);
-		case Compute:
+		case COMP:
 			return new VulkanShader(filename, VkShaderStageFlagBits::VK_SHADER_STAGE_COMPUTE_BIT, type, shaderc_shader_kind::shaderc_glsl_compute_shader);
 		default:
 			YNM_CORE_ERROR("Shader: Valid Shader type not provided!");
