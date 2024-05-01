@@ -65,4 +65,9 @@ namespace ynm
 	{
 		return m_Data.VSync;
 	}
+
+	bool WindowsWindow::ShouldClose() const
+	{
+		return glfwWindowShouldClose(m_Window);
+	}
 }
