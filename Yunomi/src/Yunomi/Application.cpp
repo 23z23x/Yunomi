@@ -11,6 +11,19 @@
 #include <iostream>
 
 namespace ynm {
+
+	//Position, Color, Texture mapping for corner
+	const std::vector<Vertex> vertices = {
+		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+		{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+		{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+	};
+
+	const std::vector<uint32_t> indices = {
+	0, 1, 2, 2, 3, 0
+	};
+
 	
 	Application::Application() 
 	{
@@ -20,9 +33,19 @@ namespace ynm {
 		m_Window = Window::Create();
 		m_Instance = Instance::Create(m_Window, vertShader, fragShader);
 
+		VertexBuffer* vertBuffer = VertexBuffer::Create(m_Instance, vertices);
+		IndexBuffer* indbuffer = IndexBuffer::Create(m_Instance, indices);
+		UniformBuffer* unifBuffer = UniformBuffer::Create(m_Instance);
+
+		vertBuffer->~VertexBuffer();
+		indbuffer->~IndexBuffer();
+		unifBuffer->~UniformBuffer();
+
 		glm::mat4 matrix;
 		glm::vec4 vec;
 		auto test = matrix * vec;
+
+		m_Instance->~Instance();
 
 	}
 
@@ -33,11 +56,12 @@ namespace ynm {
 
 	void Application::Run() 
 	{
-		while (m_Running)
+		while (!m_Window->ShouldClose())
 		{
 			m_Window->OnUpdate();
 
 		}
+		m_Window->~Window();
 	}
 
 }

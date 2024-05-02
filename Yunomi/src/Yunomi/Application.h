@@ -3,6 +3,7 @@
 #include "Render/Window.h"
 #include "Render/Instance.h"
 #include "Render/Shader.h"
+#include "Render/Buffer.h"
 
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
@@ -18,7 +19,6 @@ namespace ynm {
 	private:
 		Window* m_Window;
 		Instance* m_Instance;
-		bool m_Running = true;
 
 	};
 
