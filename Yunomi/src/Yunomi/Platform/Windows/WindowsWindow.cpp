@@ -16,13 +16,13 @@ namespace ynm
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
 
-		YNM_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
+		YNM_CORE_INFO("GLFW: Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
 		if (!s_GLFWInit)
 		{
 			// TODO: glfwTerminate on system shutdown
 			int success = glfwInit();
-			YNM_CORE_ASSERT(success, "GLFW FAILED TO INIT");
+			YNM_CORE_ASSERT(success, "GLFW: Failed to initialize!");
 
 			s_GLFWInit = true;
 		}
@@ -39,6 +39,10 @@ namespace ynm
 	WindowsWindow::~WindowsWindow()
 	{
 		glfwDestroyWindow(m_Window);
+
+		glfwTerminate();
+
+		YNM_CORE_INFO("GLFW: Window closed and instance terminated!");
 	}
 
 	void WindowsWindow::OnUpdate()
