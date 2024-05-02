@@ -8,6 +8,12 @@
 
 namespace ynm
 {
+    //Forward declaration to avoid circular dependencies
+    class VertexBuffer;
+    class IndexBuffer;
+    class UniformBuffer;
+
+
 	struct InstanceProps
 	{
 		//Platform specific arguments
@@ -57,6 +63,11 @@ namespace ynm
         }
     };
 
+    struct UniformBufferObject {
+        alignas(16) glm::mat4 model;
+        alignas(16) glm::mat4 view;
+        alignas(16) glm::mat4 proj;
+    };
 
 	class YNM_API Instance 
 	{
@@ -64,6 +75,9 @@ namespace ynm
 		virtual ~Instance() {}
 
 		//In the future, might want to change this to take a struct where Shaders are more explicitly defined as their types.
+        // 
+        //Also, obviously right now Pipeline creation is tied to instance creation. I think I want to force the creation of at least
+        //one pipeline at instance creation and then later allow the creation of additional pipelines
 		static Instance* Create(Window* m_Window, Shader* vertex, Shader* fragment, const InstanceProps& props = InstanceProps());
 
 	};

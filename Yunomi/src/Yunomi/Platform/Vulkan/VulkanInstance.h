@@ -33,6 +33,18 @@ namespace ynm
 
         ~VulkanInstance();
 
+        //Buffer creation functions
+        void createVertexBuffer(VkBuffer *vertexBuffer, VkDeviceMemory *vertexBufferMemory, std::vector<Vertex> vertices);
+        void createIndexBuffer(VkBuffer *indexBuffer, VkDeviceMemory *indexBufferMemory, std::vector<uint32_t> indices);
+        void createUniformBuffers(std::vector<VkBuffer> *uniformBuffers, std::vector<VkDeviceMemory> *uniformBuffersMemory, std::vector<void*> *uniformBuffersMapped);
+
+        //Buffer destruction functions
+        void destroyVertexBuffer(VkBuffer vertexBuffer, VkDeviceMemory vertexBufferMemory);
+        void destroyIndexBuffer(VkBuffer indexBuffer, VkDeviceMemory indexBufferMemory);
+        void destroyUniformBuffers(std::vector<VkBuffer> uniformBuffers, std::vector<VkDeviceMemory> uniformBuffersMemory);
+
+
+
     private:
         //Frames in flight
         const int MAX_FRAMES_IN_FLIGHT = 2;
@@ -106,7 +118,8 @@ namespace ynm
         static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
         void setupDebugMessenger();
         VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
-    
+        void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
+
         //Physical Device
         void pickPhysicalDevice();
         bool isDeviceSuitable(VkPhysicalDevice device);
@@ -140,6 +153,15 @@ namespace ynm
 
         //Asynch Primatives
         void createSyncObjects();
+
+        //Creates a buffer for other classes
+        void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+        void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+
+        //Single time commands
+        VkCommandBuffer beginSingleTimeCommands();
+        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
         //Helper Methods
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
