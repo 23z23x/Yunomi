@@ -2,8 +2,6 @@
 
 #include "pch.h"
 
-#include "Yunomi/Core.h"
-
 namespace ynm
 {
 	//Forward declaration to avoid circular dependencies
@@ -16,8 +14,6 @@ namespace ynm
 		static VertexBuffer* Create(Instance* instance, std::vector<Vertex> vertices);
 
 		virtual ~VertexBuffer() {}
-
-		VertexBuffer() {}
 
 		virtual void* getBuffer() const = 0;
 		virtual void* getMemory() const = 0;
