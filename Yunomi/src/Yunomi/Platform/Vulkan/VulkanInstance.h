@@ -38,10 +38,14 @@ namespace ynm
         void createIndexBuffer(VkBuffer *indexBuffer, VkDeviceMemory *indexBufferMemory, std::vector<uint32_t> indices);
         void createUniformBuffers(std::vector<VkBuffer> *uniformBuffers, std::vector<VkDeviceMemory> *uniformBuffersMemory, std::vector<void*> *uniformBuffersMapped);
 
+        void createTexture(std::string filename, VkImage* textureImage, VkDeviceMemory* textureImageMemory, VkImageView* textureImageView, VkSampler* textureSampler);
+
         //Buffer destruction functions
         void destroyVertexBuffer(VkBuffer vertexBuffer, VkDeviceMemory vertexBufferMemory);
         void destroyIndexBuffer(VkBuffer indexBuffer, VkDeviceMemory indexBufferMemory);
         void destroyUniformBuffers(std::vector<VkBuffer> uniformBuffers, std::vector<VkDeviceMemory> uniformBuffersMemory);
+
+        void destroyTexture(VkImage textureImage, VkDeviceMemory textureImageMemory, VkImageView textureImageView, VkSampler textureSampler);
 
 
 
@@ -92,6 +96,10 @@ namespace ynm
         VkPipelineLayout pipelineLayout;
         VkDescriptorSetLayout descriptorSetLayout;
         VkRenderPass renderPass;
+
+        //Descriptors
+        VkDescriptorPool descriptorPool;
+        std::vector<VkDescriptorSet> descriptorSets;
 
         //Command pool/buffers
         VkCommandPool commandPool;
@@ -144,6 +152,9 @@ namespace ynm
         void createRenderPass();
         void createDescriptorSetLayout();
 
+        void createDescriptorPool();
+        //void createDescriptorSets(std::vector<VkBuffer> uniformBuffers, VulkanTexture texture);
+
         //Frame buffer
         void createFramebuffers();
 
@@ -162,6 +173,13 @@ namespace ynm
         //Single time commands
         VkCommandBuffer beginSingleTimeCommands();
         void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+
+        //Texture creation helpers
+        void createTextureSampler(VkSampler* textureSampler);
+        void createTextureImage(std::string filename, VkImage* textureImage, VkDeviceMemory* textureImageMemory);
+        void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+        void copyBufferToImage(VkBuffer* buffer, VkImage* image, uint32_t width, uint32_t height);
+        void transitionImageLayout(VkImage* image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 
         //Helper Methods
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
