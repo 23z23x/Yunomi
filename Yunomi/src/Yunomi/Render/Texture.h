@@ -2,18 +2,20 @@
 
 #include "pch.h"
 
-#include "Yunomi/Core.h"
-
-//Interface to be implemented per API
-
 namespace ynm
 {
-	class YNM_API Texture
+	//Forward declaration to avoid circular dependencies
+	class Instance;
+
+	class YNM_API Texture 
 	{
-		static Texture* Create(const std::string filename);
+	public:
+		static Texture* Create(Instance* instance, std::string filename);
 
-		virtual ~Texture() {}
+		virtual ~Texture() {};
 
-		virtual void* getTexture();
+		virtual std::string getFilename() const = 0;
+
 	};
+
 }
