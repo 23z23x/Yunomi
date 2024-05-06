@@ -2,9 +2,6 @@
 
 #include "pch.h"
 
-#include "Yunomi/Core.h"
-
-
 //Interface to be implemented per API
 
 namespace ynm {
