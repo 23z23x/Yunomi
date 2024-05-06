@@ -4,6 +4,7 @@
 #include "Render/Instance.h"
 #include "Render/Shader.h"
 #include "Render/Buffer.h"
+#include "Render/Texture.h"
 
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"

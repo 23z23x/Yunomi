@@ -41,6 +41,10 @@ namespace ynm {
 		indbuffer->~IndexBuffer();
 		unifBuffer->~UniformBuffer();
 
+		Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/texture.jpg");
+
+		text->~Texture();
+
 		glm::mat4 matrix;
 		glm::vec4 vec;
 		auto test = matrix * vec;
