@@ -13,8 +13,8 @@ namespace ynm
 
 		inline std::string getFilename() const override { return filename; }
 
-		inline VkImageView getImageView() { return textureImageView; }
-		inline VkSampler getImageSampler() { return textureSampler; }
+		inline void* getImageView() const override { return (void*) &textureImageView; }
+		inline void* getTextureSampler() const override { return (void*) &textureSampler; }
 		
 	private:
 		VkImage textureImage;

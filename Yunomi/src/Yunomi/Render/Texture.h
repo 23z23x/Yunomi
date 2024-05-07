@@ -15,6 +15,8 @@ namespace ynm
 		virtual ~Texture() {};
 
 		virtual std::string getFilename() const = 0;
+		virtual void* getImageView() const = 0;
+		virtual void* getTextureSampler() const = 0;
 
 	};
 
