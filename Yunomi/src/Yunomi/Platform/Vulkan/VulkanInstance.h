@@ -1,6 +1,8 @@
 #pragma once
 #include "Yunomi/Render/Instance.h"
 #include "Yunomi/Render/Window.h"
+#include "Yunomi/Render/Buffer.h"
+#include "Yunomi/Render/Texture.h"
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
@@ -26,6 +28,7 @@ struct SwapChainSupportDetails {
 
 namespace ynm
 {
+
     class VulkanInstance : public Instance
     {
     public:
@@ -46,6 +49,9 @@ namespace ynm
         void destroyUniformBuffers(std::vector<VkBuffer> uniformBuffers, std::vector<VkDeviceMemory> uniformBuffersMemory);
 
         void destroyTexture(VkImage textureImage, VkDeviceMemory textureImageMemory, VkImageView textureImageView, VkSampler textureSampler);
+
+        //Descriptor sets
+        void createDescriptorSets(std::vector<VkBuffer>* uniformBuffers, VkImageView* textureImageView, VkSampler* textureSampler);
 
 
 
@@ -153,7 +159,6 @@ namespace ynm
         void createDescriptorSetLayout();
 
         void createDescriptorPool();
-        //void createDescriptorSets(std::vector<VkBuffer> uniformBuffers, VulkanTexture texture);
 
         //Frame buffer
         void createFramebuffers();

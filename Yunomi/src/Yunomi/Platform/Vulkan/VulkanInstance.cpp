@@ -6,10 +6,19 @@
 
 namespace ynm
 {
+    Instance* Instance::instanceref = nullptr;
     //Implementation of Instance methods
     Instance* Instance::Create(Window* m_Window, Shader* vertex, Shader* fragment, const InstanceProps& props)
     {
-        return new VulkanInstance((GLFWwindow*) m_Window->getWindow(), vertex, fragment, props);
+        Instance* instance = new VulkanInstance((GLFWwindow*) m_Window->getWindow(), vertex, fragment, props);
+        instanceref = instance;
+        return instance;
+    }
+
+    void Instance::AddDescriptors(UniformBuffer* ub, Texture* tx)
+    {
+        VulkanInstance* instance = (VulkanInstance*) instanceref;
+        instance->createDescriptorSets((std::vector<VkBuffer>*)ub->getBuffer(), (VkImageView*) tx->getImageView(), (VkSampler*) tx->getTextureSampler());
     }
 
     VulkanInstance::VulkanInstance(GLFWwindow* m_Window, Shader* vert, Shader* frag, const InstanceProps& props)
@@ -808,7 +817,7 @@ namespace ynm
         }
     }
 
-   /* void VulkanInstance::createDescriptorSets(std::vector<VkBuffer> uniformBuffers, VulkanTexture texture) {
+    void VulkanInstance::createDescriptorSets(std::vector<VkBuffer>* uniformBuffers, VkImageView* textureImageView, VkSampler* textureSampler) {
         std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -818,19 +827,22 @@ namespace ynm
 
         descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
         if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
-            throw std::runtime_error("failed to allocate descriptor sets!");
+            YNM_CORE_ERROR("Vulkan: Failed to allocate descriptor sets!");
+            throw std::runtime_error("");
         }
+
+        YNM_CORE_INFO("Vulkan: Successfully allocated descriptor sets!");
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             VkDescriptorBufferInfo bufferInfo{};
-            bufferInfo.buffer = uniformBuffers[i];
+            bufferInfo.buffer = (*uniformBuffers)[i];
             bufferInfo.offset = 0;
             bufferInfo.range = sizeof(UniformBufferObject);
 
             VkDescriptorImageInfo imageInfo{};
             imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = textureImageView;
-            imageInfo.sampler = textureSampler;
+            imageInfo.imageView = *textureImageView;
+            imageInfo.sampler = *textureSampler;
 
             std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
@@ -852,7 +864,7 @@ namespace ynm
 
             vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
         }
-    } */
+    }
 
     //Frame buffer
     void VulkanInstance::createFramebuffers() {

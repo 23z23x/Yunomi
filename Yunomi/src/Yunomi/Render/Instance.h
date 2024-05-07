@@ -12,6 +12,7 @@ namespace ynm
     class VertexBuffer;
     class IndexBuffer;
     class UniformBuffer;
+    class Texture;
 
 
 	struct InstanceProps
@@ -79,6 +80,14 @@ namespace ynm
         //Also, obviously right now Pipeline creation is tied to instance creation. I think I want to force the creation of at least
         //one pipeline at instance creation and then later allow the creation of additional pipelines
 		static Instance* Create(Window* m_Window, Shader* vertex, Shader* fragment, const InstanceProps& props = InstanceProps());
-
+        //Temporary method that sets Vulkan descriptors. As the renderer develops this is certainly not how things will work.
+        //
+        //Plan is to eventually pass this a struct with all of the Uniform Buffers and Textures that will be used. That way additional info
+        //can be passed if needed in the future. 
+        static void AddDescriptors(UniformBuffer* ub, Texture* tx);
+    private:
+        //Sort of a reference to itself. For member methods other than create, they need to invoke their instance's version of the methods
+        //this is done by referencing that instance.
+        static Instance* instanceref;
 	};
 }
