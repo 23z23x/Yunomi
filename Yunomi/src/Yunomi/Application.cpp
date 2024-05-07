@@ -37,13 +37,15 @@ namespace ynm {
 		IndexBuffer* indbuffer = IndexBuffer::Create(m_Instance, indices);
 		UniformBuffer* unifBuffer = UniformBuffer::Create(m_Instance);
 
-		vertBuffer->~VertexBuffer();
-		indbuffer->~IndexBuffer();
-		unifBuffer->~UniformBuffer();
+		//vertBuffer->~VertexBuffer();
+		//indbuffer->~IndexBuffer();
+		//unifBuffer->~UniformBuffer();
 
 		Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/texture.jpg");
 
-		text->~Texture();
+		//text->~Texture();
+
+		m_Instance->AddDescriptors(unifBuffer, text);
 
 		glm::mat4 matrix;
 		glm::vec4 vec;
