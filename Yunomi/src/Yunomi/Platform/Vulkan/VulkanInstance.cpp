@@ -21,6 +21,26 @@ namespace ynm
         instance->createDescriptorSets((std::vector<VkBuffer>*)ub->getBuffer(), (VkImageView*) tx->getImageView(), (VkSampler*) tx->getTextureSampler());
     }
 
+    void Instance::StartDraw(VertexBuffer* vb, IndexBuffer* ib)
+    {
+        VulkanInstance* instance = (VulkanInstance*)instanceref;
+        instance->VulkanStartDraw((VkBuffer*)vb->getBuffer(), vb->getSize(), (VkBuffer*)ib->getBuffer(), ib->getSize());
+    }
+
+    void Instance::UpdateUniform(UniformBuffer* ub)
+    {
+        VulkanInstance* instance = (VulkanInstance*)instanceref;
+        instance->VulkanUpdateUniform((std::vector<void*>*)ub->getMap());
+    }
+
+    void Instance::EndDraw()
+    {
+        VulkanInstance* instance = (VulkanInstance*)instanceref;
+        instance->VulkanEndDraw();
+    }
+
+    //Vulkan Instance implementation
+
     VulkanInstance::VulkanInstance(GLFWwindow* m_Window, Shader* vert, Shader* frag, const InstanceProps& props)
     {
         this->validationLayers = props.vk_ValidationLayers;
@@ -517,6 +537,24 @@ namespace ynm
         vkDestroySwapchainKHR(device, swapChain, nullptr);
     }
 
+    void VulkanInstance::recreateSwapChain() {
+
+        int width = 0, height = 0;
+        glfwGetFramebufferSize(window, &width, &height);
+        while (width == 0 || height == 0) {
+            glfwGetFramebufferSize(window, &width, &height);
+            glfwWaitEvents();
+        }
+
+        vkDeviceWaitIdle(device);
+
+        cleanupSwapChain();
+
+        createSwapChain();
+        createImageViews();
+        createFramebuffers();
+    }
+
     //Image Views
     void VulkanInstance::createImageViews() {
         swapChainImageViews.resize(swapChainImages.size());
@@ -925,6 +963,74 @@ namespace ynm
         YNM_CORE_INFO("Vulkan: Successfully allocated command buffers");
     }
 
+    void VulkanInstance::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VkBuffer* vvb, uint32_t vvbSize, VkBuffer* vib, uint32_t vibSize) {
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = 0; // Optional
+        beginInfo.pInheritanceInfo = nullptr; // Optional
+
+        if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+            YNM_CORE_ERROR("Vulkan: Failed to begin recording command buffer!");
+            throw std::runtime_error("");
+        }
+        YNM_CORE_INFO("Vulkan: Successfully began recording command buffer!");
+
+        VkRenderPassBeginInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = renderPass;
+        renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
+
+        //Render area
+        renderPassInfo.renderArea.offset = { 0, 0 };
+        renderPassInfo.renderArea.extent = swapChainExtent;
+
+        //Background color
+        VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
+        renderPassInfo.clearValueCount = 1;
+        renderPassInfo.pClearValues = &clearColor;
+
+        vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
+        VkBuffer vertexBuffers[] = { *vvb };
+        VkDeviceSize offsets[] = { 0 };
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+        vkCmdBindIndexBuffer(commandBuffer, *vib, 0, VK_INDEX_TYPE_UINT16);
+
+        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(vibSize), 1, 0, 0, 0);
+
+        //Set viewport and scissor now since we made them dynamic
+        VkViewport viewport{};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = static_cast<float>(swapChainExtent.width);
+        viewport.height = static_cast<float>(swapChainExtent.height);
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+        VkRect2D scissor{};
+        scissor.offset = { 0, 0 };
+        scissor.extent = swapChainExtent;
+        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(vibSize), 1, 0, 0, 0);
+
+        //THE DRAW COMMAND
+        vkCmdDraw(commandBuffer, static_cast<uint32_t>(vvbSize), 1, 0, 0);
+
+        vkCmdEndRenderPass(commandBuffer);
+
+        if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+            YNM_CORE_ERROR("Vulkan: Failed to record command buffer!");
+            throw std::runtime_error("");
+        }
+        YNM_CORE_INFO("Vulkan: Successfully recorded to command buffer!");
+    }
+
     void VulkanInstance::createSyncObjects() {
         imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
         renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -1026,7 +1132,7 @@ namespace ynm
         YNM_CORE_INFO("Vulkan: Vertex buffer created!");
     }
 
-    void VulkanInstance::createIndexBuffer(VkBuffer* indexBuffer, VkDeviceMemory* indexBufferMemory, std::vector<uint32_t> indices) {
+    void VulkanInstance::createIndexBuffer(VkBuffer* indexBuffer, VkDeviceMemory* indexBufferMemory, std::vector<uint16_t> indices) {
         VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
         VkBuffer stagingBuffer;
@@ -1339,6 +1445,122 @@ namespace ynm
         );
 
         endSingleTimeCommands(commandBuffer);
+    }
+
+    //DRAW COMMANDS
+    void VulkanInstance::VulkanStartDraw(VkBuffer* vvb, uint32_t vvbSize, VkBuffer* vib, uint32_t vibSize)
+    {
+        //Fence which stops if CPU is ahead of GPU
+        vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+
+        result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
+            framebufferResized = false;
+            recreateSwapChain();
+            return;
+        }
+        else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+            YNM_CORE_ERROR("Vulkan: Failed to acquire swap chain image!");
+            throw std::runtime_error("");
+        }
+
+        YNM_CORE_INFO("Vulkan: Successfully acquired swap chain image!");
+
+        // Only reset the fence if we are submitting work
+        vkResetFences(device, 1, &inFlightFences[currentFrame]);
+
+        //Get an image from the swap chain
+        vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+        //Reset, then start recording to the command buffer
+        vkResetCommandBuffer(commandBuffers[currentFrame], 0);
+        recordCommandBuffer(commandBuffers[currentFrame], imageIndex, vvb, vvbSize, vib, vibSize);
+    }
+
+    void VulkanInstance::VulkanUpdateUniform(std::vector<void*>* uniformBuffersMapped)
+    {
+        static auto startTime = std::chrono::high_resolution_clock::now();
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+        UniformBufferObject ubo{};
+        ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
+
+        //We do this because y is inverted in glm
+        ubo.proj[1][1] *= -1;
+
+        memcpy((*uniformBuffersMapped)[currentFrame], &ubo, sizeof(ubo));
+    }
+
+    void VulkanInstance::VulkanEndDraw()
+    {
+        //Info for the buffer
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+        VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
+        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = waitSemaphores;
+        submitInfo.pWaitDstStageMask = waitStages;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
+
+        VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = signalSemaphores;
+
+        //Submit the draw operation to the graphics queue
+        if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
+            YNM_CORE_ERROR("Vulkan: Failed to submit draw command buffer!");
+            throw std::runtime_error("");
+        }
+
+        YNM_CORE_INFO("Vulkan: Successfully submitted draw command buffer!");
+
+        //Set up the subpasses to wait at the right place
+        VkSubpassDependency dependency{};
+        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+        dependency.dstSubpass = 0;
+        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependency.srcAccessMask = 0;
+        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+        //Info for presentation
+        VkPresentInfoKHR presentInfo{};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+        presentInfo.waitSemaphoreCount = 1;
+        presentInfo.pWaitSemaphores = signalSemaphores;
+
+        VkSwapchainKHR swapChains[] = { swapChain };
+        presentInfo.swapchainCount = 1;
+        presentInfo.pSwapchains = swapChains;
+        presentInfo.pImageIndices = &imageIndex;
+
+        presentInfo.pResults = nullptr; // Optional
+
+        //Submit the operation to the present queue
+        result = vkQueuePresentKHR(presentQueue, &presentInfo);
+
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+            recreateSwapChain();
+        }
+        else if (result != VK_SUCCESS) {
+            YNM_CORE_ERROR("Vulkan: Failed to present swap chain image!");
+            throw std::runtime_error("");
+        }
+
+        YNM_CORE_INFO("Vulkan: Successfully presented swap chain image!");
+
+        currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+        currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
 
     //Helper Methods

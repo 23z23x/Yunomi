@@ -2,7 +2,9 @@
 #include "pch.h"
 #include "Window.h"
 #include "Shader.h"
-#include "glm/glm.hpp"
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 //Vritual interface class
 
@@ -85,6 +87,17 @@ namespace ynm
         //Plan is to eventually pass this a struct with all of the Uniform Buffers and Textures that will be used. That way additional info
         //can be passed if needed in the future. 
         static void AddDescriptors(UniformBuffer* ub, Texture* tx);
+
+        //Finally, the methods that actually get the instance to do something.
+
+        //Method that starts recording of commands to be drawn
+        static void StartDraw(VertexBuffer* vb, IndexBuffer* ib);
+
+        //Method that updates a Uniform Buffer (For now it does a predetermined transformation, later it will be abstracted to do different ones.)
+        static void UpdateUniform(UniformBuffer* ub);
+        
+        //Method that ends recording of commands to be drawn
+        static void EndDraw();
     private:
         //Sort of a reference to itself. For member methods other than create, they need to invoke their instance's version of the methods
         //this is done by referencing that instance.

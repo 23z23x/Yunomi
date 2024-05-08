@@ -38,7 +38,7 @@ namespace ynm
 
         //Buffer creation functions
         void createVertexBuffer(VkBuffer *vertexBuffer, VkDeviceMemory *vertexBufferMemory, std::vector<Vertex> vertices);
-        void createIndexBuffer(VkBuffer *indexBuffer, VkDeviceMemory *indexBufferMemory, std::vector<uint32_t> indices);
+        void createIndexBuffer(VkBuffer *indexBuffer, VkDeviceMemory *indexBufferMemory, std::vector<uint16_t> indices);
         void createUniformBuffers(std::vector<VkBuffer> *uniformBuffers, std::vector<VkDeviceMemory> *uniformBuffersMemory, std::vector<void*> *uniformBuffersMapped);
 
         void createTexture(std::string filename, VkImage* textureImage, VkDeviceMemory* textureImageMemory, VkImageView* textureImageView, VkSampler* textureSampler);
@@ -53,7 +53,10 @@ namespace ynm
         //Descriptor sets
         void createDescriptorSets(std::vector<VkBuffer>* uniformBuffers, VkImageView* textureImageView, VkSampler* textureSampler);
 
-
+        //Drawing
+        void VulkanStartDraw(VkBuffer* vvb, uint32_t vvbSize, VkBuffer* vib, uint32_t vibSize);
+        void VulkanUpdateUniform(std::vector<void*>* uniformBuffersMapped);
+        void VulkanEndDraw();
 
     private:
         //Frames in flight
@@ -118,6 +121,10 @@ namespace ynm
         uint32_t currentFrame = 0;
         bool framebufferResized = false;
 
+        //Variables shared between the start draw and stop draw methods
+        uint32_t imageIndex = 0;
+        VkResult result;
+
 
         //Class Methods
         bool checkValidationLayerSupport();
@@ -148,6 +155,7 @@ namespace ynm
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
         void cleanupSwapChain();
+        void recreateSwapChain();
 
         //Image Views
         void createImageViews();
@@ -166,6 +174,7 @@ namespace ynm
         //Command pool/buffer
         void createCommandPool();
         void createCommandBuffers();
+        void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VkBuffer* vvb, uint32_t vvbSize, VkBuffer* vib, uint32_t vibSize);
 
         //Asynch Primatives
         void createSyncObjects();
