@@ -24,7 +24,7 @@ namespace ynm
 	class YNM_API IndexBuffer
 	{
 	public:
-		static IndexBuffer* Create(Instance* instance, std::vector<uint32_t> indices);
+		static IndexBuffer* Create(Instance* instance, std::vector<uint16_t> indices);
 
 		virtual ~IndexBuffer() {}
 

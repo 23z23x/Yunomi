@@ -9,7 +9,7 @@ namespace ynm
 		return new VulkanVertexBuffer((VulkanInstance*) instance, vertices);
 	}
 
-	IndexBuffer* IndexBuffer::Create(Instance* instance, std::vector<uint32_t> indices)
+	IndexBuffer* IndexBuffer::Create(Instance* instance, std::vector<uint16_t> indices)
 	{
 		return new VulkanIndexBuffer((VulkanInstance*) instance, indices);
 	}
@@ -31,7 +31,7 @@ namespace ynm
 		this->instance->destroyVertexBuffer(this->vertexBuffer, this->vertexBufferMemory);
 	}
 
-	VulkanIndexBuffer::VulkanIndexBuffer(VulkanInstance* vkinstance, std::vector<uint32_t> indices)
+	VulkanIndexBuffer::VulkanIndexBuffer(VulkanInstance* vkinstance, std::vector<uint16_t> indices)
 	{
 		vkinstance->createIndexBuffer(&(this->indexBuffer), &(this->indexBufferMemory), indices);
 		this->instance = vkinstance;
