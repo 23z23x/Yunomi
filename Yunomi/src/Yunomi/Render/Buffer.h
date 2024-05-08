@@ -17,7 +17,7 @@ namespace ynm
 
 		virtual void* getBuffer() const = 0;
 		virtual void* getMemory() const = 0;
-
+		virtual uint32_t getSize() const = 0;
 
 	};
 
@@ -30,6 +30,7 @@ namespace ynm
 
 		virtual void* getBuffer() const = 0;
 		virtual void* getMemory() const = 0;
+		virtual uint32_t getSize() const = 0;
 	};
 
 	class YNM_API UniformBuffer

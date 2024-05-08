@@ -13,9 +13,12 @@ namespace ynm
 
 		inline void* getBuffer() const override { return (void*) &vertexBuffer; }
 		inline void* getMemory() const override { return (void*)&vertexBufferMemory; }
+		inline uint32_t getSize() const override { return verticesSize; }
 	private:
 		VkBuffer vertexBuffer;
 		VkDeviceMemory vertexBufferMemory;
+
+		uint32_t verticesSize;
 
 		VulkanInstance* instance;
 
@@ -24,14 +27,17 @@ namespace ynm
 	class VulkanIndexBuffer : public IndexBuffer
 	{
 	public:
-		VulkanIndexBuffer(VulkanInstance* instance, std::vector<uint32_t> vertices);
+		VulkanIndexBuffer(VulkanInstance* instance, std::vector<uint32_t> indices);
 		~VulkanIndexBuffer();
 
 		inline void* getBuffer() const override { return (void*)&indexBuffer; }
 		inline void* getMemory() const override { return (void*)&indexBufferMemory; }
+		inline uint32_t getSize() const override { return indicesSize; }
 	private:
 		VkBuffer indexBuffer;
 		VkDeviceMemory indexBufferMemory;
+
+		uint32_t indicesSize;
 
 		VulkanInstance* instance;
 	};

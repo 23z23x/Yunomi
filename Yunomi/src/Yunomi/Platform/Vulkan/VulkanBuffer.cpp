@@ -23,6 +23,7 @@ namespace ynm
 	{
 		vkinstance->createVertexBuffer(&(this->vertexBuffer), &(this->vertexBufferMemory), vertices);
 		this->instance = vkinstance;
+		this->verticesSize = vertices.size();
 	}
 
 	VulkanVertexBuffer::~VulkanVertexBuffer()
@@ -34,6 +35,7 @@ namespace ynm
 	{
 		vkinstance->createIndexBuffer(&(this->indexBuffer), &(this->indexBufferMemory), indices);
 		this->instance = vkinstance;
+		this->indicesSize = indices.size();
 	}
 
 	VulkanIndexBuffer::~VulkanIndexBuffer()
