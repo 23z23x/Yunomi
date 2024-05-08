@@ -20,7 +20,7 @@ namespace ynm {
 		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
 	};
 
-	const std::vector<uint32_t> indices = {
+	const std::vector<uint16_t> indices = {
 	0, 1, 2, 2, 3, 0
 	};
 
@@ -33,25 +33,6 @@ namespace ynm {
 		m_Window = Window::Create();
 		m_Instance = Instance::Create(m_Window, vertShader, fragShader);
 
-		VertexBuffer* vertBuffer = VertexBuffer::Create(m_Instance, vertices);
-		IndexBuffer* indbuffer = IndexBuffer::Create(m_Instance, indices);
-		UniformBuffer* unifBuffer = UniformBuffer::Create(m_Instance);
-
-		//vertBuffer->~VertexBuffer();
-		//indbuffer->~IndexBuffer();
-		//unifBuffer->~UniformBuffer();
-
-		Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/texture.jpg");
-
-		//text->~Texture();
-
-		m_Instance->AddDescriptors(unifBuffer, text);
-
-		glm::mat4 matrix;
-		glm::vec4 vec;
-		auto test = matrix * vec;
-
-		m_Instance->~Instance();
 
 	}
 
@@ -62,9 +43,20 @@ namespace ynm {
 
 	void Application::Run() 
 	{
+		VertexBuffer* vertBuffer = VertexBuffer::Create(m_Instance, vertices);
+		IndexBuffer* indbuffer = IndexBuffer::Create(m_Instance, indices);
+		UniformBuffer* unifBuffer = UniformBuffer::Create(m_Instance);
+
+		Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/texture.jpg");
+
+		m_Instance->AddDescriptors(unifBuffer, text);
+
 		while (!m_Window->ShouldClose())
 		{
 			m_Window->OnUpdate();
+			m_Instance->StartDraw(vertBuffer, indbuffer);
+			m_Instance->UpdateUniform(unifBuffer);
+			m_Instance->EndDraw();
 
 		}
 		m_Window->~Window();
