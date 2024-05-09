@@ -24,3 +24,6 @@
 #include "Yunomi/Log.h"
 #include "Yunomi/Core.h"
 #include "Yunomi/Utility/Utility.h"
+
+//Engine global variables
+extern bool resizeFramebuffer;
