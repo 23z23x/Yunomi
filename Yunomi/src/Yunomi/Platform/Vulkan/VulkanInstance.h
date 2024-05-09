@@ -119,7 +119,6 @@ namespace ynm
         std::vector<VkSemaphore> renderFinishedSemaphores;
         std::vector<VkFence> inFlightFences;
         uint32_t currentFrame = 0;
-        bool framebufferResized = false;
 
         //Variables shared between the start draw and stop draw methods
         uint32_t imageIndex = 0;

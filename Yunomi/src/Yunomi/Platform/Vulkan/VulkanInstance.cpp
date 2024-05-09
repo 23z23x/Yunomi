@@ -10,6 +10,8 @@ namespace ynm
     //Implementation of Instance methods
     Instance* Instance::Create(Window* m_Window, Shader* vertex, Shader* fragment, const InstanceProps& props)
     {
+        
+
         Instance* instance = new VulkanInstance((GLFWwindow*) m_Window->getWindow(), vertex, fragment, props);
         instanceref = instance;
         return instance;
@@ -973,7 +975,7 @@ namespace ynm
             YNM_CORE_ERROR("Vulkan: Failed to begin recording command buffer!");
             throw std::runtime_error("");
         }
-        YNM_CORE_INFO("Vulkan: Successfully began recording command buffer!");
+        //YNM_CORE_INFO("Vulkan: Successfully began recording command buffer!");
 
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -1028,7 +1030,7 @@ namespace ynm
             YNM_CORE_ERROR("Vulkan: Failed to record command buffer!");
             throw std::runtime_error("");
         }
-        YNM_CORE_INFO("Vulkan: Successfully recorded to command buffer!");
+        //YNM_CORE_INFO("Vulkan: Successfully recorded to command buffer!");
     }
 
     void VulkanInstance::createSyncObjects() {
@@ -1455,17 +1457,16 @@ namespace ynm
 
         result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
-            framebufferResized = false;
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || resizeFramebuffer) {
+            resizeFramebuffer = false;
             recreateSwapChain();
-            return;
         }
         else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
             YNM_CORE_ERROR("Vulkan: Failed to acquire swap chain image!");
             throw std::runtime_error("");
         }
 
-        YNM_CORE_INFO("Vulkan: Successfully acquired swap chain image!");
+        //YNM_CORE_INFO("Vulkan: Successfully acquired swap chain image!");
 
         // Only reset the fence if we are submitting work
         vkResetFences(device, 1, &inFlightFences[currentFrame]);
@@ -1520,7 +1521,7 @@ namespace ynm
             throw std::runtime_error("");
         }
 
-        YNM_CORE_INFO("Vulkan: Successfully submitted draw command buffer!");
+        //YNM_CORE_INFO("Vulkan: Successfully submitted draw command buffer!");
 
         //Set up the subpasses to wait at the right place
         VkSubpassDependency dependency{};
@@ -1556,7 +1557,7 @@ namespace ynm
             throw std::runtime_error("");
         }
 
-        YNM_CORE_INFO("Vulkan: Successfully presented swap chain image!");
+        //YNM_CORE_INFO("Vulkan: Successfully presented swap chain image!");
 
         currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 

@@ -18,6 +18,7 @@ namespace ynm {
 
 		void Run();
 	private:
+		bool moved;
 		Window* m_Window;
 		Instance* m_Instance;
 

@@ -1,5 +1,8 @@
 #include "pch.h"
 
+//Also later, look into VulkanMemoryAllocator library by GPUOpen initiative
+//And RAII
+
 #include "Application.h"
 #include "Log.h"
 
@@ -11,6 +14,7 @@
 #include <iostream>
 
 namespace ynm {
+
 
 	//Position, Color, Texture mapping for corner
 	const std::vector<Vertex> vertices = {

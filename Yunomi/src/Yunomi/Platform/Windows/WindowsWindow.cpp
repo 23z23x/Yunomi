@@ -33,6 +33,7 @@ namespace ynm
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(m_Window);
 		glfwSetWindowUserPointer(m_Window, &m_Data);
+		glfwSetFramebufferSizeCallback(m_Window, Window::ResizeCallback);
 		SetVSync(true);
 	}
 
@@ -73,5 +74,12 @@ namespace ynm
 	bool WindowsWindow::ShouldClose() const
 	{
 		return glfwWindowShouldClose(m_Window);
+	}
+
+	void Window::ResizeCallback(GLFWwindow* window, int width, int height)
+	{
+		auto app = reinterpret_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
+		resizeFramebuffer = true;
+		YNM_CORE_INFO("GLFW: ResizeCallback called");
 	}
 }

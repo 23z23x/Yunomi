@@ -38,6 +38,7 @@ namespace ynm {
 		virtual void SetVSync(bool enabled) = 0;
 		virtual bool IsVSync() const = 0;
 		virtual bool ShouldClose() const = 0;
+		static void ResizeCallback(GLFWwindow* window, int width, int height);
 
 		static Window* Create(const WindowProps& props = WindowProps());
 	};
