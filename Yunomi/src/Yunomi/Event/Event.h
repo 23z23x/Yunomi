@@ -27,7 +27,7 @@ namespace ynm
 								virtual EventType GetEventType() const override { return GetStaticType(); }\
 								virtual const char* GetName() const override { return #type; }
 
-#define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
+#define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlag() const override { return category; }
 
 	//Event class
 	class YNM_API Event
@@ -35,7 +35,7 @@ namespace ynm
 		//Allows EventDispatcher to see private and protected members of the class
 		friend class EventDispatcher;
 	public:
-		virtual EventType getEventType() const = 0;
+		virtual EventType GetEventType() const = 0;
 		virtual const char* GetName() const = 0;
 		virtual int GetCategoryFlag() const = 0;
 		virtual std::string ToString() const { return GetName(); }
