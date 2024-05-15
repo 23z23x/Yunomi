@@ -19,7 +19,8 @@ namespace ynm
 		Input = 1 << 0,
 		Keyboard = 1 << 1,
 		Mouse = 1 << 2,
-		MouseButton = 1 << 3
+		MouseButton = 1 << 3,
+		Application = 1 << 4
 	};
 
 	//Macro to implement these without having to retype them every time
