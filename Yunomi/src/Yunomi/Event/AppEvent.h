@@ -21,7 +21,7 @@ namespace ynm
 		}
 
 		EVENT_CLASS_TYPE(WinResize)
-		EVENT_CLASS_CATEGORY(Application)
+		EVENT_CLASS_CATEGORY(App)
 	private:
 		unsigned int m_Width, m_Height;
 	};
@@ -32,6 +32,6 @@ namespace ynm
 		WindowCloseEvent() {}
 
 		EVENT_CLASS_TYPE(WinClose)
-		EVENT_CLASS_CATEGORY(Application)
+		EVENT_CLASS_CATEGORY(App)
 	};
 }
