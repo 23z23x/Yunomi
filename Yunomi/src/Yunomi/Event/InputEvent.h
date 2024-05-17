@@ -60,11 +60,11 @@ namespace ynm
 	class YNM_API MouseMovedEvent : public Event
 	{
 	public:
-		MouseMovedEvent(float x, float y)
+		MouseMovedEvent(double x, double y)
 			: m_MouseX(x), m_MouseY(y) {}
 
-		inline float GetX() const { return m_MouseX; }
-		inline float GetY() const { return m_MouseY; }
+		inline double GetX() const { return m_MouseX; }
+		inline double GetY() const { return m_MouseY; }
 
 		std::string ToString() const override
 		{
@@ -76,16 +76,17 @@ namespace ynm
 		EVENT_CLASS_TYPE(MouseMove)
 		EVENT_CLASS_CATEGORY(Mouse | Input)
 	private:
-		float m_MouseX, m_MouseY;
+		double m_MouseX, m_MouseY;
 	};
 
 	class YNM_API MouseScrolledEvent : public Event
 	{
-		MouseScrolledEvent(float xOffset, float yOffset)
+	public:
+		MouseScrolledEvent(double xOffset, double yOffset)
 			: m_XOffset(xOffset), m_YOffset(yOffset) {}
 
-		inline float GetXOffset() const { return m_XOffset; }
-		inline float GetYOffset() const { return m_YOffset; }
+		inline double GetXOffset() const { return m_XOffset; }
+		inline double GetYOffset() const { return m_YOffset; }
 
 		std::string ToString() const override
 		{
@@ -97,7 +98,7 @@ namespace ynm
 		EVENT_CLASS_TYPE(MouseScroll)
 		EVENT_CLASS_CATEGORY(Mouse | Input)
 	private:
-		float m_XOffset, m_YOffset;
+		double m_XOffset, m_YOffset;
 	};
 
 	class YNM_API MouseButtonEvent : public Event
