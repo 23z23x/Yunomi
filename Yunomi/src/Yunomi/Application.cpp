@@ -15,6 +15,9 @@
 
 namespace ynm {
 
+	//Defines
+	//std::bind is like passing a function, except you can use placeholders to automatically fill in certain parameters
+	#define BIND_EVENT_FN(X) std::bind(&X, this, std::placeholders::_1)
 
 	//Position, Color, Texture mapping for corner
 	const std::vector<Vertex> vertices = {
@@ -35,6 +38,7 @@ namespace ynm {
 		Shader* fragShader = Shader::Create("C:/repos/Yunomi/Yunomi/src/Yunomi/Shaders/shader.frag", ShaderType::FRAG);
 
 		m_Window = Window::Create();
+		m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 		m_Instance = Instance::Create(m_Window, vertShader, fragShader);
 
 
@@ -55,7 +59,7 @@ namespace ynm {
 
 		m_Instance->AddDescriptors(unifBuffer, text);
 
-		while (!m_Window->ShouldClose())
+		while (mainLoop)
 		{
 			m_Window->OnUpdate();
 			m_Instance->StartDraw(vertBuffer, indbuffer);
@@ -64,6 +68,21 @@ namespace ynm {
 
 		}
 		m_Window->~Window();
+	}
+
+	void Application::OnEvent(Event& e)
+	{
+		YNM_CORE_INFO("{0}", e);
+
+		switch (e.GetEventType())
+		{
+		case EventType::WinResize:
+			//Eventually this will just call a Renderer method to handle resizing
+			resizeFramebuffer = true;
+			break;
+		case EventType::WinClose:
+			mainLoop = false;
+		}
 	}
 
 }

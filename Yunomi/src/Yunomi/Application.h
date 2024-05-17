@@ -17,10 +17,13 @@ namespace ynm {
 		virtual ~Application();
 
 		void Run();
+
+		void OnEvent(Event& e);
 	private:
 		bool moved;
 		Window* m_Window;
 		Instance* m_Instance;
+		bool mainLoop = true;
 
 	};
 
