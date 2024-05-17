@@ -18,7 +18,6 @@ namespace ynm {
 		inline void SetEventCallback(const EventCallbackFunc& callback) override { m_Data.EventCallback = callback; }
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
-		bool ShouldClose() const override;
 	private:
 
 		GLFWwindow* m_Window;
