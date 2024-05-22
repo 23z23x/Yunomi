@@ -124,6 +124,11 @@ namespace ynm
         uint32_t imageIndex = 0;
         VkResult result;
 
+        //Depth buffering
+        VkImage depthImage;
+        VkDeviceMemory depthImageMemory;
+        VkImageView depthImageView;
+
 
         //Class Methods
         bool checkValidationLayerSupport();
@@ -194,10 +199,16 @@ namespace ynm
         void copyBufferToImage(VkBuffer* buffer, VkImage* image, uint32_t width, uint32_t height);
         void transitionImageLayout(VkImage* image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 
+        //Depth buffering creation
+        void createDepthResources();
+        VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+        VkFormat findDepthFormat();
+        bool hasStencilComponent(VkFormat format);
+
         //Helper Methods
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
         SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
-        VkImageView createImageView(VkImage image, VkFormat format);
+        VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
     };
 
 }
