@@ -83,8 +83,7 @@ namespace ynm {
 		switch (e.GetEventType())
 		{
 		case EventType::WinResize:
-			//Eventually this will just call a Renderer method to handle resizing
-			resizeFramebuffer = true;
+			m_Instance->FrameResize();
 			break;
 		case EventType::WinClose:
 			mainLoop = false;
