@@ -159,8 +159,9 @@ namespace ynm
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
         void cleanupSwapChain();
-        void recreateSwapChain();
+        public: void recreateSwapChain();
 
+     private:
         //Image Views
         void createImageViews();
 

@@ -23,6 +23,12 @@ namespace ynm
         instance->createDescriptorSets((std::vector<VkBuffer>*)ub->getBuffer(), (VkImageView*) tx->getImageView(), (VkSampler*) tx->getTextureSampler());
     }
 
+    void Instance::FrameResize()
+    {
+        VulkanInstance* instance = (VulkanInstance*)instanceref;
+        instance->recreateSwapChain();
+    }
+
     void Instance::StartDraw(VertexBuffer* vb, IndexBuffer* ib)
     {
         VulkanInstance* instance = (VulkanInstance*)instanceref;

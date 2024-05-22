@@ -88,6 +88,9 @@ namespace ynm
         //can be passed if needed in the future. 
         static void AddDescriptors(UniformBuffer* ub, Texture* tx);
 
+        //This method is used when the window changes size, in Vulkan it changes the swap chain.
+        static void FrameResize();
+
         //Finally, the methods that actually get the instance to do something.
 
         //Method that starts recording of commands to be drawn
