@@ -5,7 +5,6 @@
 #include "Yunomi/Render/Texture.h"
 
 //Allows GLFW to include Vulkan for us
-#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 #ifdef NDEBUG
