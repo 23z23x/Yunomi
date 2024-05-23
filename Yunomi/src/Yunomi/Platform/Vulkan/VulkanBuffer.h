@@ -27,7 +27,7 @@ namespace ynm
 	class VulkanIndexBuffer : public IndexBuffer
 	{
 	public:
-		VulkanIndexBuffer(VulkanInstance* instance, std::vector<uint16_t> indices);
+		VulkanIndexBuffer(VulkanInstance* instance, std::vector<uint32_t> indices);
 		~VulkanIndexBuffer();
 
 		inline void* getBuffer() const override { return (void*)&indexBuffer; }

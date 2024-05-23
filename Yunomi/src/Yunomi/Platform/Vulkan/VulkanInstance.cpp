@@ -1013,7 +1013,7 @@ namespace ynm
         VkDeviceSize offsets[] = { 0 };
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
-        vkCmdBindIndexBuffer(commandBuffer, *vib, 0, VK_INDEX_TYPE_UINT16);
+        vkCmdBindIndexBuffer(commandBuffer, *vib, 0, VK_INDEX_TYPE_UINT32);
 
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
@@ -1129,7 +1129,7 @@ namespace ynm
         YNM_CORE_INFO("Vulkan: Vertex buffer created!");
     }
 
-    void VulkanInstance::createIndexBuffer(VkBuffer* indexBuffer, VkDeviceMemory* indexBufferMemory, std::vector<uint16_t> indices) {
+    void VulkanInstance::createIndexBuffer(VkBuffer* indexBuffer, VkDeviceMemory* indexBufferMemory, std::vector<uint32_t> indices) {
         VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
         VkBuffer stagingBuffer;
@@ -1543,8 +1543,6 @@ namespace ynm
         }
 
         //YNM_CORE_INFO("Vulkan: Successfully presented swap chain image!");
-
-        currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 
         currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }

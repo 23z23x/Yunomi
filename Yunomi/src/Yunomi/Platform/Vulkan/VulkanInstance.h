@@ -41,7 +41,7 @@ namespace ynm
 
         //Buffer creation functions
         void createVertexBuffer(VkBuffer *vertexBuffer, VkDeviceMemory *vertexBufferMemory, std::vector<Vertex> vertices);
-        void createIndexBuffer(VkBuffer *indexBuffer, VkDeviceMemory *indexBufferMemory, std::vector<uint16_t> indices);
+        void createIndexBuffer(VkBuffer *indexBuffer, VkDeviceMemory *indexBufferMemory, std::vector<uint32_t> indices);
         void createUniformBuffers(std::vector<VkBuffer> *uniformBuffers, std::vector<VkDeviceMemory> *uniformBuffersMemory, std::vector<void*> *uniformBuffersMapped);
 
         void createTexture(std::string filename, VkImage* textureImage, VkDeviceMemory* textureImageMemory, VkImageView* textureImageView, VkSampler* textureSampler);
