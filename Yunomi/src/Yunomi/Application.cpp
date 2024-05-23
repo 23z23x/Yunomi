@@ -6,11 +6,6 @@
 #include "Application.h"
 #include "Log.h"
 
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/vec4.hpp>
-#include <glm/mat4x4.hpp>
-
 #include <iostream>
 
 namespace ynm {
@@ -18,24 +13,6 @@ namespace ynm {
 	//Defines
 	//std::bind is like passing a function, except you can use placeholders to automatically fill in certain parameters
 	#define BIND_EVENT_FN(X) std::bind(&X, this, std::placeholders::_1)
-
-	//Position, Color, Texture mapping for corner
-	const std::vector<Vertex> vertices = {
-		{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-		{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-		{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-		{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-
-		{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-		{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-		{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-		{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
-	};
-
-	const std::vector<uint16_t> indices = {
-	0, 1, 2, 2, 3, 0,
-	4, 5, 6, 6, 7, 4
-	};
 
 	
 	Application::Application() 
@@ -57,11 +34,14 @@ namespace ynm {
 
 	void Application::Run() 
 	{
-		VertexBuffer* vertBuffer = VertexBuffer::Create(m_Instance, vertices);
-		IndexBuffer* indbuffer = IndexBuffer::Create(m_Instance, indices);
-		UniformBuffer* unifBuffer = UniformBuffer::Create(m_Instance);
-
+		//Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.png");
+		//Mesh mesh = Mesh("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.obj");
 		Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/texture.jpg");
+		Quad mesh = Quad(-0.5f, 0.5f, 0.5f, -0.5f, 0.0f);
+
+		VertexBuffer* vertBuffer = VertexBuffer::Create(m_Instance, mesh.getVertices());
+		IndexBuffer* indbuffer = IndexBuffer::Create(m_Instance, mesh.getIndices());
+		UniformBuffer* unifBuffer = UniformBuffer::Create(m_Instance);
 
 		m_Instance->AddDescriptors(unifBuffer, text);
 

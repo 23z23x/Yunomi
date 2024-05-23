@@ -5,6 +5,7 @@
 #include "Render/Shader.h"
 #include "Render/Buffer.h"
 #include "Render/Texture.h"
+#include "Render/Geometry.h"
 
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
