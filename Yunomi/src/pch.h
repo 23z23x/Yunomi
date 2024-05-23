@@ -15,10 +15,6 @@
 #include <set>
 #include <optional>
 
-//Allows GLFW to include Vulkan for us
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
 //Local files that shouldn't change (often) and are widely used
 
 #include "Yunomi/Log.h"

@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "Yunomi/Render/Window.h"
+#include <GLFW/glfw3.h>
 
 namespace ynm {
 	class WindowsWindow : public Window

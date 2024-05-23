@@ -1,6 +1,7 @@
 #pragma once
 #include "Yunomi/Render/Shader.h"
 #include "shaderc/shaderc.hpp"
+#include <vulkan/vulkan_core.h>
 
 namespace ynm
 {
