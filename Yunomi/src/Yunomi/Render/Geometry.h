@@ -63,36 +63,35 @@ namespace std {
 
 namespace ynm
 {
+	//Class all geometry should inherit from
+	class Geometry
+	{
+	public:
+		inline std::vector<Vertex> getVertices() const { return vertices; }
+		inline std::vector<uint32_t> getIndices() const { return indices; }
+
+	protected:
+		std::vector<Vertex> vertices;
+		std::vector<uint32_t> indices;
+	};
+
+
 	//Class for objects of arbitrary shape
-	class Mesh
+	class Mesh : public Geometry
 	{
 	public:
 		Mesh(std::string filename);
 
 		~Mesh();
-
-		std::vector<Vertex> getVertices();
-		std::vector<uint32_t> getIndices();
-	private:
-		std::vector<Vertex> vertices;
-		std::vector<uint32_t> indices;
 	};
 
 	//Class for quadrangles. Indicies should always be the same. Vertices may change based on side length
-	class Quad
+	class Quad : public Geometry
 	{
 	public:
 		Quad(float x1, float x2, float y1, float y2, float depth);
 
 		~Quad();
-			
-		std::vector<Vertex> getVertices();
-		std::vector<uint32_t> getIndices();
-	private:
-		std::vector<Vertex> vertices;
-		const std::vector<uint32_t> indices = {
-			0, 1, 2, 2, 3, 0,
-		};
 	};
 
 }

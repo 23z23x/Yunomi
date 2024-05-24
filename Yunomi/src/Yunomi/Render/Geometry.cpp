@@ -52,22 +52,16 @@ namespace ynm
 
     Mesh::~Mesh() {}
 
-	std::vector<Vertex> Mesh::getVertices()
-	{
-		return vertices;
-	}
-
-	std::vector<uint32_t> Mesh::getIndices()
-	{
-		return indices;
-	}
-
     Quad::Quad(float x1, float x2, float y1, float y2, float depth)
     {
         if (x2 <= x1 || y1 <= y2)
         {
             YNM_CORE_ERROR("Renderer: A Quad object has been defined with invalid coordinates!");
         }
+
+        indices = {
+            0, 1, 2, 2, 3, 0,
+        };
 
         vertices = {
         {{x1, y1, depth}, {1.0f, 0.0f}},
@@ -79,13 +73,4 @@ namespace ynm
 
     Quad::~Quad() {}
 
-    std::vector<Vertex> Quad::getVertices()
-    {
-        return vertices;
-    }
-
-    std::vector<uint32_t> Quad::getIndices()
-    {
-        return indices;
-    }
 }
