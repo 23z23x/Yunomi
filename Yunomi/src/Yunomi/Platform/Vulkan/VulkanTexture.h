@@ -17,6 +17,7 @@ namespace ynm
 		inline void* getTextureSampler() const override { return (void*) &textureSampler; }
 		
 	private:
+		uint32_t mipLevels;
 		VkImage textureImage;
 		VkDeviceMemory textureImageMemory;
 

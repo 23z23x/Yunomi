@@ -12,7 +12,7 @@ namespace ynm
 	{
 		this->instance = instance;
 		this->filename = filename;
-		instance->createTexture(filename, &(this->textureImage), &(this->textureImageMemory), &(this->textureImageView), &(this->textureSampler));
+		instance->createTexture(filename, &(this->textureImage), &(this->textureImageMemory), &(this->textureImageView), &(this->textureSampler), &(this->mipLevels));
 	}
 
 	VulkanTexture::~VulkanTexture()
