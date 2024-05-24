@@ -34,10 +34,10 @@ namespace ynm {
 
 	void Application::Run() 
 	{
-		//Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.png");
-		//Mesh mesh = Mesh("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.obj");
-		Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/texture.jpg");
-		Quad mesh = Quad(-0.5f, 0.5f, 0.5f, -0.5f, 0.0f);
+		Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.png");
+		Mesh mesh = Mesh("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.obj");
+		//Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/fish.png");
+		//Quad mesh = Quad(-0.5f, 0.5f, 0.5f, -0.5f, 0.0f);
 
 		VertexBuffer* vertBuffer = VertexBuffer::Create(m_Instance, mesh.getVertices());
 		IndexBuffer* indbuffer = IndexBuffer::Create(m_Instance, mesh.getIndices());
