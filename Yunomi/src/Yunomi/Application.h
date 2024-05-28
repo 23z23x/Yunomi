@@ -6,6 +6,7 @@
 #include "Render/Buffer.h"
 #include "Render/Texture.h"
 #include "Render/Geometry.h"
+#include "Game_Objects/Object.h"
 
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"

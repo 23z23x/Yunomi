@@ -36,11 +36,12 @@ namespace ynm {
 	{
 		Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.png");
 		Mesh mesh = Mesh("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.obj");
+		Object3D VikingRoom = Object3D(0, "Viking Room", { 0,0,0 }, text, &mesh);
 		//Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/fish.png");
 		//Quad mesh = Quad(-0.5f, 0.5f, 0.5f, -0.5f, 0.0f);
 
-		VertexBuffer* vertBuffer = VertexBuffer::Create(m_Instance, mesh.getVertices());
-		IndexBuffer* indbuffer = IndexBuffer::Create(m_Instance, mesh.getIndices());
+		VertexBuffer* vertBuffer = VertexBuffer::Create(m_Instance, (*VikingRoom.getShape()).getVertices());
+		IndexBuffer* indbuffer = IndexBuffer::Create(m_Instance, (*VikingRoom.getShape()).getIndices());
 		UniformBuffer* unifBuffer = UniformBuffer::Create(m_Instance);
 
 		m_Instance->AddDescriptors(unifBuffer, text);
