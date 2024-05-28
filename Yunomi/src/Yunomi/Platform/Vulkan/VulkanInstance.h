@@ -109,6 +109,9 @@ namespace ynm
         VkDescriptorSetLayout descriptorSetLayout;
         VkRenderPass renderPass;
 
+        VkSampleCountFlagBits MaxMSAASamples = VK_SAMPLE_COUNT_1_BIT;
+        VkSampleCountFlagBits MSAALevel = VK_SAMPLE_COUNT_1_BIT;
+
         //Descriptors
         VkDescriptorPool descriptorPool;
         std::vector<VkDescriptorSet> descriptorSets;
@@ -131,6 +134,11 @@ namespace ynm
         VkImage depthImage;
         VkDeviceMemory depthImageMemory;
         VkImageView depthImageView;
+
+        //Images for MSAA
+        VkImage colorImage;
+        VkDeviceMemory colorImageMemory;
+        VkImageView colorImageView;
 
 
         //Class Methods
@@ -199,7 +207,7 @@ namespace ynm
         //Texture creation helpers
         void createTextureSampler(VkSampler* textureSampler, uint32_t mipLevels);
         void createTextureImage(std::string filename, VkImage* textureImage, VkDeviceMemory* textureImageMemory, uint32_t* mipLevels);
-        void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, uint32_t mipLevels);
+        void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, uint32_t mipLevels, VkSampleCountFlagBits numSamples);
         void copyBufferToImage(VkBuffer* buffer, VkImage* image, uint32_t width, uint32_t height);
         void transitionImageLayout(VkImage* image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
 
@@ -211,6 +219,10 @@ namespace ynm
 
         //Mipmaps
         void generateMipmaps(VkImage* image, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
+
+        //MSAA
+        VkSampleCountFlagBits getMaxUsableSampleCount();
+        void createColorResources();
 
         //Helper Methods
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
