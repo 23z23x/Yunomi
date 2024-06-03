@@ -10,9 +10,20 @@ namespace ynm
     //Implementation of Instance methods
     Instance* Instance::Create(Window* m_Window, Shader* vertex, Shader* fragment, const InstanceProps& props)
     {
-        
+        //Convert InstanceProps to VulkanInstanceProps
+        /*VulkanInstanceProps vulkanProps;
+        vulkanProps.VKvalidationLayers = props.validationLayers;
+        YNM_CORE_INFO("{0}", vulkanProps.VKdeviceExtensions[0]);
 
-        Instance* instance = new VulkanInstance((GLFWwindow*) m_Window->getWindow(), vertex, fragment, props);
+        for (const char* extension : props.deviceExtensions)
+        {
+            if(strcmp(extension, "VK_KHR_SWAPCHAIN_EXTENSION_NAME") == 0)
+            { 
+                vulkanProps.VKdeviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+            }
+        }*/
+
+        Instance* instance = new VulkanInstance((GLFWwindow*) m_Window->getWindow(), vertex, fragment/*, vulkanProps*/);
         instanceref = instance;
         return instance;
     }
@@ -49,10 +60,10 @@ namespace ynm
 
     //Vulkan Instance implementation
 
-    VulkanInstance::VulkanInstance(GLFWwindow* m_Window, Shader* vert, Shader* frag, const InstanceProps& props)
+    VulkanInstance::VulkanInstance(GLFWwindow* m_Window, Shader* vert, Shader* frag, const VulkanInstanceProps& props)
     {
-        this->validationLayers = props.vk_ValidationLayers;
-        this->deviceExtensions = props.vk_DeviceExtensions;
+        this->validationLayers = props.VKvalidationLayers;
+        this->deviceExtensions = props.VKdeviceExtensions;
         this->window = m_Window;
 
         //Check for necessary validation layers, throw error if not avalible

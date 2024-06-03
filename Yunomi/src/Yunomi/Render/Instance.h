@@ -4,9 +4,6 @@
 #include "Shader.h"
 #include "Geometry.h"
 
-#include "vulkan/vulkan.h"
-#include <vulkan/vulkan_core.h>
-
 //Vritual interface class
 
 namespace ynm
@@ -17,17 +14,16 @@ namespace ynm
     class UniformBuffer;
     class Texture;
 
-
+    //Right now, InstanceProps is not used for anything. Kept as an argument for future use.
 	struct InstanceProps
 	{
-		//Platform specific arguments
-        //Might want to move this to VulkanInstance.h
-		std::vector<const char*> vk_ValidationLayers;
-		std::vector<const char*> vk_DeviceExtensions;
+		std::vector<const char*> validationLayers;
+		std::vector<const char*> deviceExtensions;
 
-		InstanceProps(std::vector<const char*> vk_validationlayers = { "VK_LAYER_KHRONOS_validation" },
-			std::vector<const char*> vk_deviceextensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME })
-			: vk_ValidationLayers(vk_validationlayers), vk_DeviceExtensions(vk_deviceextensions)
+        //Defaults are for Vulkan, since it will work on most platforms
+		InstanceProps(std::vector<const char*> validationlayers = { "VK_LAYER_KHRONOS_validation" },
+			std::vector<const char*> deviceextensions = { "VK_KHR_SWAPCHAIN_EXTENSION_NAME" })
+			: validationLayers(validationlayers), deviceExtensions(deviceextensions)
 		{
 		}
 	};

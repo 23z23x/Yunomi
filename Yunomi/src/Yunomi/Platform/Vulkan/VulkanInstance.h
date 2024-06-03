@@ -4,7 +4,6 @@
 #include "Yunomi/Render/Buffer.h"
 #include "Yunomi/Render/Texture.h"
 
-//Allows GLFW to include Vulkan for us
 #include <GLFW/glfw3.h>
 
 #ifdef NDEBUG
@@ -31,11 +30,24 @@ struct SwapChainSupportDetails {
 
 namespace ynm
 {
+    struct VulkanInstanceProps
+    {
+        std::vector<const char*> VKvalidationLayers;
+        std::vector<const char*> VKdeviceExtensions;
+
+        //Defaults are for Vulkan, since it will work on most platforms
+        VulkanInstanceProps(std::vector<const char*> validationlayers = { "VK_LAYER_KHRONOS_validation" },
+            std::vector<const char*> deviceextensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME })
+            : VKvalidationLayers(validationlayers), VKdeviceExtensions(deviceextensions)
+        {
+        }
+    };
+
 
     class VulkanInstance : public Instance
     {
     public:
-        VulkanInstance(GLFWwindow* m_Window, Shader* vertex, Shader* fragment, const InstanceProps& props);
+        VulkanInstance(GLFWwindow* m_Window, Shader* vertex, Shader* fragment, const VulkanInstanceProps& props = VulkanInstanceProps());
 
         ~VulkanInstance();
 
