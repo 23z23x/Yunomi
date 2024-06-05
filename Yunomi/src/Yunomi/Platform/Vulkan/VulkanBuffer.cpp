@@ -7,10 +7,10 @@ namespace ynm
 	Buffer* Buffer::bufferRef = nullptr;
 	BufferType Buffer::type = BufferType::VERTEX;
 
-	VulkanChunk::VulkanChunk(VulkanInstance* instance, uint32_t size, uint32_t offset, void* data, VkBufferUsageFlagBits vkType)
-		: size(size), offset(offset), instance(instance)
+	VulkanChunk::VulkanChunk(VulkanInstance* instance, uint32_t size, uint32_t offset, void* data, VkBufferUsageFlagBits vkType, BufferType type, uint32_t count)
+		: size(size), offset(offset), instance(instance), count(count)
 	{
-		instance->CreateChunk(size, &(this->buffer), &(this->bufferMemory), &ID, data, vkType);
+		instance->CreateChunk(size, &(this->buffer), &(this->bufferMemory), &ID, data, vkType, type);
 	}
 
 	VulkanChunk::~VulkanChunk()
@@ -29,23 +29,29 @@ namespace ynm
 		case BufferType::INDEX:
 			vkType = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 			break;
+		case BufferType::INSTANCE:
+			vkType = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+			break;
+		case BufferType::UNIFORM:
+			vkType = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+			break;
 		default:
 			vkType = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 			break;
 		}
 
-		VulkanBuffer* buffer = new VulkanBuffer((VulkanInstance*)instance, vkType);
+		VulkanBuffer* buffer = new VulkanBuffer((VulkanInstance*)instance, vkType, type);
 		bufferRef = buffer;
 		type = type;
 
 		return buffer;
 	}
 
-	uint32_t Buffer::CreateChunk(uint32_t size, uint32_t offset, void* data)
+	uint32_t Buffer::CreateChunk(uint32_t size, uint32_t offset, void* data, uint32_t count)
 	{
 		VulkanBuffer* buffer = (VulkanBuffer*)bufferRef;
 
-		return buffer->CreateVulkanChunk(size, offset, data);
+		return buffer->CreateVulkanChunk(size, offset, data, count);
 	}
 
 	void Buffer::DeleteChunk(uint32_t ID)
@@ -55,15 +61,15 @@ namespace ynm
 		buffer->DeleteVulkanChunk(ID);
 	}
 
-	VulkanBuffer::VulkanBuffer(VulkanInstance* instance, VkBufferUsageFlagBits vkType)
-		: instance(instance), vkType(vkType)
+	VulkanBuffer::VulkanBuffer(VulkanInstance* instance, VkBufferUsageFlagBits vkType, BufferType type)
+		: instance(instance), vkType(vkType), type(type)
 	{
 
 	}
 
-	uint32_t VulkanBuffer::CreateVulkanChunk(uint32_t size, uint32_t offset, void* data)
+	uint32_t VulkanBuffer::CreateVulkanChunk(uint32_t size, uint32_t offset, void* data, uint32_t count)
 	{
-		VulkanChunk* chunk = new VulkanChunk(this->instance, size, offset, data, vkType);
+		VulkanChunk* chunk = new VulkanChunk(this->instance, size, offset, data, vkType, type, count);
 
 		chunks.push_back(chunk);
 		

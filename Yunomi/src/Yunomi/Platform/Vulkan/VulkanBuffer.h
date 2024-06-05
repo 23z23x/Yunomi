@@ -10,7 +10,7 @@ namespace ynm
 	class YNM_API VulkanChunk
 	{
 	public:
-		VulkanChunk(VulkanInstance* instance, uint32_t size, uint32_t offset, void* data, VkBufferUsageFlagBits vkType);
+		VulkanChunk(VulkanInstance* instance, uint32_t size, uint32_t offset, void* data, VkBufferUsageFlagBits vkType, BufferType type, uint32_t count);
 		~VulkanChunk();
 
 		inline VkBuffer getBuffer() const { return buffer; }
@@ -18,6 +18,7 @@ namespace ynm
 		inline uint32_t getSize() const { return size; }
 		inline uint32_t getOffset() const { return offset; }
 		inline uint32_t getID() const { return ID; }
+		inline uint32_t getCount() const { return count; }
 	private:
 		VulkanInstance* instance;
 
@@ -26,15 +27,18 @@ namespace ynm
 		uint32_t size;
 		uint32_t offset;
 		uint32_t ID;
+
+		//Number of distinct items of type in buffer
+		uint32_t count;
 	};
 
 	class VulkanBuffer : public Buffer
 	{
 	public:
-		VulkanBuffer(VulkanInstance* instance, VkBufferUsageFlagBits vkType);
+		VulkanBuffer(VulkanInstance* instance, VkBufferUsageFlagBits vkType, BufferType type);
 		~VulkanBuffer() {}
 
-		uint32_t CreateVulkanChunk(uint32_t size, uint32_t offset, void* data);
+		uint32_t CreateVulkanChunk(uint32_t size, uint32_t offset, void* data, uint32_t count);
 		void DeleteVulkanChunk(uint32_t);
 
 		inline std::vector<VulkanChunk*> getChunks() { return chunks; }
@@ -42,6 +46,7 @@ namespace ynm
 		std::vector<VulkanChunk*> chunks;
 		VulkanInstance* instance;
 		VkBufferUsageFlagBits vkType;
+		BufferType type;
 
 	};
 
