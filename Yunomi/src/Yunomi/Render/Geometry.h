@@ -36,6 +36,11 @@ namespace std {
 
 namespace ynm
 {
+	struct InstanceData
+	{
+		glm::mat4 modelMatrix;
+	};
+
 	//Class all geometry should inherit from
 	class Geometry
 	{
