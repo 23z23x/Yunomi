@@ -36,15 +36,30 @@ namespace ynm {
 	{
 		Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.png");
 		Mesh mesh = Mesh("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.obj");
-		Object3D VikingRoom = Object3D(0, "Viking Room", { 0,0,0 }, text, &mesh);
+
+		std::vector<InstanceData> instData;
+
+		for (int i = 0; i <= 2; i++)
+		{
+			InstanceData data;
+
+			data.modelMatrix = glm::mat4(1.0f);
+			data.modelMatrix = glm::translate(data.modelMatrix, { i * 2, 0, 0 });
+			data.modelMatrix = glm::rotate(data.modelMatrix, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+			instData.push_back(data);
+		}
+
 		//Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/fish.png");
 		//Quad mesh = Quad(-0.5f, 0.5f, 0.5f, -0.5f, 0.0f);
 
 		//Buffer* vertBuffer = Buffer::Create(m_Instance);
 		Buffer* indbuffer = Buffer::Create(m_Instance, BufferType::INDEX);
-		indbuffer->CreateChunk(mesh.getIndices().size(), 0, (void*)mesh.getIndices().data());
+		indbuffer->CreateChunk(mesh.getIndices().size(), 0, (void*)mesh.getIndices().data(), 1);
 		Buffer* vertBuffer = Buffer::Create(m_Instance, BufferType::VERTEX);
-		vertBuffer->CreateChunk(mesh.getVertices().size(), 0, (void*)mesh.getVertices().data());
+		vertBuffer->CreateChunk(mesh.getVertices().size(), 0, (void*)mesh.getVertices().data(), 1);
+		Buffer* instBuffer = Buffer::Create(m_Instance, BufferType::INSTANCE);
+		instBuffer->CreateChunk(instData.size(), 0, instData.data(), 3);
 
 		//std::cout << mesh.getVertices().data() << std::endl;
 
@@ -56,10 +71,14 @@ namespace ynm {
 
 		m_Instance->AddDescriptors(unifBuffer, text);
 
+		std::vector<Buffer*> vertbuffers;
+		vertbuffers.push_back(vertBuffer);
+		vertbuffers.push_back(instBuffer);
+
 		while (mainLoop)
 		{
 			m_Window->OnUpdate();
-			m_Instance->StartDraw(vertBuffer, indbuffer, nullptr);
+			m_Instance->StartDraw(vertbuffers, indbuffer);
 			m_Instance->UpdateUniform(unifBuffer);
 			m_Instance->EndDraw();
 
