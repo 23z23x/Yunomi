@@ -9,8 +9,7 @@
 namespace ynm
 {
     //Forward declaration to avoid circular dependencies
-    class VertexBuffer;
-    class IndexBuffer;
+    class Buffer;
     class UniformBuffer;
     class Texture;
 
@@ -56,7 +55,7 @@ namespace ynm
         //Finally, the methods that actually get the instance to do something.
 
         //Method that starts recording of commands to be drawn
-        static void StartDraw(VertexBuffer* vb, IndexBuffer* ib);
+        static void StartDraw(Buffer* vb, Buffer* ib, Buffer* instb);
 
         //Method that updates a Uniform Buffer (For now it does a predetermined transformation, later it will be abstracted to do different ones.)
         static void UpdateUniform(UniformBuffer* ub);
