@@ -3,22 +3,16 @@
 
 namespace ynm
 {
-	Object::Object(uint32_t ID, std::string name, glm::vec3 position)
+	Object::Object(uint32_t ID, std::string name, InstanceData instanceData)
 	{
 		this->ID = ID;
 		this->name = name;
-		this->position = position;
-	}
-
-	void Object::setPosition(glm::vec3 position)
-	{
-		this->position = position;
+		this->instanceData = instanceData;
 	}
 
 
-
-	TexturedObject::TexturedObject(uint32_t ID, std::string name, glm::vec3 position, Texture* texture)
-		: Object(ID, name, position)
+	TexturedObject::TexturedObject(uint32_t ID, std::string name, InstanceData instanceData, Texture* texture)
+		: Object(ID, name, instanceData)
 	{
 		this->texture = texture;
 	}
@@ -30,8 +24,8 @@ namespace ynm
 
 
 
-	Object2D::Object2D(uint32_t ID, std::string name, glm::vec3 position, Texture* texture, Quad* shape)
-		: TexturedObject(ID, name, position, texture)
+	Object2D::Object2D(uint32_t ID, std::string name, InstanceData instanceData, Texture* texture, Quad* shape)
+		: TexturedObject(ID, name, instanceData, texture)
 	{
 		this->shape = shape;
 	}
@@ -43,8 +37,8 @@ namespace ynm
 
 
 
-	Object3D::Object3D(uint32_t ID, std::string name, glm::vec3 position, Texture* texture, Mesh* shape)
-		: TexturedObject(ID, name, position, texture)
+	Object3D::Object3D(uint32_t ID, std::string name, InstanceData instanceData, Texture* texture, Mesh* shape)
+		: TexturedObject(ID, name, instanceData, texture)
 	{
 		this->shape = shape;
 	}

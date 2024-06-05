@@ -12,16 +12,16 @@ namespace ynm
 	public:
 		inline uint32_t getID() const { return ID; }
 		inline std::string getName() const { return name; }
-		inline glm::vec3 getPosition() const { return position; }
+		inline InstanceData getInstanceData() const { return instanceData; }
 
-		void setPosition(glm::vec3);
+		//void setPosition(glm::vec3);
 	protected:
-		Object(uint32_t ID, std::string name, glm::vec3 position);
+		Object(uint32_t ID, std::string name, InstanceData instanceData);
 
 	private:
 		uint32_t ID;
 		std::string name;
-		glm::vec3 position;
+		InstanceData instanceData;
 	};
 
 	class TexturedObject : public Object
@@ -31,7 +31,7 @@ namespace ynm
 
 		void setTexture(Texture* texture);
 	protected:
-		TexturedObject(uint32_t ID, std::string name, glm::vec3 position, Texture* texture);
+		TexturedObject(uint32_t ID, std::string name, InstanceData instanceData, Texture* texture);
 	private:
 		Texture* texture;
 	};
@@ -39,7 +39,7 @@ namespace ynm
 	class Object2D : public TexturedObject
 	{
 	public:
-		Object2D(uint32_t ID, std::string name, glm::vec3 position, Texture* texture, Quad* shape);
+		Object2D(uint32_t ID, std::string name, InstanceData instanceData, Texture* texture, Quad* shape);
 		~Object2D();
 
 		inline Quad* getShape() const { return shape; }
@@ -50,7 +50,7 @@ namespace ynm
 	class Object3D : public TexturedObject
 	{
 	public:
-		Object3D(uint32_t ID, std::string name, glm::vec3 position, Texture* texture, Mesh* shape);
+		Object3D(uint32_t ID, std::string name, InstanceData instanceData, Texture* texture, Mesh* shape);
 		~Object3D();
 
 		inline Mesh* getShape() const { return shape; }
