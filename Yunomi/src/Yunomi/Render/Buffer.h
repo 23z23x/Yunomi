@@ -6,34 +6,29 @@ namespace ynm
 {
 	//Forward declaration to avoid circular dependencies
 	class Instance;
-	struct Vertex;
 
-	class YNM_API VertexBuffer
+	enum BufferType
 	{
-	public:
-		static VertexBuffer* Create(Instance* instance, std::vector<Vertex> vertices);
-
-		virtual ~VertexBuffer() {}
-
-		virtual void* getBuffer() const = 0;
-		virtual void* getMemory() const = 0;
-		virtual uint32_t getSize() const = 0;
-
+		VERTEX,
+		INDEX,
+		INSTANCE,
+		UNIFORM
 	};
 
-	class YNM_API IndexBuffer
+	class YNM_API Buffer
 	{
 	public:
-		static IndexBuffer* Create(Instance* instance, std::vector<uint32_t> indices);
+		static Buffer* Create(Instance* instance, BufferType type);
+		virtual ~Buffer() {}
 
-		virtual ~IndexBuffer() {}
-
-		virtual void* getBuffer() const = 0;
-		virtual void* getMemory() const = 0;
-		virtual uint32_t getSize() const = 0;
+		virtual uint32_t CreateChunk(uint32_t size, uint32_t offset, void* data);
+		virtual void DeleteChunk(uint32_t ID);
+	private:
+		static Buffer* bufferRef;
+		static BufferType type;
 	};
 
-	class YNM_API UniformBuffer
+	class YNM_API UniformBuffer : public Buffer
 	{
 	public:
 		static UniformBuffer* Create(Instance* instance);
@@ -43,6 +38,5 @@ namespace ynm
 		virtual void* getBuffer() const = 0;
 		virtual void* getMemory() const = 0;
 		virtual void* getMap() const = 0;
-
 	};
 }

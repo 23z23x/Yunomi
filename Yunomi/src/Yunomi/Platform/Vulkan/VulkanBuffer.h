@@ -3,43 +3,46 @@
 #include "Yunomi/Render/Buffer.h"
 #include "Yunomi/Platform/Vulkan/VulkanInstance.h"
 
+#include "Yunomi/Render/Geometry.h"
+
 namespace ynm
 {
-	class VulkanVertexBuffer : public VertexBuffer
+	class YNM_API VulkanChunk
 	{
 	public:
-		VulkanVertexBuffer(VulkanInstance* instance, std::vector<Vertex> vertices);
-		~VulkanVertexBuffer();
+		VulkanChunk(VulkanInstance* instance, uint32_t size, uint32_t offset, void* data, VkBufferUsageFlagBits vkType);
+		~VulkanChunk();
 
-		inline void* getBuffer() const override { return (void*) &vertexBuffer; }
-		inline void* getMemory() const override { return (void*)&vertexBufferMemory; }
-		inline uint32_t getSize() const override { return verticesSize; }
+		inline VkBuffer getBuffer() const { return buffer; }
+		inline VkDeviceMemory getMemory() const { return bufferMemory; }
+		inline uint32_t getSize() const { return size; }
+		inline uint32_t getOffset() const { return offset; }
+		inline uint32_t getID() const { return ID; }
 	private:
-		VkBuffer vertexBuffer;
-		VkDeviceMemory vertexBufferMemory;
-
-		uint32_t verticesSize;
-
 		VulkanInstance* instance;
 
+		VkBuffer buffer;
+		VkDeviceMemory bufferMemory;
+		uint32_t size;
+		uint32_t offset;
+		uint32_t ID;
 	};
 
-	class VulkanIndexBuffer : public IndexBuffer
+	class VulkanBuffer : public Buffer
 	{
 	public:
-		VulkanIndexBuffer(VulkanInstance* instance, std::vector<uint32_t> indices);
-		~VulkanIndexBuffer();
+		VulkanBuffer(VulkanInstance* instance, VkBufferUsageFlagBits vkType);
+		~VulkanBuffer() {}
 
-		inline void* getBuffer() const override { return (void*)&indexBuffer; }
-		inline void* getMemory() const override { return (void*)&indexBufferMemory; }
-		inline uint32_t getSize() const override { return indicesSize; }
+		uint32_t CreateVulkanChunk(uint32_t size, uint32_t offset, void* data);
+		void DeleteVulkanChunk(uint32_t);
+
+		inline std::vector<VulkanChunk*> getChunks() { return chunks; }
 	private:
-		VkBuffer indexBuffer;
-		VkDeviceMemory indexBufferMemory;
-
-		uint32_t indicesSize;
-
+		std::vector<VulkanChunk*> chunks;
 		VulkanInstance* instance;
+		VkBufferUsageFlagBits vkType;
+
 	};
 
 	class VulkanUniformBuffer : public UniformBuffer
@@ -48,9 +51,9 @@ namespace ynm
 		VulkanUniformBuffer(VulkanInstance* instance);
 		~VulkanUniformBuffer();
 
-		inline void* getBuffer() const override { return (void*)&uniformBuffers; }
-		inline void* getMemory() const override { return (void*)&uniformBuffersMemory; }
-		inline void* getMap() const override { return (void*)&uniformBuffersMapped; }
+		inline void* getBuffer() const { return (void*)&uniformBuffers; }
+		inline void* getMemory() const { return (void*)&uniformBuffersMemory; }
+		inline void* getMap() const { return (void*)&uniformBuffersMapped; }
 	private:
 		std::vector<VkBuffer> uniformBuffers;
 		std::vector<VkDeviceMemory> uniformBuffersMemory;
