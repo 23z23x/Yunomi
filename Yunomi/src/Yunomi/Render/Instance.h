@@ -55,7 +55,7 @@ namespace ynm
         //Finally, the methods that actually get the instance to do something.
 
         //Method that starts recording of commands to be drawn
-        static void StartDraw(Buffer* vb, Buffer* ib, Buffer* instb);
+        static void StartDraw(std::vector<Buffer*> vertexes, Buffer* ib);
 
         //Method that updates a Uniform Buffer (For now it does a predetermined transformation, later it will be abstracted to do different ones.)
         static void UpdateUniform(UniformBuffer* ub);
