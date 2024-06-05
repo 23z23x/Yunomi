@@ -40,8 +40,18 @@ namespace ynm {
 		//Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/fish.png");
 		//Quad mesh = Quad(-0.5f, 0.5f, 0.5f, -0.5f, 0.0f);
 
-		VertexBuffer* vertBuffer = VertexBuffer::Create(m_Instance, (*VikingRoom.getShape()).getVertices());
-		IndexBuffer* indbuffer = IndexBuffer::Create(m_Instance, (*VikingRoom.getShape()).getIndices());
+		//Buffer* vertBuffer = Buffer::Create(m_Instance);
+		Buffer* indbuffer = Buffer::Create(m_Instance, BufferType::INDEX);
+		indbuffer->CreateChunk(mesh.getIndices().size(), 0, (void*)mesh.getIndices().data());
+		Buffer* vertBuffer = Buffer::Create(m_Instance, BufferType::VERTEX);
+		vertBuffer->CreateChunk(mesh.getVertices().size(), 0, (void*)mesh.getVertices().data());
+
+		//std::cout << mesh.getVertices().data() << std::endl;
+
+		//std::cout << mesh.getIndices().data() << std::endl;
+
+		//std::cout << vertBuffer << " : " << indbuffer << std::endl;
+
 		UniformBuffer* unifBuffer = UniformBuffer::Create(m_Instance);
 
 		m_Instance->AddDescriptors(unifBuffer, text);
@@ -49,7 +59,7 @@ namespace ynm {
 		while (mainLoop)
 		{
 			m_Window->OnUpdate();
-			m_Instance->StartDraw(vertBuffer, indbuffer);
+			m_Instance->StartDraw(vertBuffer, indbuffer, nullptr);
 			m_Instance->UpdateUniform(unifBuffer);
 			m_Instance->EndDraw();
 
