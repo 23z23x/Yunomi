@@ -38,7 +38,7 @@ namespace ynm
 {
 	struct InstanceData
 	{
-		glm::mat4 modelMatrix;
+		glm::mat4 modelMatrix = glm::mat4(1.0f);
 	};
 
 	//Class all geometry should inherit from
@@ -47,10 +47,11 @@ namespace ynm
 	public:
 		inline std::vector<Vertex> getVertices() const { return vertices; }
 		inline std::vector<uint32_t> getIndices() const { return indices; }
-
+		inline uint32_t getID() const { return ID; }
 	protected:
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
+		uint32_t ID;
 	};
 
 
@@ -58,18 +59,10 @@ namespace ynm
 	class Mesh : public Geometry
 	{
 	public:
-		Mesh(std::string filename);
+		Mesh(std::string filename, uint32_t ID);
+		Mesh(float x1, float x2, float y1, float y2, float depth, uint32_t ID);
 
 		~Mesh();
-	};
-
-	//Class for quadrangles. Indicies should always be the same. Vertices may change based on side length
-	class Quad : public Geometry
-	{
-	public:
-		Quad(float x1, float x2, float y1, float y2, float depth);
-
-		~Quad();
 	};
 
 }
