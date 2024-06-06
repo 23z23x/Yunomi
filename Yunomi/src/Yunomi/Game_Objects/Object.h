@@ -27,31 +27,20 @@ namespace ynm
 	class TexturedObject : public Object
 	{
 	public:
-		inline Texture* getTexture() const { return texture; }
+		inline uint32_t getTextureID() const { return textureID; }
 
-		void setTexture(Texture* texture);
+		void setTexture(uint32_t ID);
 	protected:
-		TexturedObject(uint32_t ID, std::string name, InstanceData instanceData, Texture* texture);
+		TexturedObject(uint32_t ID, std::string name, InstanceData instanceData, uint32_t textureID);
 	private:
-		Texture* texture;
+		uint32_t textureID;
 	};
 
-	class Object2D : public TexturedObject
+	class GameObject : public TexturedObject
 	{
 	public:
-		Object2D(uint32_t ID, std::string name, InstanceData instanceData, Texture* texture, Quad* shape);
-		~Object2D();
-
-		inline Quad* getShape() const { return shape; }
-	private:
-		Quad* shape;
-	};
-
-	class Object3D : public TexturedObject
-	{
-	public:
-		Object3D(uint32_t ID, std::string name, InstanceData instanceData, Texture* texture, Mesh* shape);
-		~Object3D();
+		GameObject(uint32_t ID, std::string name, InstanceData instanceData, uint32_t textureID, Mesh* shape);
+		~GameObject();
 
 		inline Mesh* getShape() const { return shape; }
 	private:

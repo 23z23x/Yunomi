@@ -11,39 +11,24 @@ namespace ynm
 	}
 
 
-	TexturedObject::TexturedObject(uint32_t ID, std::string name, InstanceData instanceData, Texture* texture)
+	TexturedObject::TexturedObject(uint32_t ID, std::string name, InstanceData instanceData, uint32_t textureID)
 		: Object(ID, name, instanceData)
 	{
-		this->texture = texture;
+		this->textureID = textureID;
 	}
 
-	void TexturedObject::setTexture(Texture* texture)
+	void TexturedObject::setTexture(uint32_t ID)
 	{
-		this->texture = texture;
+		this->textureID = ID;
 	}
 
-
-
-	Object2D::Object2D(uint32_t ID, std::string name, InstanceData instanceData, Texture* texture, Quad* shape)
-		: TexturedObject(ID, name, instanceData, texture)
+	GameObject::GameObject(uint32_t ID, std::string name, InstanceData instanceData, uint32_t textureID, Mesh* shape)
+		: TexturedObject(ID, name, instanceData, textureID)
 	{
 		this->shape = shape;
 	}
 
-	Object2D::~Object2D()
-	{
-
-	}
-
-
-
-	Object3D::Object3D(uint32_t ID, std::string name, InstanceData instanceData, Texture* texture, Mesh* shape)
-		: TexturedObject(ID, name, instanceData, texture)
-	{
-		this->shape = shape;
-	}
-
-	Object3D::~Object3D()
+	GameObject::~GameObject()
 	{
 
 	}
