@@ -3,8 +3,9 @@
 
 namespace ynm
 {
-	Texture* Texture::Create(Instance* instance, std::string filename)
+	Texture* Texture::Create(Instance* instance, std::string filename, uint32_t ID)
 	{
+		ID = ID;
 		return new VulkanTexture((VulkanInstance*) instance, filename);
 	}
 
