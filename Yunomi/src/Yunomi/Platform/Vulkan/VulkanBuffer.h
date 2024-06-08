@@ -10,13 +10,13 @@ namespace ynm
 	class YNM_API VulkanChunk
 	{
 	public:
-		VulkanChunk(VulkanInstance* instance, uint32_t size, uint32_t offset, void* data, VkBufferUsageFlagBits vkType, BufferType type, uint32_t count);
+		VulkanChunk(VulkanInstance* instance, uint32_t size, std::vector<uint32_t> offsets, void* data, VkBufferUsageFlagBits vkType, BufferType type, uint32_t count);
 		~VulkanChunk();
 
 		inline VkBuffer getBuffer() const { return buffer; }
 		inline VkDeviceMemory getMemory() const { return bufferMemory; }
 		inline uint32_t getSize() const { return size; }
-		inline uint32_t getOffset() const { return offset; }
+		inline std::vector<uint32_t> getOffsets() const { return offsets; }
 		inline uint32_t getID() const { return ID; }
 		inline uint32_t getCount() const { return count; }
 	private:
@@ -25,7 +25,7 @@ namespace ynm
 		VkBuffer buffer;
 		VkDeviceMemory bufferMemory;
 		uint32_t size;
-		uint32_t offset;
+		std::vector<uint32_t> offsets;
 		uint32_t ID;
 
 		//Number of distinct items of type in buffer
@@ -38,7 +38,7 @@ namespace ynm
 		VulkanBuffer(VulkanInstance* instance, VkBufferUsageFlagBits vkType, BufferType type);
 		~VulkanBuffer() {}
 
-		uint32_t CreateVulkanChunk(uint32_t size, uint32_t offset, void* data, uint32_t count);
+		uint32_t CreateVulkanChunk(uint32_t size, std::vector<uint32_t> offsets, void* data, uint32_t count);
 		void DeleteVulkanChunk(uint32_t);
 
 		inline std::vector<VulkanChunk*> getChunks() { return chunks; }

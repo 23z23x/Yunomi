@@ -86,20 +86,14 @@ namespace ynm
         instance->recreateSwapChain();
     }
 
-    void Instance::StartDraw(std::vector<Buffer*> vertexes, Buffer* ib)
+    void Instance::StartDraw(Buffer* vertex, Buffer* index, Buffer* instance)
     {
-        VulkanInstance* instance = (VulkanInstance*)instanceref;
-        VulkanBuffer* index = (VulkanBuffer*)ib;
+        VulkanInstance* vkinstance = (VulkanInstance*)instanceref;
+        VulkanBuffer* vulkanVertex = (VulkanBuffer*)vertex;
+        VulkanBuffer* vulkanIndex = (VulkanBuffer*)index;
+        VulkanBuffer* vulkanInstance = (VulkanBuffer*)instance;
 
-        std::vector<VulkanBuffer*> vulkanVertexes;
-
-        for (Buffer* buff : vertexes)
-        {
-            VulkanBuffer* vulkanBuff = (VulkanBuffer*)buff;
-            vulkanVertexes.push_back(vulkanBuff);
-        }
-
-        instance->VulkanStartDraw(vulkanVertexes, index);
+        vkinstance->VulkanStartDraw(vulkanVertex, vulkanIndex, vulkanInstance);
     }
 
     void Instance::UpdateUniform(UniformBuffer* ub)
@@ -1081,7 +1075,7 @@ namespace ynm
         YNM_CORE_INFO("Vulkan: Successfully allocated command buffers");
     }
 
-    void VulkanInstance::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, std::vector<VulkanBuffer*> vertexes, VulkanBuffer* index) {
+    void VulkanInstance::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VulkanBuffer* vertex, VulkanBuffer* index, VulkanBuffer* instance) {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags = 0; // Optional
@@ -1125,15 +1119,31 @@ namespace ynm
         scissor.extent = swapChainExtent;
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-        VkBuffer vertexBuffers[] = { vertexes[0]->getChunks()[0]->getBuffer(), vertexes[1]->getChunks()[0]->getBuffer() };
-        VkDeviceSize offsets[] = { 0, 0 };
-        vkCmdBindVertexBuffers(commandBuffer, 0, 2, vertexBuffers, offsets);
+        //Offsets into Vertex and Index buffers
+        uint32_t vertexOffset = 0;
+        uint32_t indexOffset = 0;
 
+        //We can bind the index buffer out here since its always the same.
         vkCmdBindIndexBuffer(commandBuffer, index->getChunks()[0]->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+        //For all meshes being rendered
+        for (int i = 0; i < instance->getChunks().size(); i++)
+        {
+            //Bind the vertex buffer, and the current instance buffer
+            VkBuffer vertexBuffers[] = { vertex->getChunks()[0]->getBuffer(), instance->getChunks()[i]->getBuffer() };
+            VkDeviceSize offsets[] = { 0, 0 };
+            //Subsequent calls overwrite what is bound, so vertex buffer is just bound here.
+            vkCmdBindVertexBuffers(commandBuffer, 0, 2, vertexBuffers, offsets);
 
-        vkCmdDrawIndexed(commandBuffer, index->getChunks()[0]->getSize(), vertexes[1]->getChunks()[0]->getCount(), 0, 0, 0);
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+
+            //Draw using current instance buffer and vertex and index offsets.
+            vkCmdDrawIndexed(commandBuffer, index->getChunks()[0]->getOffsets()[i], instance->getChunks()[i]->getCount(), indexOffset, vertexOffset, 0);
+
+            vertexOffset += vertex->getChunks()[0]->getOffsets()[i];
+            indexOffset += index->getChunks()[0]->getOffsets()[i];
+        }
+        //
 
         vkCmdEndRenderPass(commandBuffer);
 
@@ -1552,7 +1562,7 @@ namespace ynm
     }
 
     //DRAW COMMANDS
-    void VulkanInstance::VulkanStartDraw(std::vector<VulkanBuffer*> vertexes, VulkanBuffer* index)
+    void VulkanInstance::VulkanStartDraw(VulkanBuffer* vertex, VulkanBuffer* index, VulkanBuffer* instance)
     {
         //Fence which stops if CPU is ahead of GPU
         vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
@@ -1577,7 +1587,7 @@ namespace ynm
 
         //Reset, then start recording to the command buffer
         vkResetCommandBuffer(commandBuffers[currentFrame], 0);
-        recordCommandBuffer(commandBuffers[currentFrame], imageIndex, vertexes, index);
+        recordCommandBuffer(commandBuffers[currentFrame], imageIndex, vertex, index, instance);
     }
 
     void VulkanInstance::VulkanUpdateUniform(std::vector<void*>* uniformBuffersMapped)

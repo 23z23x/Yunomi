@@ -72,7 +72,7 @@ namespace ynm
         void createDescriptorSets(std::vector<VkBuffer>* uniformBuffers, VkImageView* textureImageView, VkSampler* textureSampler);
 
         //Drawing
-        void VulkanStartDraw(std::vector<VulkanBuffer*> vertexes, VulkanBuffer* index);
+        void VulkanStartDraw(VulkanBuffer* vertex, VulkanBuffer* index, VulkanBuffer* instance);
         void VulkanUpdateUniform(std::vector<void*>* uniformBuffersMapped);
         void VulkanEndDraw();
 
@@ -207,7 +207,7 @@ namespace ynm
         //Command pool/buffer
         void createCommandPool();
         void createCommandBuffers();
-        void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, std::vector<VulkanBuffer*> vertexes, VulkanBuffer* index);
+        void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VulkanBuffer* vertexe, VulkanBuffer* index, VulkanBuffer* instance);
 
         //Asynch Primatives
         void createSyncObjects();

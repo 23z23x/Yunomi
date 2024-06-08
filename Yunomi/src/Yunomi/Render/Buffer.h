@@ -21,7 +21,7 @@ namespace ynm
 		static Buffer* Create(Instance* instance, BufferType type);
 		virtual ~Buffer() {}
 
-		virtual uint32_t CreateChunk(uint32_t size, uint32_t offset, void* data, uint32_t count);
+		virtual uint32_t CreateChunk(uint32_t size, std::vector<uint32_t> offsets, void* data, uint32_t count);
 		virtual void DeleteChunk(uint32_t ID);
 	private:
 		static Buffer* bufferRef;

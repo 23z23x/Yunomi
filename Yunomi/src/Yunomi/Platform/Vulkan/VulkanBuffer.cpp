@@ -7,8 +7,8 @@ namespace ynm
 	Buffer* Buffer::bufferRef = nullptr;
 	BufferType Buffer::type = BufferType::VERTEX;
 
-	VulkanChunk::VulkanChunk(VulkanInstance* instance, uint32_t size, uint32_t offset, void* data, VkBufferUsageFlagBits vkType, BufferType type, uint32_t count)
-		: size(size), offset(offset), instance(instance), count(count)
+	VulkanChunk::VulkanChunk(VulkanInstance* instance, uint32_t size, std::vector<uint32_t> offsets, void* data, VkBufferUsageFlagBits vkType, BufferType type, uint32_t count)
+		: size(size), offsets(offsets), instance(instance), count(count)
 	{
 		instance->CreateChunk(size, &(this->buffer), &(this->bufferMemory), &ID, data, vkType, type);
 	}
@@ -47,11 +47,11 @@ namespace ynm
 		return buffer;
 	}
 
-	uint32_t Buffer::CreateChunk(uint32_t size, uint32_t offset, void* data, uint32_t count)
+	uint32_t Buffer::CreateChunk(uint32_t size, std::vector<uint32_t> offsets, void* data, uint32_t count)
 	{
 		VulkanBuffer* buffer = (VulkanBuffer*)bufferRef;
 
-		return buffer->CreateVulkanChunk(size, offset, data, count);
+		return buffer->CreateVulkanChunk(size, offsets, data, count);
 	}
 
 	void Buffer::DeleteChunk(uint32_t ID)
@@ -67,9 +67,9 @@ namespace ynm
 
 	}
 
-	uint32_t VulkanBuffer::CreateVulkanChunk(uint32_t size, uint32_t offset, void* data, uint32_t count)
+	uint32_t VulkanBuffer::CreateVulkanChunk(uint32_t size, std::vector<uint32_t> offsets, void* data, uint32_t count)
 	{
-		VulkanChunk* chunk = new VulkanChunk(this->instance, size, offset, data, vkType, type, count);
+		VulkanChunk* chunk = new VulkanChunk(this->instance, size, offsets, data, vkType, type, count);
 
 		chunks.push_back(chunk);
 		
