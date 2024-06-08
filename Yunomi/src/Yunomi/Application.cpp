@@ -4,25 +4,21 @@
 //And RAII
 
 #include "Application.h"
-#include "Log.h"
-
-#include <iostream>
 
 namespace ynm {
 
 	//Defines
 	//std::bind is like passing a function, except you can use placeholders to automatically fill in certain parameters
 	#define BIND_EVENT_FN(X) std::bind(&X, this, std::placeholders::_1)
-
 	
 	Application::Application() 
 	{
 		Shader* vertShader = Shader::Create("C:/repos/Yunomi/Yunomi/src/Yunomi/Shaders/shader.vert", ShaderType::VRTX);
 		Shader* fragShader = Shader::Create("C:/repos/Yunomi/Yunomi/src/Yunomi/Shaders/shader.frag", ShaderType::FRAG);
 
-		m_Window = Window::Create();
-		m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
-		m_Instance = Instance::Create(m_Window, vertShader, fragShader);
+		window = Window::Create();
+		window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
+		renderer = new Renderer(window, vertShader, fragShader);
 
 
 	}
@@ -34,56 +30,42 @@ namespace ynm {
 
 	void Application::Run() 
 	{
-		Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.png");
-		Mesh mesh = Mesh("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.obj");
+		//Test Game Objects
+		uint32_t vikingID = renderer->CreateTexture("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.png");
+		uint32_t shizID = renderer->CreateTexture("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/texture.jpg");
+		uint32_t fishID = renderer->CreateTexture("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/fish.png");
 
-		std::vector<InstanceData> instData;
+		Mesh quad = renderer->CreateQuad(-0.5f, 0.5f, 0.5f, -0.5f, 0.0f);
+		Mesh mesh = renderer->CreateMesh("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.obj");
 
-		for (int i = 0; i <= 2; i++)
-		{
-			InstanceData data;
+		InstanceData shizData;
+		shizData.modelMatrix = glm::translate(shizData.modelMatrix, { 2.0f, 1.0f, 0.0f });
+		GameObject shiz = GameObject(0, "Shiz", shizData, shizID, &quad);
+		InstanceData fishData;
+		fishData.modelMatrix = glm::rotate(fishData.modelMatrix, glm::radians(30.0f), { 1.0f, 0.0f, 0.0f });
+		GameObject fish = GameObject(1, "Fish", fishData, fishID, &quad);
+		InstanceData vikingData;
+		vikingData.modelMatrix = glm::scale(vikingData.modelMatrix, { 0.5f, 0.5f, 0.5f });
+		GameObject viking = GameObject(2, "Viking", vikingData, vikingID, &mesh);
 
-			data.modelMatrix = glm::mat4(1.0f);
-			data.modelMatrix = glm::translate(data.modelMatrix, { i * 2, 0, 0 });
-			data.modelMatrix = glm::rotate(data.modelMatrix, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		std::vector<GameObject> objs;
+		objs.push_back(shiz);
+		objs.push_back(fish);
+		objs.push_back(viking);
+		
+		renderer->LoadObjects(objs);
 
-			instData.push_back(data);
-		}
-
-		//Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/fish.png");
-		//Quad mesh = Quad(-0.5f, 0.5f, 0.5f, -0.5f, 0.0f);
-
-		//Buffer* vertBuffer = Buffer::Create(m_Instance);
-		Buffer* indbuffer = Buffer::Create(m_Instance, BufferType::INDEX);
-		indbuffer->CreateChunk(mesh.getIndices().size(), 0, (void*)mesh.getIndices().data(), 1);
-		Buffer* vertBuffer = Buffer::Create(m_Instance, BufferType::VERTEX);
-		vertBuffer->CreateChunk(mesh.getVertices().size(), 0, (void*)mesh.getVertices().data(), 1);
-		Buffer* instBuffer = Buffer::Create(m_Instance, BufferType::INSTANCE);
-		instBuffer->CreateChunk(instData.size(), 0, instData.data(), 3);
-
-		//std::cout << mesh.getVertices().data() << std::endl;
-
-		//std::cout << mesh.getIndices().data() << std::endl;
-
-		//std::cout << vertBuffer << " : " << indbuffer << std::endl;
-
-		UniformBuffer* unifBuffer = UniformBuffer::Create(m_Instance);
-
-		m_Instance->AddDescriptors(unifBuffer, text);
-
-		std::vector<Buffer*> vertbuffers;
-		vertbuffers.push_back(vertBuffer);
-		vertbuffers.push_back(instBuffer);
+		renderer->AddDescriptors();
 
 		while (mainLoop)
 		{
-			m_Window->OnUpdate();
-			m_Instance->StartDraw(vertbuffers, indbuffer);
-			m_Instance->UpdateUniform(unifBuffer);
-			m_Instance->EndDraw();
+			window->OnUpdate();
+			renderer->StartDraw();
+			renderer->UpdateUniform();
+			renderer->EndDraw();
 
 		}
-		m_Window->~Window();
+		window->~Window();
 	}
 
 	void Application::OnEvent(Event& e)
@@ -93,7 +75,7 @@ namespace ynm {
 		switch (e.GetEventType())
 		{
 		case EventType::WinResize:
-			m_Instance->FrameResize();
+			renderer->FrameResize();
 			break;
 		case EventType::WinClose:
 			mainLoop = false;
