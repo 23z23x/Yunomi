@@ -1262,7 +1262,6 @@ namespace ynm
         vkUnmapMemory(device, stagingBufferMemory);
 
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | vkType, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, *buffer, *bufferMemory);
-        std::cout << "Actual buffer created. Handle: " << *buffer << std::endl;
 
         copyBuffer(stagingBuffer, *buffer, bufferSize);
 

@@ -23,9 +23,9 @@ namespace ynm
 
 		virtual uint32_t CreateChunk(uint32_t size, std::vector<uint32_t> offsets, void* data, uint32_t count);
 		virtual void DeleteChunk(uint32_t ID);
-	private:
-		static Buffer* bufferRef;
-		static BufferType type;
+	protected:
+		Buffer* bufferRef;
+		BufferType type;
 	};
 
 	class YNM_API UniformBuffer : public Buffer

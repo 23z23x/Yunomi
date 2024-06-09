@@ -8,6 +8,11 @@ namespace ynm
 	{
 		//Create instance
 		this->instance = Instance::Create(window, vertex, fragment);
+
+		this->vertexBuffer = Buffer::Create(this->instance, BufferType::VERTEX);
+		this->indexBuffer = Buffer::Create(this->instance, BufferType::INDEX);
+		this->instanceBuffer = Buffer::Create(this->instance, BufferType::INSTANCE);
+
 		this->uniformBuffer = UniformBuffer::Create(this->instance);
 	}
 
@@ -76,13 +81,10 @@ namespace ynm
 
 
 		//Now, we take the vectors and use them to fill our buffers
-		this->vertexBuffer = Buffer::Create(this->instance, BufferType::VERTEX);
 		this->vertexBuffer->CreateChunk(vertices.size(), vertexSizes, (void*)vertices.data(), meshes.size());
 
-		this->indexBuffer = Buffer::Create(this->instance, BufferType::INDEX);
 		this->indexBuffer->CreateChunk(indices.size(), indexSizes, (void*)indices.data(), meshes.size());
 
-		this->instanceBuffer = Buffer::Create(this->instance, BufferType::INSTANCE);
 		//For instances, we are creating a chunk for every element in the vector
 		for (std::vector<InstanceData> vector : instData)
 		{

@@ -4,9 +4,6 @@
 
 namespace ynm
 {
-	Buffer* Buffer::bufferRef = nullptr;
-	BufferType Buffer::type = BufferType::VERTEX;
-
 	VulkanChunk::VulkanChunk(VulkanInstance* instance, uint32_t size, std::vector<uint32_t> offsets, void* data, VkBufferUsageFlagBits vkType, BufferType type, uint32_t count)
 		: size(size), offsets(offsets), instance(instance), count(count)
 	{
@@ -41,7 +38,7 @@ namespace ynm
 		}
 
 		VulkanBuffer* buffer = new VulkanBuffer((VulkanInstance*)instance, vkType, type);
-		bufferRef = buffer;
+		buffer->bufferRef = buffer;
 		type = type;
 
 		return buffer;
