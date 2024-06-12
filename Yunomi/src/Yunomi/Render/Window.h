@@ -33,6 +33,7 @@ namespace ynm {
 
 		virtual unsigned int GetWidth() const = 0;
 		virtual unsigned int GetHeight() const = 0;
+		//Returns a pointer to the object/structure created by the chosen window library
 		virtual void* getWindow() const = 0;
 
 		virtual void SetEventCallback(const EventCallbackFunc& callback) = 0;

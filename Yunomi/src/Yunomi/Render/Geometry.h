@@ -2,6 +2,7 @@
 
 #include "pch.h"
 
+//GLM include
 #define GLM_FORCE_RADIANS
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
@@ -15,9 +16,12 @@ namespace ynm
 	//Vertex definition used in all geometry
 	struct Vertex
 	{
+		//Position of the vertex in 3D space
 		glm::vec3 pos;
+		//Where on the texture this vertex maps to
 		glm::vec2 texCoord;
 
+		//Implementation of the comparison operator
 		bool operator==(const Vertex& other) const {
 			return pos == other.pos && texCoord == other.texCoord;
 		}
@@ -36,6 +40,7 @@ namespace std {
 
 namespace ynm
 {
+	//Struct that contains all info kept in the instance buffer for an instance
 	struct InstanceData
 	{
 		glm::mat4 modelMatrix = glm::mat4(1.0f);

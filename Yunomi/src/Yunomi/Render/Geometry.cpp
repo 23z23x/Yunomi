@@ -6,10 +6,13 @@
 
 namespace ynm
 {
+    //Creates a mesh from a file containing the info
 	Mesh::Mesh(std::string filename, uint32_t ID)
 	{
+        //Set the ID
         this->ID = ID;
 
+        //tinyobj variable declaration
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
@@ -54,17 +57,21 @@ namespace ynm
 
     Mesh::Mesh(float x1, float x2, float y1, float y2, float depth, uint32_t ID)
     {
+        //Set the ID
         this->ID = ID;
 
+        //Check that the vertices are valid
         if (x2 <= x1 || y1 <= y2)
         {
             YNM_CORE_ERROR("Renderer: A Quad object has been defined with invalid coordinates!");
         }
 
+        //indicies for a quad are always the same
         indices = {
             0, 1, 2, 2, 3, 0,
         };
 
+        //Declare the vertices
         vertices = {
         {{x1, y1, depth}, {1.0f, 0.0f}},
         {{x1, y2, depth}, {0.0f, 0.0f}},

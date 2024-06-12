@@ -9,6 +9,7 @@ namespace ynm
 		//Create instance
 		this->instance = Instance::Create(window, vertex, fragment);
 
+		//Create buffers
 		this->vertexBuffer = Buffer::Create(this->instance, BufferType::VERTEX);
 		this->indexBuffer = Buffer::Create(this->instance, BufferType::INDEX);
 		this->instanceBuffer = Buffer::Create(this->instance, BufferType::INSTANCE);
@@ -34,10 +35,13 @@ namespace ynm
 		{
 			int index = 0;
 			bool found = false;
+			//If there aren't any meshes, don't check
 			if (meshes.size() > 0)
 			{
+				//For all meshes already seen, check if this object's mesh is in the list
 				for (index = 0; index < meshes.size(); index++)
 				{
+					//Compare the IDs
 					if (obj.getShape()->getID() == meshes[index]->getID())
 					{
 						found = true;
@@ -46,6 +50,7 @@ namespace ynm
 				}
 			}
 
+			//If not found, put the mesh in the vector
 			if (!found)
 			{
 				//Push mesh back into vector
@@ -67,6 +72,7 @@ namespace ynm
 		std::vector<uint32_t> vertexSizes;
 		std::vector<uint32_t> indices;
 		std::vector<uint32_t> indexSizes;
+		//For each mesh, do the above
 		for (Mesh* mesh : meshes)
 		{
 			const auto& meshVertices = mesh->getVertices();
@@ -77,8 +83,6 @@ namespace ynm
 			indices.insert(indices.end(), meshIndices.begin(), meshIndices.end());
 			indexSizes.push_back(mesh->getIndices().size());
 		}
-
-
 
 		//Now, we take the vectors and use them to fill our buffers
 		this->vertexBuffer->CreateChunk(vertices.size(), vertexSizes, (void*)vertices.data(), meshes.size());
@@ -95,48 +99,62 @@ namespace ynm
 
 	void Renderer::AddDescriptors()
 	{
+		//Just call the instance descriptors method
 		instance->AddDescriptors(uniformBuffer, textures[0]);
 	}
 
 	uint32_t Renderer::CreateTexture(std::string filename)
 	{
+		//Call instance texture creation
 		Texture* text = Texture::Create(this->instance, filename, nextTextureID);
+		//Put the texture in the vector, and increment ID
 		this->textures.push_back(text);
 		this->nextTextureID++;
+		//Return the ID
 		return text->getID();
 	}
 
 	Mesh Renderer::CreateMesh(std::string filename)
 	{
+		//Use the Mesh constructor
 		Mesh mesh = Mesh(filename, nextMeshID);
+		//Incrememnt ID
 		this->nextMeshID++;
+		//Return the mesh
 		return mesh;
 	}
 
 	Mesh Renderer::CreateQuad(float x1, float x2, float y1, float y2, float depth)
 	{
+		//Use the Mesh constructor for quads
 		Mesh quad = Mesh(x1, x2, y1, y2, depth, nextMeshID);
+		//Increment ID
 		this->nextMeshID++;
+		//Return the quad
 		return quad;
 	}
 
 	void Renderer::StartDraw()
 	{
+		//Call instance method
 		this->instance->StartDraw(this->vertexBuffer, this->indexBuffer, this->instanceBuffer);
 	}
 
 	void Renderer::UpdateUniform()
 	{
+		//Call instance method
 		this->instance->UpdateUniform(uniformBuffer);
 	}
 
 	void Renderer::EndDraw()
 	{
+		//Call instance method
 		this->instance->EndDraw();
 	}
 
 	void Renderer::FrameResize()
 	{
+		//Call instance method
 		this->instance->FrameResize();
 	}
 }
