@@ -17,6 +17,7 @@ namespace ynm
 
 	Buffer* Buffer::Create(Instance* instance, BufferType type)
 	{
+		//Switch on Yunomi type to get Vulkan type
 		VkBufferUsageFlagBits vkType;
 		switch(type)
 		{
@@ -68,6 +69,7 @@ namespace ynm
 	{
 		VulkanChunk* chunk = new VulkanChunk(this->instance, size, offsets, data, vkType, type, count);
 
+		//After chunk is created, push it onto the chunks vector
 		chunks.push_back(chunk);
 		
 		return chunk->getID();
@@ -75,6 +77,7 @@ namespace ynm
 
 	void VulkanBuffer::DeleteVulkanChunk(uint32_t ID)
 	{
+		//iterator finds chunk in vector, then deletes it
 		auto it = std::find_if(chunks.begin(), chunks.end(), [ID](const VulkanChunk* obj) {
 			if (obj->getID() == ID)
 			{

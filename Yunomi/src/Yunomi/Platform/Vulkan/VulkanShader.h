@@ -11,6 +11,10 @@ namespace ynm
 	public:
 
 		Shader* Create(const std::string& filename, ShaderType type);
+		//shader source
+		//Vulkan shader type
+		//Yunomi shader type
+		//shaderc shader type
 		VulkanShader(const std::string& filename, VkShaderStageFlagBits type, ShaderType ynmType, shaderc_shader_kind shadercType);
 		~VulkanShader();
 

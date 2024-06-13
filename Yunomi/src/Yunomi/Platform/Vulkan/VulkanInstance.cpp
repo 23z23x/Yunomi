@@ -7,7 +7,7 @@
 
 namespace ynm
 {
-    //Definition of ynm::Vertex attributes
+    //Vertex binding description
 
     static VkVertexInputBindingDescription getBindingDescription() {
         VkVertexInputBindingDescription bindingDescription{};
@@ -18,6 +18,8 @@ namespace ynm
         return bindingDescription;
     }
 
+    //InstanceData binding description
+
     static VkVertexInputBindingDescription getInstanceBindingDescription() {
         VkVertexInputBindingDescription bindingDescription = {};
         bindingDescription.binding = 1;
@@ -26,20 +28,25 @@ namespace ynm
         return bindingDescription;
     }
 
+    //Attribute descriptions
+
     static std::array<VkVertexInputAttributeDescription, 6> getAttributeDescriptions() {
         std::array<VkVertexInputAttributeDescription, 6> attributeDescriptions{};
-
+        
+        //Object coordinates
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;
         attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
         attributeDescriptions[0].offset = offsetof(Vertex, pos);
 
+        //Texture coordinates
         attributeDescriptions[1].binding = 0;
         attributeDescriptions[1].location = 1;
         attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
         attributeDescriptions[1].offset = offsetof(Vertex, texCoord);
 
         // Instance attributes
+        //Model matrix
         for (uint32_t i = 0; i < 4; ++i) {
             attributeDescriptions[2 + i].binding = 1;
             attributeDescriptions[2 + i].location = 2 + i;
@@ -49,8 +56,6 @@ namespace ynm
 
         return attributeDescriptions;
     }
-
-
 
     Instance* Instance::instanceref = nullptr;
     //Implementation of Instance methods
@@ -118,8 +123,7 @@ namespace ynm
 
         //Check for necessary validation layers, throw error if not avalible
         if (enableValidationLayers && !checkValidationLayerSupport()) {
-            YNM_CORE_ERROR("Vulkan: Validation layers requested, but not available!");
-            throw std::runtime_error("");
+            throw VulkanError("Requested validation layers are unavailable.", "VulkanInstance.cpp | 125");
         }
 
         //Info about application
@@ -149,8 +153,7 @@ namespace ynm
 
         //Create instance with info
         if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
-            YNM_CORE_ERROR("Vulkan: Failed to create Vulkan instance!");
-            throw std::runtime_error("");
+            throw VulkanError("Instance creation failed.", "VulkanInstance.cpp | 155");
         }
 
         YNM_CORE_INFO("Vulkan: Instance created!");
@@ -159,7 +162,7 @@ namespace ynm
 
         //Create surface using window
         if (glfwCreateWindowSurface(instance, m_Window, nullptr, &surface) != VK_SUCCESS) {
-            YNM_CORE_ERROR("Vulkan: Failed to create window surface!");
+            throw VulkanError("Surface creation failed.", "VulkanInstance.cpp | 164");
         }
 
         YNM_CORE_INFO("Vulkan: Created window surface!");
@@ -617,6 +620,7 @@ namespace ynm
 
     void VulkanInstance::cleanupSwapChain() 
     {
+        //Just calls destroy/free methods for all the swapchain items
         vkDestroyImageView(device, colorImageView, nullptr);
         vkDestroyImage(device, colorImage, nullptr);
         vkFreeMemory(device, colorImageMemory, nullptr);
@@ -633,7 +637,7 @@ namespace ynm
     }
 
     void VulkanInstance::recreateSwapChain() {
-
+        //Gets the new width and height, then creates a new swap chain with them
         int width = 0, height = 0;
         glfwGetFramebufferSize(window, &width, &height);
         while (width == 0 || height == 0) {
@@ -674,9 +678,11 @@ namespace ynm
     //Graphics pipeline
     void VulkanInstance::createGraphicsPipeline(Shader* vertex, Shader* fragment) {
 
+        //Get the source for the shader modules
         VkShaderModule vertShaderModule = createShaderModule(vertex->getSpirv());
         VkShaderModule fragShaderModule = createShaderModule(fragment->getSpirv());
 
+        //Set the stage info for both shaders
         VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
         vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
@@ -691,6 +697,7 @@ namespace ynm
 
         VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
+        //Set up binding descriptions
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
@@ -703,6 +710,8 @@ namespace ynm
             instanceBindingDescription
         };
 
+        //get attribute descriptions
+
         auto attributeDescriptions = getAttributeDescriptions();
 
         vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(bindingDescriptions.size());
@@ -710,16 +719,19 @@ namespace ynm
         vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
         vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
+        //set input assembly
         VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
         inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         inputAssembly.primitiveRestartEnable = VK_FALSE;
 
+        //set viewport state
         VkPipelineViewportStateCreateInfo viewportState{};
         viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
         viewportState.viewportCount = 1;
         viewportState.scissorCount = 1;
 
+        //rasterizer settings
         VkPipelineRasterizationStateCreateInfo rasterizer{};
         rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
         rasterizer.depthClampEnable = VK_FALSE;
@@ -730,11 +742,13 @@ namespace ynm
         rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
         rasterizer.depthBiasEnable = VK_FALSE;
 
+        //MSAA settings
         VkPipelineMultisampleStateCreateInfo multisampling{};
         multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
         multisampling.sampleShadingEnable = VK_FALSE;
         multisampling.rasterizationSamples = MSAALevel;
 
+        //Depth stencil
         VkPipelineDepthStencilStateCreateInfo depthStencil{};
         depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
         depthStencil.depthTestEnable = VK_TRUE;
@@ -743,6 +757,7 @@ namespace ynm
         depthStencil.depthBoundsTestEnable = VK_FALSE;
         depthStencil.stencilTestEnable = VK_FALSE;
 
+        //Color blending options
         VkPipelineColorBlendAttachmentState colorBlendAttachment{};
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
         colorBlendAttachment.blendEnable = VK_FALSE;
@@ -758,10 +773,12 @@ namespace ynm
         colorBlending.blendConstants[2] = 0.0f;
         colorBlending.blendConstants[3] = 0.0f;
 
+        //Which states are dynamic
         std::vector<VkDynamicState> dynamicStates = {
             VK_DYNAMIC_STATE_VIEWPORT,
             VK_DYNAMIC_STATE_SCISSOR
         };
+
         VkPipelineDynamicStateCreateInfo dynamicState{};
         dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
         dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
@@ -795,6 +812,8 @@ namespace ynm
         //Dynamic states, the very few things we say can change about the pipeline without rebuilding
         //Here we make the viewport and scissor dynamic, so we can support resizing later
 
+
+        //Tie everything together here
         VkGraphicsPipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
         pipelineInfo.stageCount = 2;
@@ -843,6 +862,7 @@ namespace ynm
         return shaderModule;
     }
 
+    //Options for how things are drawn
     void VulkanInstance::createRenderPass() {
         VkAttachmentDescription colorAttachment{};
         colorAttachment.format = swapChainImageFormat;

@@ -10,6 +10,13 @@ namespace ynm
 	class YNM_API VulkanChunk
 	{
 	public:
+		//Vulkan instance
+		//size of chunk in bytes
+		//offsets at which each unit of data is stored
+		//raw data
+		//Vulkan buffer type
+		//Yunomi buffer type
+		//Number of buffer items
 		VulkanChunk(VulkanInstance* instance, uint32_t size, std::vector<uint32_t> offsets, void* data, VkBufferUsageFlagBits vkType, BufferType type, uint32_t count);
 		~VulkanChunk();
 
@@ -35,9 +42,11 @@ namespace ynm
 	class VulkanBuffer : public Buffer
 	{
 	public:
+		//Instance, Vulkan type, Yunomi type
 		VulkanBuffer(VulkanInstance* instance, VkBufferUsageFlagBits vkType, BufferType type);
 		~VulkanBuffer() {}
 
+		//Creates a chunk affililated with this buffer
 		uint32_t CreateVulkanChunk(uint32_t size, std::vector<uint32_t> offsets, void* data, uint32_t count);
 		void DeleteVulkanChunk(uint32_t);
 
@@ -50,6 +59,7 @@ namespace ynm
 
 	};
 
+	//Uniform buffer class
 	class VulkanUniformBuffer : public UniformBuffer
 	{
 	public:

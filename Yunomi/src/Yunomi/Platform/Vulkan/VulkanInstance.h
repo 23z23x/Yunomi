@@ -52,6 +52,10 @@ namespace ynm
     class VulkanInstance : public Instance
     {
     public:
+        //GLFW window
+        //Vertex shader
+        //Fragment shader
+        //OPTIONAL: Vulkan instance props
         VulkanInstance(GLFWwindow* m_Window, Shader* vertex, Shader* fragment, const VulkanInstanceProps& props = VulkanInstanceProps());
 
         ~VulkanInstance();
