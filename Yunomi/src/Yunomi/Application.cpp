@@ -13,13 +13,20 @@ namespace ynm {
 	
 	Application::Application() 
 	{
-		Shader* vertShader = Shader::Create("C:/repos/Yunomi/Yunomi/src/Yunomi/Shaders/shader.vert", ShaderType::VRTX);
-		Shader* fragShader = Shader::Create("C:/repos/Yunomi/Yunomi/src/Yunomi/Shaders/shader.frag", ShaderType::FRAG);
+		try
+		{
+			Shader* vertShader = Shader::Create("C:/repos/Yunomi/Yunomi/src/Yunomi/Shaders/shader.vert", ShaderType::VRTX);
+			Shader* fragShader = Shader::Create("C:/repos/Yunomi/Yunomi/src/Yunomi/Shaders/shader.frag", ShaderType::FRAG);
 
-		window = Window::Create();
-		window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
-		renderer = new Renderer(window, vertShader, fragShader);
-
+			window = Window::Create();
+			window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
+			renderer = new Renderer(window, vertShader, fragShader);
+		}
+		catch (std::exception& e)
+		{
+			YNM_CORE_ERROR("Fatal error occured in Application initialization.");
+			exit(0);
+		}
 
 	}
 
@@ -59,11 +66,19 @@ namespace ynm {
 
 		while (mainLoop)
 		{
-			window->OnUpdate();
-			renderer->StartDraw();
-			renderer->UpdateUniform();
-			renderer->EndDraw();
-
+			try
+			{
+				window->OnUpdate();
+				renderer->StartDraw();
+				renderer->UpdateUniform();
+				renderer->EndDraw();
+			}
+			catch (std::exception& e)
+			{
+				YNM_CORE_ERROR("Fatal error occured in main loop.");
+				e.what();
+				exit(0);
+			}
 		}
 		window->~Window();
 	}

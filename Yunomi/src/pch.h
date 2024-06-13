@@ -19,4 +19,5 @@
 
 #include "Yunomi/Log.h"
 #include "Yunomi/Core.h"
+#include "Yunomi/Error.h"
 #include "Yunomi/Utility/Utility.h"
