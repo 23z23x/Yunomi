@@ -1181,6 +1181,8 @@ namespace ynm
 
         VkSemaphoreCreateInfo semaphoreInfo{};
         semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        semaphoreInfo.pNext = nullptr;
+        semaphoreInfo.flags = 0;
 
         VkFenceCreateInfo fenceInfo{};
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -1614,9 +1616,6 @@ namespace ynm
 
         // Only reset the fence if we are submitting work
         vkResetFences(device, 1, &inFlightFences[currentFrame]);
-
-        //Get an image from the swap chain
-        vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
         //Reset, then start recording to the command buffer
         vkResetCommandBuffer(commandBuffers[currentFrame], 0);
