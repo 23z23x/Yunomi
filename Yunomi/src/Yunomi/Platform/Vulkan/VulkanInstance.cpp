@@ -1098,7 +1098,8 @@ namespace ynm
     void VulkanInstance::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VulkanBuffer* vertex, VulkanBuffer* index, VulkanBuffer* instance) {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = 0; // Optional
+        // Set as one time here because, right now and for the forseeable future, technically all uses of the command buffer will be "one time" because it is used once per frame.
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
         beginInfo.pInheritanceInfo = nullptr; // Optional
 
         if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
