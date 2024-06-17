@@ -3,16 +3,78 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include "VulkanBuffer.h"
 
 namespace ynm
 {
+    //Vertex binding description
+
+    static VkVertexInputBindingDescription getBindingDescription() {
+        VkVertexInputBindingDescription bindingDescription{};
+        bindingDescription.binding = 0;
+        bindingDescription.stride = sizeof(Vertex);
+        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+        return bindingDescription;
+    }
+
+    //InstanceData binding description
+
+    static VkVertexInputBindingDescription getInstanceBindingDescription() {
+        VkVertexInputBindingDescription bindingDescription = {};
+        bindingDescription.binding = 1;
+        bindingDescription.stride = sizeof(InstanceData);
+        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_INSTANCE;
+        return bindingDescription;
+    }
+
+    //Attribute descriptions
+
+    static std::array<VkVertexInputAttributeDescription, 6> getAttributeDescriptions() {
+        std::array<VkVertexInputAttributeDescription, 6> attributeDescriptions{};
+        
+        //Object coordinates
+        attributeDescriptions[0].binding = 0;
+        attributeDescriptions[0].location = 0;
+        attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+        attributeDescriptions[0].offset = offsetof(Vertex, pos);
+
+        //Texture coordinates
+        attributeDescriptions[1].binding = 0;
+        attributeDescriptions[1].location = 1;
+        attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[1].offset = offsetof(Vertex, texCoord);
+
+        // Instance attributes
+        //Model matrix
+        for (uint32_t i = 0; i < 4; ++i) {
+            attributeDescriptions[2 + i].binding = 1;
+            attributeDescriptions[2 + i].location = 2 + i;
+            attributeDescriptions[2 + i].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+            attributeDescriptions[2 + i].offset = offsetof(InstanceData, modelMatrix) + i * sizeof(glm::vec4);
+        }
+
+        return attributeDescriptions;
+    }
+
     Instance* Instance::instanceref = nullptr;
     //Implementation of Instance methods
     Instance* Instance::Create(Window* m_Window, Shader* vertex, Shader* fragment, const InstanceProps& props)
     {
-        
+        //Convert InstanceProps to VulkanInstanceProps
+        /*VulkanInstanceProps vulkanProps;
+        vulkanProps.VKvalidationLayers = props.validationLayers;
+        YNM_CORE_INFO("{0}", vulkanProps.VKdeviceExtensions[0]);
 
-        Instance* instance = new VulkanInstance((GLFWwindow*) m_Window->getWindow(), vertex, fragment, props);
+        for (const char* extension : props.deviceExtensions)
+        {
+            if(strcmp(extension, "VK_KHR_SWAPCHAIN_EXTENSION_NAME") == 0)
+            { 
+                vulkanProps.VKdeviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+            }
+        }*/
+
+        Instance* instance = new VulkanInstance((GLFWwindow*) m_Window->getWindow(), vertex, fragment/*, vulkanProps*/);
         instanceref = instance;
         return instance;
     }
@@ -29,10 +91,14 @@ namespace ynm
         instance->recreateSwapChain();
     }
 
-    void Instance::StartDraw(VertexBuffer* vb, IndexBuffer* ib)
+    void Instance::StartDraw(Buffer* vertex, Buffer* index, Buffer* instance)
     {
-        VulkanInstance* instance = (VulkanInstance*)instanceref;
-        instance->VulkanStartDraw((VkBuffer*)vb->getBuffer(), vb->getSize(), (VkBuffer*)ib->getBuffer(), ib->getSize());
+        VulkanInstance* vkinstance = (VulkanInstance*)instanceref;
+        VulkanBuffer* vulkanVertex = (VulkanBuffer*)vertex;
+        VulkanBuffer* vulkanIndex = (VulkanBuffer*)index;
+        VulkanBuffer* vulkanInstance = (VulkanBuffer*)instance;
+
+        vkinstance->VulkanStartDraw(vulkanVertex, vulkanIndex, vulkanInstance);
     }
 
     void Instance::UpdateUniform(UniformBuffer* ub)
@@ -49,16 +115,15 @@ namespace ynm
 
     //Vulkan Instance implementation
 
-    VulkanInstance::VulkanInstance(GLFWwindow* m_Window, Shader* vert, Shader* frag, const InstanceProps& props)
+    VulkanInstance::VulkanInstance(GLFWwindow* m_Window, Shader* vert, Shader* frag, const VulkanInstanceProps& props)
     {
-        this->validationLayers = props.vk_ValidationLayers;
-        this->deviceExtensions = props.vk_DeviceExtensions;
+        this->validationLayers = props.VKvalidationLayers;
+        this->deviceExtensions = props.VKdeviceExtensions;
         this->window = m_Window;
 
         //Check for necessary validation layers, throw error if not avalible
         if (enableValidationLayers && !checkValidationLayerSupport()) {
-            YNM_CORE_ERROR("Vulkan: Validation layers requested, but not available!");
-            throw std::runtime_error("");
+            throw VulkanError("Requested validation layers are unavailable.", "VulkanInstance.cpp | 125");
         }
 
         //Info about application
@@ -88,8 +153,7 @@ namespace ynm
 
         //Create instance with info
         if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
-            YNM_CORE_ERROR("Vulkan: Failed to create Vulkan instance!");
-            throw std::runtime_error("");
+            throw VulkanError("Instance creation failed.", "VulkanInstance.cpp | 155");
         }
 
         YNM_CORE_INFO("Vulkan: Instance created!");
@@ -98,7 +162,7 @@ namespace ynm
 
         //Create surface using window
         if (glfwCreateWindowSurface(instance, m_Window, nullptr, &surface) != VK_SUCCESS) {
-            YNM_CORE_ERROR("Vulkan: Failed to create window surface!");
+            throw VulkanError("Surface creation failed.", "VulkanInstance.cpp | 164");
         }
 
         YNM_CORE_INFO("Vulkan: Created window surface!");
@@ -556,6 +620,7 @@ namespace ynm
 
     void VulkanInstance::cleanupSwapChain() 
     {
+        //Just calls destroy/free methods for all the swapchain items
         vkDestroyImageView(device, colorImageView, nullptr);
         vkDestroyImage(device, colorImage, nullptr);
         vkFreeMemory(device, colorImageMemory, nullptr);
@@ -572,7 +637,7 @@ namespace ynm
     }
 
     void VulkanInstance::recreateSwapChain() {
-
+        //Gets the new width and height, then creates a new swap chain with them
         int width = 0, height = 0;
         glfwGetFramebufferSize(window, &width, &height);
         while (width == 0 || height == 0) {
@@ -613,9 +678,11 @@ namespace ynm
     //Graphics pipeline
     void VulkanInstance::createGraphicsPipeline(Shader* vertex, Shader* fragment) {
 
+        //Get the source for the shader modules
         VkShaderModule vertShaderModule = createShaderModule(vertex->getSpirv());
         VkShaderModule fragShaderModule = createShaderModule(fragment->getSpirv());
 
+        //Set the stage info for both shaders
         VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
         vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
@@ -630,27 +697,41 @@ namespace ynm
 
         VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
+        //Set up binding descriptions
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
-        auto bindingDescription = Vertex::getBindingDescription();
-        auto attributeDescriptions = Vertex::getAttributeDescriptions();
+        auto vertexBindingDescription = getBindingDescription();
+        auto instanceBindingDescription = getInstanceBindingDescription();
 
-        vertexInputInfo.vertexBindingDescriptionCount = 1;
+        std::array<VkVertexInputBindingDescription, 2> bindingDescriptions =
+        {
+            vertexBindingDescription,
+            instanceBindingDescription
+        };
+
+        //get attribute descriptions
+
+        auto attributeDescriptions = getAttributeDescriptions();
+
+        vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(bindingDescriptions.size());
         vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+        vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
         vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
+        //set input assembly
         VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
         inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         inputAssembly.primitiveRestartEnable = VK_FALSE;
 
+        //set viewport state
         VkPipelineViewportStateCreateInfo viewportState{};
         viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
         viewportState.viewportCount = 1;
         viewportState.scissorCount = 1;
 
+        //rasterizer settings
         VkPipelineRasterizationStateCreateInfo rasterizer{};
         rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
         rasterizer.depthClampEnable = VK_FALSE;
@@ -661,11 +742,13 @@ namespace ynm
         rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
         rasterizer.depthBiasEnable = VK_FALSE;
 
+        //MSAA settings
         VkPipelineMultisampleStateCreateInfo multisampling{};
         multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
         multisampling.sampleShadingEnable = VK_FALSE;
         multisampling.rasterizationSamples = MSAALevel;
 
+        //Depth stencil
         VkPipelineDepthStencilStateCreateInfo depthStencil{};
         depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
         depthStencil.depthTestEnable = VK_TRUE;
@@ -674,6 +757,7 @@ namespace ynm
         depthStencil.depthBoundsTestEnable = VK_FALSE;
         depthStencil.stencilTestEnable = VK_FALSE;
 
+        //Color blending options
         VkPipelineColorBlendAttachmentState colorBlendAttachment{};
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
         colorBlendAttachment.blendEnable = VK_FALSE;
@@ -689,10 +773,12 @@ namespace ynm
         colorBlending.blendConstants[2] = 0.0f;
         colorBlending.blendConstants[3] = 0.0f;
 
+        //Which states are dynamic
         std::vector<VkDynamicState> dynamicStates = {
             VK_DYNAMIC_STATE_VIEWPORT,
             VK_DYNAMIC_STATE_SCISSOR
         };
+
         VkPipelineDynamicStateCreateInfo dynamicState{};
         dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
         dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
@@ -726,6 +812,8 @@ namespace ynm
         //Dynamic states, the very few things we say can change about the pipeline without rebuilding
         //Here we make the viewport and scissor dynamic, so we can support resizing later
 
+
+        //Tie everything together here
         VkGraphicsPipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
         pipelineInfo.stageCount = 2;
@@ -774,12 +862,13 @@ namespace ynm
         return shaderModule;
     }
 
+    //Options for how things are drawn
     void VulkanInstance::createRenderPass() {
         VkAttachmentDescription colorAttachment{};
         colorAttachment.format = swapChainImageFormat;
         colorAttachment.samples = MSAALevel;
         colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -1006,10 +1095,11 @@ namespace ynm
         YNM_CORE_INFO("Vulkan: Successfully allocated command buffers");
     }
 
-    void VulkanInstance::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VkBuffer* vvb, uint32_t vvbSize, VkBuffer* vib, uint32_t vibSize) {
+    void VulkanInstance::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VulkanBuffer* vertex, VulkanBuffer* index, VulkanBuffer* instance) {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = 0; // Optional
+        // Set as one time here because, right now and for the forseeable future, technically all uses of the command buffer will be "one time" because it is used once per frame.
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
         beginInfo.pInheritanceInfo = nullptr; // Optional
 
         if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
@@ -1026,7 +1116,7 @@ namespace ynm
         renderPassInfo.renderArea.extent = swapChainExtent;
 
         std::array<VkClearValue, 2> clearValues{};
-        clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+        clearValues[0].color = { {0.0f, 0.0f, 0.0f, 0.0f} };
         clearValues[1].depthStencil = { 1.0f, 0 };
 
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -1050,15 +1140,31 @@ namespace ynm
         scissor.extent = swapChainExtent;
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-        VkBuffer vertexBuffers[] = { *vvb };
-        VkDeviceSize offsets[] = { 0 };
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+        //Offsets into Vertex and Index buffers
+        uint32_t vertexOffset = 0;
+        uint32_t indexOffset = 0;
 
-        vkCmdBindIndexBuffer(commandBuffer, *vib, 0, VK_INDEX_TYPE_UINT32);
+        //We can bind the index buffer out here since its always the same.
+        vkCmdBindIndexBuffer(commandBuffer, index->getChunks()[0]->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+        //For all meshes being rendered
+        for (int i = 0; i < instance->getChunks().size(); i++)
+        {
+            //Bind the vertex buffer, and the current instance buffer
+            VkBuffer vertexBuffers[] = { vertex->getChunks()[0]->getBuffer(), instance->getChunks()[i]->getBuffer() };
+            VkDeviceSize offsets[] = { 0, 0 };
+            //Subsequent calls overwrite what is bound, so vertex buffer is just bound here.
+            vkCmdBindVertexBuffers(commandBuffer, 0, 2, vertexBuffers, offsets);
 
-        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(vibSize), 1, 0, 0, 0);
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+
+            //Draw using current instance buffer and vertex and index offsets.
+            vkCmdDrawIndexed(commandBuffer, index->getChunks()[0]->getOffsets()[i], instance->getChunks()[i]->getCount(), indexOffset, vertexOffset, 0);
+
+            vertexOffset += vertex->getChunks()[0]->getOffsets()[i];
+            indexOffset += index->getChunks()[0]->getOffsets()[i];
+        }
+        //
 
         vkCmdEndRenderPass(commandBuffer);
 
@@ -1076,6 +1182,8 @@ namespace ynm
 
         VkSemaphoreCreateInfo semaphoreInfo{};
         semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        semaphoreInfo.pNext = nullptr;
+        semaphoreInfo.flags = 0;
 
         VkFenceCreateInfo fenceInfo{};
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -1093,7 +1201,7 @@ namespace ynm
     }
 
     //Buffer creation for other classes
-    void VulkanInstance::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
+    void VulkanInstance::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory, float priority) {
         VkBufferCreateInfo bufferInfo{};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         bufferInfo.size = size;
@@ -1107,8 +1215,13 @@ namespace ynm
         VkMemoryRequirements memRequirements;
         vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
 
+        VkMemoryPriorityAllocateInfoEXT priorityInfo = {};
+        priorityInfo.sType = VK_STRUCTURE_TYPE_MEMORY_PRIORITY_ALLOCATE_INFO_EXT;
+        priorityInfo.priority = priority;
+
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        allocInfo.pNext = &priorityInfo;
         allocInfo.allocationSize = memRequirements.size;
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
@@ -1147,50 +1260,51 @@ namespace ynm
 
     //Buffer class initialization
 
-    void VulkanInstance::createVertexBuffer(VkBuffer* vertexBuffer, VkDeviceMemory* vertexBufferMemory, std::vector<Vertex> vertices)
+    void VulkanInstance::CreateChunk(uint32_t size, VkBuffer* buffer, VkDeviceMemory* bufferMemory, uint32_t* ID, void* data, VkBufferUsageFlagBits vkType, BufferType type)
     {
-        VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+        VkDeviceSize bufferSize = 0;
+        float priority = 0;
+
+        switch (type)
+        {
+        case BufferType::VERTEX:
+            bufferSize = size * sizeof(Vertex);
+            priority = 0.8f;
+            break;
+        case BufferType::INDEX:
+            bufferSize = size * sizeof(uint32_t);
+            priority = 0.8f;
+            break;
+        case BufferType::INSTANCE:
+            bufferSize = size * sizeof(InstanceData);
+            priority = 0.8f;
+            break;
+        default:
+            YNM_CORE_ERROR("Vulkan: Unaccounted for buffer type created!");
+            break;
+        }
 
         VkBuffer stagingBuffer;
         VkDeviceMemory stagingBufferMemory;
-        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory, 0.0f);
 
-        void* data;
-        vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, vertices.data(), (size_t)bufferSize);
+        void* staging;
+        vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &staging);
+        memcpy(staging, data, (size_t)bufferSize);
         vkUnmapMemory(device, stagingBufferMemory);
 
-        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, *vertexBuffer, *vertexBufferMemory);
+        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | vkType, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, *buffer, *bufferMemory, priority);
 
-        copyBuffer(stagingBuffer, *vertexBuffer, bufferSize);
+        copyBuffer(stagingBuffer, *buffer, bufferSize);
 
         vkDestroyBuffer(device, stagingBuffer, nullptr);
         vkFreeMemory(device, stagingBufferMemory, nullptr);
 
-        YNM_CORE_INFO("Vulkan: Vertex buffer created!");
-    }
+        //Technically, you could run out of IDs like this, but if a project ends up generating 2 billion chunks, then I will have run into bigger problems.
+        *ID = this->nextChunkID;
+        this->nextChunkID++;
 
-    void VulkanInstance::createIndexBuffer(VkBuffer* indexBuffer, VkDeviceMemory* indexBufferMemory, std::vector<uint32_t> indices) {
-        VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
-
-        VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferMemory;
-
-        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-        void* data;
-        vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, indices.data(), (size_t)bufferSize);
-        vkUnmapMemory(device, stagingBufferMemory);
-
-        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, *indexBuffer, *indexBufferMemory);
-
-        copyBuffer(stagingBuffer, *indexBuffer, bufferSize);
-
-        vkDestroyBuffer(device, stagingBuffer, nullptr);
-        vkFreeMemory(device, stagingBufferMemory, nullptr);
-
-        YNM_CORE_INFO("Vulkan: Index buffer created!");
+        YNM_CORE_INFO("Vulkan: Chunk created! ID: {0}", *ID);
     }
 
     void VulkanInstance::createUniformBuffers(std::vector<VkBuffer> *uniformBuffers, std::vector<VkDeviceMemory> *uniformBuffersMemory, std::vector<void*> *uniformBuffersMapped) {
@@ -1201,7 +1315,7 @@ namespace ynm
         (*uniformBuffersMapped).resize(MAX_FRAMES_IN_FLIGHT);
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, (*uniformBuffers)[i], (*uniformBuffersMemory)[i]);
+            createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, (*uniformBuffers)[i], (*uniformBuffersMemory)[i], 0.0f);
 
             vkMapMemory(device, (*uniformBuffersMemory)[i], 0, bufferSize, 0, &(*uniformBuffersMapped)[i]);
         }
@@ -1219,18 +1333,11 @@ namespace ynm
     }
 
     //Buffer class destruction
-    void VulkanInstance::destroyVertexBuffer(VkBuffer vertexBuffer, VkDeviceMemory vertexBufferMemory)
+    void VulkanInstance::DeleteChunk(VkBuffer buffer, VkDeviceMemory bufferMemory, uint32_t ID)
     {
-        vkDestroyBuffer(device, vertexBuffer, nullptr);
-        vkFreeMemory(device, vertexBufferMemory, nullptr);
-        YNM_CORE_INFO("Vulkan: Vertex buffer destroyed!");
-    }
-
-    void VulkanInstance::destroyIndexBuffer(VkBuffer indexBuffer, VkDeviceMemory indexBufferMemory)
-    {
-        vkDestroyBuffer(device, indexBuffer, nullptr);
-        vkFreeMemory(device, indexBufferMemory, nullptr);
-        YNM_CORE_INFO("Vulkan: Index buffer destroyed!");
+        vkDestroyBuffer(device, buffer, nullptr);
+        vkFreeMemory(device, bufferMemory, nullptr);
+        YNM_CORE_INFO("Vulkan: Chunk destroyed! ID: {0}", ID);
     }
 
     void VulkanInstance::destroyUniformBuffers(std::vector<VkBuffer> uniformBuffers, std::vector<VkDeviceMemory> uniformBuffersMemory)
@@ -1344,7 +1451,7 @@ namespace ynm
             throw std::runtime_error("");
         }
 
-        createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+        createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory, 1.0f);
 
         void* data;
         vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data);
@@ -1388,8 +1495,13 @@ namespace ynm
         VkMemoryRequirements memRequirements;
         vkGetImageMemoryRequirements(device, image, &memRequirements);
 
+        VkMemoryPriorityAllocateInfoEXT priorityInfo = {};
+        priorityInfo.sType = VK_STRUCTURE_TYPE_MEMORY_PRIORITY_ALLOCATE_INFO_EXT;
+        priorityInfo.priority = 1.0f;
+
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        allocInfo.pNext = &priorityInfo;
         allocInfo.allocationSize = memRequirements.size;
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
@@ -1486,7 +1598,7 @@ namespace ynm
     }
 
     //DRAW COMMANDS
-    void VulkanInstance::VulkanStartDraw(VkBuffer* vvb, uint32_t vvbSize, VkBuffer* vib, uint32_t vibSize)
+    void VulkanInstance::VulkanStartDraw(VulkanBuffer* vertex, VulkanBuffer* index, VulkanBuffer* instance)
     {
         //Fence which stops if CPU is ahead of GPU
         vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
@@ -1506,12 +1618,9 @@ namespace ynm
         // Only reset the fence if we are submitting work
         vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
-        //Get an image from the swap chain
-        vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
-
         //Reset, then start recording to the command buffer
         vkResetCommandBuffer(commandBuffers[currentFrame], 0);
-        recordCommandBuffer(commandBuffers[currentFrame], imageIndex, vvb, vvbSize, vib, vibSize);
+        recordCommandBuffer(commandBuffers[currentFrame], imageIndex, vertex, index, instance);
     }
 
     void VulkanInstance::VulkanUpdateUniform(std::vector<void*>* uniformBuffersMapped)
@@ -1616,7 +1725,7 @@ namespace ynm
 
     VkFormat VulkanInstance::findDepthFormat() {
         return findSupportedFormat(
-            { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+            { VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D16_UNORM },
             VK_IMAGE_TILING_OPTIMAL,
             VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
         );

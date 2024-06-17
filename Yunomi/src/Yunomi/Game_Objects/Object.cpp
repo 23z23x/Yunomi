@@ -3,53 +3,32 @@
 
 namespace ynm
 {
-	Object::Object(uint32_t ID, std::string name, glm::vec3 position)
+	Object::Object(uint32_t ID, std::string name, InstanceData instanceData)
 	{
 		this->ID = ID;
 		this->name = name;
-		this->position = position;
+		this->instanceData = instanceData;
 	}
 
-	void Object::setPosition(glm::vec3 position)
+
+	TexturedObject::TexturedObject(uint32_t ID, std::string name, InstanceData instanceData, uint32_t textureID)
+		: Object(ID, name, instanceData)
 	{
-		this->position = position;
+		this->textureID = textureID;
 	}
 
-
-
-	TexturedObject::TexturedObject(uint32_t ID, std::string name, glm::vec3 position, Texture* texture)
-		: Object(ID, name, position)
+	void TexturedObject::setTexture(uint32_t ID)
 	{
-		this->texture = texture;
+		this->textureID = ID;
 	}
 
-	void TexturedObject::setTexture(Texture* texture)
-	{
-		this->texture = texture;
-	}
-
-
-
-	Object2D::Object2D(uint32_t ID, std::string name, glm::vec3 position, Texture* texture, Quad* shape)
-		: TexturedObject(ID, name, position, texture)
+	GameObject::GameObject(uint32_t ID, std::string name, InstanceData instanceData, uint32_t textureID, Mesh* shape)
+		: TexturedObject(ID, name, instanceData, textureID)
 	{
 		this->shape = shape;
 	}
 
-	Object2D::~Object2D()
-	{
-
-	}
-
-
-
-	Object3D::Object3D(uint32_t ID, std::string name, glm::vec3 position, Texture* texture, Mesh* shape)
-		: TexturedObject(ID, name, position, texture)
-	{
-		this->shape = shape;
-	}
-
-	Object3D::~Object3D()
+	GameObject::~GameObject()
 	{
 
 	}

@@ -3,54 +3,72 @@
 #include "Yunomi/Render/Buffer.h"
 #include "Yunomi/Platform/Vulkan/VulkanInstance.h"
 
+#include "Yunomi/Render/Geometry.h"
+
 namespace ynm
 {
-	class VulkanVertexBuffer : public VertexBuffer
+	class YNM_API VulkanChunk
 	{
 	public:
-		VulkanVertexBuffer(VulkanInstance* instance, std::vector<Vertex> vertices);
-		~VulkanVertexBuffer();
+		//Vulkan instance
+		//size of chunk in bytes
+		//offsets at which each unit of data is stored
+		//raw data
+		//Vulkan buffer type
+		//Yunomi buffer type
+		//Number of buffer items
+		VulkanChunk(VulkanInstance* instance, uint32_t size, std::vector<uint32_t> offsets, void* data, VkBufferUsageFlagBits vkType, BufferType type, uint32_t count);
+		~VulkanChunk();
 
-		inline void* getBuffer() const override { return (void*) &vertexBuffer; }
-		inline void* getMemory() const override { return (void*)&vertexBufferMemory; }
-		inline uint32_t getSize() const override { return verticesSize; }
+		inline VkBuffer getBuffer() const { return buffer; }
+		inline VkDeviceMemory getMemory() const { return bufferMemory; }
+		inline uint32_t getSize() const { return size; }
+		inline std::vector<uint32_t> getOffsets() const { return offsets; }
+		inline uint32_t getID() const { return ID; }
+		inline uint32_t getCount() const { return count; }
 	private:
-		VkBuffer vertexBuffer;
-		VkDeviceMemory vertexBufferMemory;
-
-		uint32_t verticesSize;
-
 		VulkanInstance* instance;
+
+		VkBuffer buffer;
+		VkDeviceMemory bufferMemory;
+		uint32_t size;
+		std::vector<uint32_t> offsets;
+		uint32_t ID;
+
+		//Number of distinct items of type in buffer
+		uint32_t count;
+	};
+
+	class VulkanBuffer : public Buffer
+	{
+	public:
+		//Instance, Vulkan type, Yunomi type
+		VulkanBuffer(VulkanInstance* instance, VkBufferUsageFlagBits vkType, BufferType type);
+		~VulkanBuffer() {}
+
+		//Creates a chunk affililated with this buffer
+		uint32_t CreateVulkanChunk(uint32_t size, std::vector<uint32_t> offsets, void* data, uint32_t count);
+		void DeleteVulkanChunk(uint32_t);
+
+		inline std::vector<VulkanChunk*> getChunks() { return chunks; }
+	private:
+		std::vector<VulkanChunk*> chunks;
+		VulkanInstance* instance;
+		VkBufferUsageFlagBits vkType;
+		BufferType type;
 
 	};
 
-	class VulkanIndexBuffer : public IndexBuffer
-	{
-	public:
-		VulkanIndexBuffer(VulkanInstance* instance, std::vector<uint32_t> indices);
-		~VulkanIndexBuffer();
-
-		inline void* getBuffer() const override { return (void*)&indexBuffer; }
-		inline void* getMemory() const override { return (void*)&indexBufferMemory; }
-		inline uint32_t getSize() const override { return indicesSize; }
-	private:
-		VkBuffer indexBuffer;
-		VkDeviceMemory indexBufferMemory;
-
-		uint32_t indicesSize;
-
-		VulkanInstance* instance;
-	};
-
+	//Uniform buffer class
 	class VulkanUniformBuffer : public UniformBuffer
 	{
 	public:
 		VulkanUniformBuffer(VulkanInstance* instance);
 		~VulkanUniformBuffer();
 
-		inline void* getBuffer() const override { return (void*)&uniformBuffers; }
-		inline void* getMemory() const override { return (void*)&uniformBuffersMemory; }
-		inline void* getMap() const override { return (void*)&uniformBuffersMapped; }
+		inline void* getBuffer() const { return (void*)&uniformBuffers; }
+		inline void* getMemory() const { return (void*)&uniformBuffersMemory; }
+		inline void* getMap() const { return (void*)&uniformBuffersMapped; }
 	private:
 		std::vector<VkBuffer> uniformBuffers;
 		std::vector<VkDeviceMemory> uniformBuffersMemory;

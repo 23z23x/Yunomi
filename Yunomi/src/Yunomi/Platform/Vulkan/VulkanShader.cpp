@@ -53,6 +53,7 @@ namespace ynm
 		shaderc::Compiler compiler;
 		shaderc::CompileOptions options;
 
+		//Pretty simple shader compilation setup
 		options.SetOptimizationLevel(shaderc_optimization_level_size);
 
 		shaderc::SpvCompilationResult module =

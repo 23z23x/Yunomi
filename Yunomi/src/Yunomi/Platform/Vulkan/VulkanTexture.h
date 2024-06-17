@@ -8,6 +8,7 @@ namespace ynm
 	class VulkanTexture : public Texture
 	{
 	public:
+		//Instance, filename to create texture from
 		VulkanTexture(VulkanInstance* instance, std::string filename);
 		~VulkanTexture();
 

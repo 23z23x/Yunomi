@@ -23,6 +23,7 @@ namespace ynm
 
 		virtual ~Shader() {}
 
+		//Gets the stored, compiled binary
 		virtual std::vector<uint32_t> getSpirv() const = 0;
 		virtual ShaderType getYNMType() const = 0;
 	};

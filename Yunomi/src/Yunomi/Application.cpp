@@ -4,26 +4,29 @@
 //And RAII
 
 #include "Application.h"
-#include "Log.h"
-
-#include <iostream>
 
 namespace ynm {
 
 	//Defines
 	//std::bind is like passing a function, except you can use placeholders to automatically fill in certain parameters
 	#define BIND_EVENT_FN(X) std::bind(&X, this, std::placeholders::_1)
-
 	
 	Application::Application() 
 	{
-		Shader* vertShader = Shader::Create("C:/repos/Yunomi/Yunomi/src/Yunomi/Shaders/shader.vert", ShaderType::VRTX);
-		Shader* fragShader = Shader::Create("C:/repos/Yunomi/Yunomi/src/Yunomi/Shaders/shader.frag", ShaderType::FRAG);
+		try
+		{
+			Shader* vertShader = Shader::Create("C:/repos/Yunomi/Yunomi/src/Yunomi/Shaders/shader.vert", ShaderType::VRTX);
+			Shader* fragShader = Shader::Create("C:/repos/Yunomi/Yunomi/src/Yunomi/Shaders/shader.frag", ShaderType::FRAG);
 
-		m_Window = Window::Create();
-		m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
-		m_Instance = Instance::Create(m_Window, vertShader, fragShader);
-
+			window = Window::Create();
+			window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
+			renderer = new Renderer(window, vertShader, fragShader);
+		}
+		catch (std::exception& e)
+		{
+			YNM_CORE_ERROR("Fatal error occured in Application initialization.");
+			exit(0);
+		}
 
 	}
 
@@ -34,27 +37,50 @@ namespace ynm {
 
 	void Application::Run() 
 	{
-		Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.png");
-		Mesh mesh = Mesh("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.obj");
-		Object3D VikingRoom = Object3D(0, "Viking Room", { 0,0,0 }, text, &mesh);
-		//Texture* text = Texture::Create(m_Instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/fish.png");
-		//Quad mesh = Quad(-0.5f, 0.5f, 0.5f, -0.5f, 0.0f);
+		//Test Game Objects
+		uint32_t vikingID = renderer->CreateTexture("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.png");
+		uint32_t shizID = renderer->CreateTexture("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/texture.jpg");
+		uint32_t fishID = renderer->CreateTexture("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/fish.png");
 
-		VertexBuffer* vertBuffer = VertexBuffer::Create(m_Instance, (*VikingRoom.getShape()).getVertices());
-		IndexBuffer* indbuffer = IndexBuffer::Create(m_Instance, (*VikingRoom.getShape()).getIndices());
-		UniformBuffer* unifBuffer = UniformBuffer::Create(m_Instance);
+		Mesh quad = renderer->CreateQuad(-0.5f, 0.5f, 0.5f, -0.5f, 0.0f);
+		Mesh mesh = renderer->CreateMesh("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.obj");
 
-		m_Instance->AddDescriptors(unifBuffer, text);
+		InstanceData shizData;
+		shizData.modelMatrix = glm::translate(shizData.modelMatrix, { 2.0f, 1.0f, 0.0f });
+		GameObject shiz = GameObject(0, "Shiz", shizData, shizID, &quad);
+		InstanceData fishData;
+		fishData.modelMatrix = glm::rotate(fishData.modelMatrix, glm::radians(30.0f), { 1.0f, 0.0f, 0.0f });
+		GameObject fish = GameObject(1, "Fish", fishData, fishID, &quad);
+		InstanceData vikingData;
+		vikingData.modelMatrix = glm::scale(vikingData.modelMatrix, { 0.5f, 0.5f, 0.5f });
+		GameObject viking = GameObject(2, "Viking", vikingData, vikingID, &mesh);
+
+		std::vector<GameObject> objs;
+		objs.push_back(shiz);
+		objs.push_back(fish);
+		objs.push_back(viking);
+		
+		renderer->LoadObjects(objs);
+
+		renderer->AddDescriptors();
 
 		while (mainLoop)
 		{
-			m_Window->OnUpdate();
-			m_Instance->StartDraw(vertBuffer, indbuffer);
-			m_Instance->UpdateUniform(unifBuffer);
-			m_Instance->EndDraw();
-
+			try
+			{
+				window->OnUpdate();
+				renderer->StartDraw();
+				renderer->UpdateUniform();
+				renderer->EndDraw();
+			}
+			catch (std::exception& e)
+			{
+				YNM_CORE_ERROR("Fatal error occured in main loop.");
+				e.what();
+				exit(0);
+			}
 		}
-		m_Window->~Window();
+		window->~Window();
 	}
 
 	void Application::OnEvent(Event& e)
@@ -64,7 +90,7 @@ namespace ynm {
 		switch (e.GetEventType())
 		{
 		case EventType::WinResize:
-			m_Instance->FrameResize();
+			renderer->FrameResize();
 			break;
 		case EventType::WinClose:
 			mainLoop = false;

@@ -1,12 +1,8 @@
 #pragma once
 #include "Core.h"
 #include "Render/Window.h"
-#include "Render/Instance.h"
-#include "Render/Shader.h"
-#include "Render/Buffer.h"
-#include "Render/Texture.h"
+#include "Render/Renderer.h"
 #include "Render/Geometry.h"
-#include "Game_Objects/Object.h"
 
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
@@ -23,8 +19,8 @@ namespace ynm {
 		void OnEvent(Event& e);
 	private:
 		bool moved;
-		Window* m_Window;
-		Instance* m_Instance;
+		Window* window;
+		Renderer* renderer;
 		bool mainLoop = true;
 
 	};

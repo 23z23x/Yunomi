@@ -4,43 +4,92 @@
 
 namespace ynm
 {
-	VertexBuffer* VertexBuffer::Create(Instance* instance, std::vector<Vertex> vertices)
+	VulkanChunk::VulkanChunk(VulkanInstance* instance, uint32_t size, std::vector<uint32_t> offsets, void* data, VkBufferUsageFlagBits vkType, BufferType type, uint32_t count)
+		: size(size), offsets(offsets), instance(instance), count(count)
 	{
-		return new VulkanVertexBuffer((VulkanInstance*) instance, vertices);
+		instance->CreateChunk(size, &(this->buffer), &(this->bufferMemory), &ID, data, vkType, type);
 	}
 
-	IndexBuffer* IndexBuffer::Create(Instance* instance, std::vector<uint32_t> indices)
+	VulkanChunk::~VulkanChunk()
 	{
-		return new VulkanIndexBuffer((VulkanInstance*) instance, indices);
+		instance->DeleteChunk(buffer, bufferMemory, ID);
+	}
+
+	Buffer* Buffer::Create(Instance* instance, BufferType type)
+	{
+		//Switch on Yunomi type to get Vulkan type
+		VkBufferUsageFlagBits vkType;
+		switch(type)
+		{
+		case BufferType::VERTEX:
+			vkType = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+			break;
+		case BufferType::INDEX:
+			vkType = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+			break;
+		case BufferType::INSTANCE:
+			vkType = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+			break;
+		case BufferType::UNIFORM:
+			vkType = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+			break;
+		default:
+			vkType = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+			break;
+		}
+
+		VulkanBuffer* buffer = new VulkanBuffer((VulkanInstance*)instance, vkType, type);
+		buffer->bufferRef = buffer;
+		type = type;
+
+		return buffer;
+	}
+
+	uint32_t Buffer::CreateChunk(uint32_t size, std::vector<uint32_t> offsets, void* data, uint32_t count)
+	{
+		VulkanBuffer* buffer = (VulkanBuffer*)bufferRef;
+
+		return buffer->CreateVulkanChunk(size, offsets, data, count);
+	}
+
+	void Buffer::DeleteChunk(uint32_t ID)
+	{
+		VulkanBuffer* buffer = (VulkanBuffer*)bufferRef;
+
+		buffer->DeleteVulkanChunk(ID);
+	}
+
+	VulkanBuffer::VulkanBuffer(VulkanInstance* instance, VkBufferUsageFlagBits vkType, BufferType type)
+		: instance(instance), vkType(vkType), type(type)
+	{
+
+	}
+
+	uint32_t VulkanBuffer::CreateVulkanChunk(uint32_t size, std::vector<uint32_t> offsets, void* data, uint32_t count)
+	{
+		VulkanChunk* chunk = new VulkanChunk(this->instance, size, offsets, data, vkType, type, count);
+
+		//After chunk is created, push it onto the chunks vector
+		chunks.push_back(chunk);
+		
+		return chunk->getID();
+	}
+
+	void VulkanBuffer::DeleteVulkanChunk(uint32_t ID)
+	{
+		//iterator finds chunk in vector, then deletes it
+		auto it = std::find_if(chunks.begin(), chunks.end(), [ID](const VulkanChunk* obj) {
+			if (obj->getID() == ID)
+			{
+				obj->~VulkanChunk();
+				return 0;
+			}
+			});
 	}
 
 	UniformBuffer* UniformBuffer::Create(Instance* instance)
 	{
-		return new VulkanUniformBuffer((VulkanInstance*) instance);
-	}
-
-	VulkanVertexBuffer::VulkanVertexBuffer(VulkanInstance* vkinstance, std::vector<Vertex> vertices)
-	{
-		vkinstance->createVertexBuffer(&(this->vertexBuffer), &(this->vertexBufferMemory), vertices);
-		this->instance = vkinstance;
-		this->verticesSize = vertices.size();
-	}
-
-	VulkanVertexBuffer::~VulkanVertexBuffer()
-	{
-		this->instance->destroyVertexBuffer(this->vertexBuffer, this->vertexBufferMemory);
-	}
-
-	VulkanIndexBuffer::VulkanIndexBuffer(VulkanInstance* vkinstance, std::vector<uint32_t> indices)
-	{
-		vkinstance->createIndexBuffer(&(this->indexBuffer), &(this->indexBufferMemory), indices);
-		this->instance = vkinstance;
-		this->indicesSize = indices.size();
-	}
-
-	VulkanIndexBuffer::~VulkanIndexBuffer()
-	{
-		this->instance->destroyIndexBuffer(this->indexBuffer, this->indexBufferMemory);
+		return new VulkanUniformBuffer((VulkanInstance*)instance);
 	}
 
 	VulkanUniformBuffer::VulkanUniformBuffer(VulkanInstance* vkinstance)

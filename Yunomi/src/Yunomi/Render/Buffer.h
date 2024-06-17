@@ -6,34 +6,36 @@ namespace ynm
 {
 	//Forward declaration to avoid circular dependencies
 	class Instance;
-	struct Vertex;
 
-	class YNM_API VertexBuffer
+	//Buffer type enum
+	enum BufferType
 	{
-	public:
-		static VertexBuffer* Create(Instance* instance, std::vector<Vertex> vertices);
-
-		virtual ~VertexBuffer() {}
-
-		virtual void* getBuffer() const = 0;
-		virtual void* getMemory() const = 0;
-		virtual uint32_t getSize() const = 0;
-
+		VERTEX,
+		INDEX,
+		INSTANCE,
+		UNIFORM
 	};
 
-	class YNM_API IndexBuffer
+	//Buffer class
+	class YNM_API Buffer
 	{
 	public:
-		static IndexBuffer* Create(Instance* instance, std::vector<uint32_t> indices);
+		//Constructor takes the instance to create the buffer with, and the buffer type
+		static Buffer* Create(Instance* instance, BufferType type);
+		virtual ~Buffer() {}
 
-		virtual ~IndexBuffer() {}
-
-		virtual void* getBuffer() const = 0;
-		virtual void* getMemory() const = 0;
-		virtual uint32_t getSize() const = 0;
+		//Used to create a buffer
+		virtual uint32_t CreateChunk(uint32_t size, std::vector<uint32_t> offsets, void* data, uint32_t count);
+		virtual void DeleteChunk(uint32_t ID);
+	protected:
+		//Needed to invoke the used rendering API's version of specific methods
+		Buffer* bufferRef;
+		//Type stored
+		BufferType type;
 	};
 
-	class YNM_API UniformBuffer
+	//Specific uniform buffer type
+	class YNM_API UniformBuffer : public Buffer
 	{
 	public:
 		static UniformBuffer* Create(Instance* instance);
@@ -43,6 +45,5 @@ namespace ynm
 		virtual void* getBuffer() const = 0;
 		virtual void* getMemory() const = 0;
 		virtual void* getMap() const = 0;
-
 	};
 }

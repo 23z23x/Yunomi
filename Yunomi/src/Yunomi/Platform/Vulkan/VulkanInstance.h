@@ -4,7 +4,7 @@
 #include "Yunomi/Render/Buffer.h"
 #include "Yunomi/Render/Texture.h"
 
-//Allows GLFW to include Vulkan for us
+#include <vulkan/vulkan_core.h>
 #include <GLFW/glfw3.h>
 
 #ifdef NDEBUG
@@ -31,24 +31,43 @@ struct SwapChainSupportDetails {
 
 namespace ynm
 {
+    //Forward declarations
+    class VulkanBuffer;
+
+
+    struct VulkanInstanceProps
+    {
+        std::vector<const char*> VKvalidationLayers;
+        std::vector<const char*> VKdeviceExtensions;
+
+        //Defaults are for Vulkan, since it will work on most platforms
+        VulkanInstanceProps(std::vector<const char*> validationlayers = { "VK_LAYER_KHRONOS_validation" },
+            std::vector<const char*> deviceextensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME })
+            : VKvalidationLayers(validationlayers), VKdeviceExtensions(deviceextensions)
+        {
+        }
+    };
+
 
     class VulkanInstance : public Instance
     {
     public:
-        VulkanInstance(GLFWwindow* m_Window, Shader* vertex, Shader* fragment, const InstanceProps& props);
+        //GLFW window
+        //Vertex shader
+        //Fragment shader
+        //OPTIONAL: Vulkan instance props
+        VulkanInstance(GLFWwindow* m_Window, Shader* vertex, Shader* fragment, const VulkanInstanceProps& props = VulkanInstanceProps());
 
         ~VulkanInstance();
 
         //Buffer creation functions
-        void createVertexBuffer(VkBuffer *vertexBuffer, VkDeviceMemory *vertexBufferMemory, std::vector<Vertex> vertices);
-        void createIndexBuffer(VkBuffer *indexBuffer, VkDeviceMemory *indexBufferMemory, std::vector<uint32_t> indices);
+        void CreateChunk(uint32_t size, VkBuffer* buffer, VkDeviceMemory* bufferMemory, uint32_t* ID, void* data, VkBufferUsageFlagBits vkType, BufferType type);
         void createUniformBuffers(std::vector<VkBuffer> *uniformBuffers, std::vector<VkDeviceMemory> *uniformBuffersMemory, std::vector<void*> *uniformBuffersMapped);
 
         void createTexture(std::string filename, VkImage* textureImage, VkDeviceMemory* textureImageMemory, VkImageView* textureImageView, VkSampler* textureSampler, uint32_t* mipLevels);
 
         //Buffer destruction functions
-        void destroyVertexBuffer(VkBuffer vertexBuffer, VkDeviceMemory vertexBufferMemory);
-        void destroyIndexBuffer(VkBuffer indexBuffer, VkDeviceMemory indexBufferMemory);
+        void DeleteChunk(VkBuffer buffer, VkDeviceMemory bufferMemory, uint32_t ID);
         void destroyUniformBuffers(std::vector<VkBuffer> uniformBuffers, std::vector<VkDeviceMemory> uniformBuffersMemory);
 
         void destroyTexture(VkImage textureImage, VkDeviceMemory textureImageMemory, VkImageView textureImageView, VkSampler textureSampler);
@@ -57,13 +76,15 @@ namespace ynm
         void createDescriptorSets(std::vector<VkBuffer>* uniformBuffers, VkImageView* textureImageView, VkSampler* textureSampler);
 
         //Drawing
-        void VulkanStartDraw(VkBuffer* vvb, uint32_t vvbSize, VkBuffer* vib, uint32_t vibSize);
+        void VulkanStartDraw(VulkanBuffer* vertex, VulkanBuffer* index, VulkanBuffer* instance);
         void VulkanUpdateUniform(std::vector<void*>* uniformBuffersMapped);
         void VulkanEndDraw();
 
     private:
         //Frames in flight
         const int MAX_FRAMES_IN_FLIGHT = 2;
+
+        uint32_t nextChunkID = 0;
 
         //Window
         GLFWwindow* window;
@@ -190,13 +211,13 @@ namespace ynm
         //Command pool/buffer
         void createCommandPool();
         void createCommandBuffers();
-        void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VkBuffer* vvb, uint32_t vvbSize, VkBuffer* vib, uint32_t vibSize);
+        void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VulkanBuffer* vertexe, VulkanBuffer* index, VulkanBuffer* instance);
 
         //Asynch Primatives
         void createSyncObjects();
 
         //Creates a buffer for other classes
-        void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+        void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory, float priority);
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
