@@ -21,6 +21,8 @@ namespace ynm
 		~VulkanPipeline();
 
 		inline VulkanPipelineProps getProps() { return props; }
+		inline VkPipeline* getPipeline() { return &graphicsPipeline; }
+		inline VkPipelineLayout* getPipelineLayout() { return &pipelineLayout; }
 
 	private:
 		//Variables
@@ -28,6 +30,8 @@ namespace ynm
 		VkPipelineLayout pipelineLayout;
 
 		VulkanPipelineProps props;
+
+		VkDevice* device;
 
 		//Methods
 		VkShaderModule createShaderModule(const std::vector<uint32_t>& code, VkDevice* device);

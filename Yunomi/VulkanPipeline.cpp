@@ -43,7 +43,7 @@ namespace ynm
 	}
 
 	VulkanPipeline::VulkanPipeline(VulkanInstance* instance, VulkanPipelineProps props)
-		: props(props)
+		: props(props), device(instance->getDevice())
 	{
         //Get the source for the shader modules
         VkShaderModule vertShaderModule = createShaderModule(props.Vertex->getSpirv(), instance->getDevice());
@@ -205,6 +205,11 @@ namespace ynm
         vkDestroyShaderModule(*(instance->getDevice()), vertShaderModule, nullptr);
 	}
 
+    VulkanPipeline::~VulkanPipeline()
+    {
+        vkDestroyPipeline(*device, graphicsPipeline, nullptr);
+        vkDestroyPipelineLayout(*device, pipelineLayout, nullptr);
+    }
 
 	VkShaderModule VulkanPipeline::createShaderModule(const std::vector<uint32_t>& code, VkDevice* device)
 	{

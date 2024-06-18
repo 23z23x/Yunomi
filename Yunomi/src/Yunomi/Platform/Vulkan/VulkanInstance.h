@@ -72,6 +72,9 @@ namespace ynm
 
         void destroyTexture(VkImage textureImage, VkDeviceMemory textureImageMemory, VkImageView textureImageView, VkSampler textureSampler);
 
+        //Pipeline
+        inline void VulkanSetPipeline(VulkanPipeline* pipeline) { this->pipeline = pipeline; }
+
         //Descriptor sets
         void createDescriptorSets(std::vector<VkBuffer>* uniformBuffers, VkImageView* textureImageView, VkSampler* textureSampler);
 
@@ -132,8 +135,7 @@ namespace ynm
         std::vector<VkFramebuffer> swapChainFramebuffers;
 
         //Graphics pipeline
-        VkPipeline graphicsPipeline;
-        VkPipelineLayout pipelineLayout;
+        VulkanPipeline* pipeline;
         VkDescriptorSetLayout descriptorSetLayout;
         VkRenderPass renderPass;
 
@@ -204,9 +206,6 @@ namespace ynm
         //Image Views
         void createImageViews();
 
-        //Graphics pipeline
-        void createGraphicsPipeline(Shader* vertex, Shader* fragment);
-        VkShaderModule createShaderModule(const std::vector<uint32_t>& code);
         void createRenderPass();
         void createDescriptorSetLayout();
 

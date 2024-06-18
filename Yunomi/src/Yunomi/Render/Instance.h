@@ -3,6 +3,8 @@
 #include "Window.h"
 #include "Shader.h"
 #include "Geometry.h"
+#include "../../../Pipeline.h"
+
 
 //Vritual interface class
 
@@ -43,6 +45,10 @@ namespace ynm
 
         //Right now, pipeline creation is tied to instance creation. When this finally changes, shader arguments will be removed here.
 		static Instance* Create(Window* m_Window, Shader* vertex, Shader* fragment, const InstanceProps& props = InstanceProps());
+
+        //Sets a pipeline as the current pipeline
+        static void SetPipeline(Pipeline* pipeline);
+
         //Temporary method that sets Vulkan descriptors. As the renderer develops this is certainly not how things will work.
         //
         //Plan is to eventually pass this a struct with all of the Uniform Buffers and Textures that will be used. That way additional info
