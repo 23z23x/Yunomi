@@ -31,4 +31,22 @@ namespace ynm
 		this->nextID++;
 		return newPipeline->getID();
 	}
+
+	void PipelineManager::SetPipeline(uint32_t ID)
+	{
+		//provides pipeline object associated with ID
+		auto it = std::find_if(pipelines.begin(), pipelines.end(), [ID](Pipeline* obj) {
+			return obj->getID() == ID;
+			});
+
+		if (it != pipelines.end()) {
+			Pipeline* foundPipeline = *it;
+			this->instance->SetPipeline(foundPipeline);
+		}
+		else {
+			YNM_CORE_ERROR("Pipeline with ID {0} not found.", ID);
+		}
+
+		this->currID = ID;
+	}
 }

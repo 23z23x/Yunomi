@@ -16,7 +16,7 @@ namespace ynm
 		//Creates a new pipeline with given props OR if a pipeline with given settings already exists, sets that pipeline as current
 		uint32_t CreatePipeline(PipelineProps props);
 		//Switches the pipeline
-		inline void SwitchPipeline(uint32_t ID) { currID = ID; }
+		void SetPipeline(uint32_t ID);
 
 		inline Pipeline* getCurrentPipeline() { return pipelines[currID]; }
 
