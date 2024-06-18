@@ -80,6 +80,13 @@ namespace ynm
         void VulkanUpdateUniform(std::vector<void*>* uniformBuffersMapped);
         void VulkanEndDraw();
 
+        //Getters/Setters
+        inline VkDevice* getDevice() { return &device; }
+        inline VkRenderPass* getRenderPass() { return &renderPass; }
+        inline VkDescriptorSetLayout* getDescriptorSetLayout() { return &descriptorSetLayout; }
+        std::array<VkVertexInputBindingDescription, 2> VkgetBindingDescriptions();
+        static std::array<VkVertexInputAttributeDescription, 6> VkgetAttributeDescriptions();
+
     private:
         //Frames in flight
         const int MAX_FRAMES_IN_FLIGHT = 2;

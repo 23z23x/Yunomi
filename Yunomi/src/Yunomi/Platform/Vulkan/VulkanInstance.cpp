@@ -1923,5 +1923,24 @@ namespace ynm
         return imageView;
     }
 
+    std::array<VkVertexInputBindingDescription, 2> VulkanInstance::VkgetBindingDescriptions()
+    {
+        auto vertexBindingDescription = getBindingDescription();
+        auto instanceBindingDescription = getInstanceBindingDescription();
+
+        std::array<VkVertexInputBindingDescription, 2> bindingDescriptions =
+        {
+            vertexBindingDescription,
+            instanceBindingDescription
+        };
+
+        return bindingDescriptions;
+    }
+
+    std::array<VkVertexInputAttributeDescription, 6> VulkanInstance::VkgetAttributeDescriptions()
+    {
+        return getAttributeDescriptions();
+    }
+
 
 }
