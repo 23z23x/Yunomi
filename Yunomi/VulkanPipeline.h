@@ -1,10 +1,12 @@
 #pragma once
 #include "Pipeline.h"
 
-#include <Yunomi/Platform/Vulkan/VulkanInstance.h>
 #include <Yunomi/Platform/Vulkan/VulkanShader.h>
 namespace ynm
 {
+	//forward delcarations
+	class VulkanInstance;
+
 	struct VulkanPipelineProps
 	{
 		VulkanShader* Vertex;

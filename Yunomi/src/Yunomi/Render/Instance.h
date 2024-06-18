@@ -3,7 +3,6 @@
 #include "Window.h"
 #include "Shader.h"
 #include "Geometry.h"
-#include "../../../Pipeline.h"
 
 
 //Vritual interface class
@@ -14,6 +13,7 @@ namespace ynm
     class Buffer;
     class UniformBuffer;
     class Texture;
+    class Pipeline;
 
     //Right now, InstanceProps is not used for anything. Kept as an argument for future use.
 	struct InstanceProps
@@ -42,9 +42,7 @@ namespace ynm
 		virtual ~Instance() {}
 
 		//Creates an Instance of whatever rendering API has been selected.
-
-        //Right now, pipeline creation is tied to instance creation. When this finally changes, shader arguments will be removed here.
-		static Instance* Create(Window* m_Window, Shader* vertex, Shader* fragment, const InstanceProps& props = InstanceProps());
+		static Instance* Create(Window* m_Window, const InstanceProps& props = InstanceProps());
 
         //Sets a pipeline as the current pipeline
         static void SetPipeline(Pipeline* pipeline);

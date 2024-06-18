@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "VulkanPipeline.h"
+#include "Yunomi/Platform/Vulkan/VulkanInstance.h"
 
 namespace ynm
 {

@@ -33,7 +33,7 @@ namespace ynm
 {
     //Forward declarations
     class VulkanBuffer;
-
+    class VulkanPipeline;
 
     struct VulkanInstanceProps
     {
@@ -56,7 +56,7 @@ namespace ynm
         //Vertex shader
         //Fragment shader
         //OPTIONAL: Vulkan instance props
-        VulkanInstance(GLFWwindow* m_Window, Shader* vertex, Shader* fragment, const VulkanInstanceProps& props = VulkanInstanceProps());
+        VulkanInstance(GLFWwindow* m_Window, const VulkanInstanceProps& props = VulkanInstanceProps());
 
         ~VulkanInstance();
 
@@ -140,7 +140,6 @@ namespace ynm
         VkRenderPass renderPass;
 
         VkSampleCountFlagBits MaxMSAASamples = VK_SAMPLE_COUNT_1_BIT;
-        VkSampleCountFlagBits MSAALevel = VK_SAMPLE_COUNT_1_BIT;
 
         //Descriptors
         VkDescriptorPool descriptorPool;

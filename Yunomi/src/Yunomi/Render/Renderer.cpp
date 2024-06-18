@@ -3,11 +3,11 @@
 
 namespace ynm
 {
-	Renderer::Renderer(Window* window, Shader* vertex, Shader* fragment)
+	Renderer::Renderer(Window* window)
 		: window(window)
 	{
 		//Create instance
-		this->instance = Instance::Create(window, vertex, fragment);
+		this->instance = Instance::Create(window);
 
 		//Create buffers
 		this->vertexBuffer = Buffer::Create(this->instance, BufferType::VERTEX);
@@ -15,11 +15,23 @@ namespace ynm
 		this->instanceBuffer = Buffer::Create(this->instance, BufferType::INSTANCE);
 
 		this->uniformBuffer = UniformBuffer::Create(this->instance);
+
+		this->pipelineManager = new PipelineManager(this->instance);
 	}
 
 	Renderer::~Renderer()
 	{
 
+	}
+
+	uint32_t Renderer::CreatePipeline(PipelineProps props)
+	{
+		return this->pipelineManager->CreatePipeline(props);
+	}
+
+	void Renderer::SetPipeline(uint32_t ID)
+	{
+		this->pipelineManager->SetPipeline(ID);
 	}
 
 	void Renderer::LoadObjects(std::vector<GameObject> objects)

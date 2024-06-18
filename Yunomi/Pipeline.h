@@ -2,10 +2,12 @@
 
 #include "pch.h"
 #include "Yunomi/Render/Shader.h"
-#include <Yunomi/Render/Instance.h>
+
 
 namespace ynm
 {
+	class Instance;
+
 	enum MSAALevel
 	{
 		MSAA_1 = 1,

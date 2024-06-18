@@ -20,7 +20,15 @@ namespace ynm {
 
 			window = Window::Create();
 			window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
-			renderer = new Renderer(window, vertShader, fragShader);
+			renderer = new Renderer(window);
+
+			PipelineProps pipelineProps;
+			pipelineProps.Vertex = vertShader;
+			pipelineProps.Fragment = fragShader;
+			pipelineProps.msaaLevel = MSAA_4;
+
+			uint32_t pipelineID = renderer->CreatePipeline(pipelineProps);
+			renderer->SetPipeline(pipelineID);
 		}
 		catch (std::exception& e)
 		{

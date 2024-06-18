@@ -7,6 +7,7 @@
 #include "Texture.h"
 #include "Geometry.h"
 #include "Yunomi/Game_Objects/Object.h"
+#include "../../../PipelineManager.h"
 
 namespace ynm
 {
@@ -14,8 +15,12 @@ namespace ynm
 	{
 	public:
 		//Creates a Renderer object. Shaders are to be moved to a pipeline creation method when pipeline creation is decoupled from instance creation
-		Renderer(Window* window, Shader* vertex, Shader* fragment);
+		Renderer(Window* window);
 		~Renderer();
+
+		//Pipeline
+		uint32_t CreatePipeline(PipelineProps props);
+		void SetPipeline(uint32_t ID);
 
 		//Load
 
@@ -45,6 +50,7 @@ namespace ynm
 		Buffer* indexBuffer;
 		Buffer* instanceBuffer;
 		UniformBuffer* uniformBuffer;
+		PipelineManager* pipelineManager;
 
 		//IDs assigned to objects by the renderer
 		uint32_t nextTextureID = 0;

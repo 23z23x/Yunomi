@@ -60,7 +60,7 @@ namespace ynm
 
     Instance* Instance::instanceref = nullptr;
     //Implementation of Instance methods
-    Instance* Instance::Create(Window* m_Window, Shader* vertex, Shader* fragment, const InstanceProps& props)
+    Instance* Instance::Create(Window* m_Window, const InstanceProps& props)
     {
         //Convert InstanceProps to VulkanInstanceProps
         /*VulkanInstanceProps vulkanProps;
@@ -75,7 +75,7 @@ namespace ynm
             }
         }*/
 
-        Instance* instance = new VulkanInstance((GLFWwindow*) m_Window->getWindow(), vertex, fragment/*, vulkanProps*/);
+        Instance* instance = new VulkanInstance((GLFWwindow*) m_Window->getWindow()/*, vulkanProps*/);
         instanceref = instance;
         return instance;
     }
@@ -123,7 +123,7 @@ namespace ynm
 
     //Vulkan Instance implementation
 
-    VulkanInstance::VulkanInstance(GLFWwindow* m_Window, Shader* vert, Shader* frag, const VulkanInstanceProps& props)
+    VulkanInstance::VulkanInstance(GLFWwindow* m_Window, const VulkanInstanceProps& props)
     {
         this->validationLayers = props.VKvalidationLayers;
         this->deviceExtensions = props.VKdeviceExtensions;
@@ -191,11 +191,7 @@ namespace ynm
 
         createColorResources();
 
-        YNM_CORE_INFO("Created Color resources!");
-
         createDepthResources();
-
-        YNM_CORE_INFO("Created Depth Resources!");
 
         createFramebuffers();
 
@@ -384,17 +380,6 @@ namespace ynm
                 physicalDevice = device;
                 
                 MaxMSAASamples = getMaxUsableSampleCount();
-                YNM_CORE_INFO("MAX MSAA: {0}", MaxMSAASamples);
-                if (MaxMSAASamples >= VK_SAMPLE_COUNT_4_BIT)
-                {
-                    MSAALevel = VK_SAMPLE_COUNT_4_BIT;
-                    YNM_CORE_INFO("MSAALevel at 4");
-                }
-                else
-                {
-                    MSAALevel = VK_SAMPLE_COUNT_1_BIT;
-                    YNM_CORE_INFO("MSAALevel at 1");
-                }
                 break;
             }
         }
@@ -681,10 +666,13 @@ namespace ynm
     }
 
     //Options for how things are drawn
+
+    //TO DO: Eventually, render pass is probably being moved to pipeline. samples here is hardcoded for now.
+
     void VulkanInstance::createRenderPass() {
         VkAttachmentDescription colorAttachment{};
         colorAttachment.format = swapChainImageFormat;
-        colorAttachment.samples = MSAALevel;
+        colorAttachment.samples = VK_SAMPLE_COUNT_4_BIT;
         colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -704,7 +692,7 @@ namespace ynm
 
         VkAttachmentDescription depthAttachment{};
         depthAttachment.format = findDepthFormat();
-        depthAttachment.samples = MSAALevel;
+        depthAttachment.samples = VK_SAMPLE_COUNT_4_BIT;
         depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -1520,7 +1508,7 @@ namespace ynm
     {
         VkFormat depthFormat = findDepthFormat();
 
-        createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory, 1, MSAALevel);
+        createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory, 1, VK_SAMPLE_COUNT_4_BIT);
         depthImageView = createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
     }
 
@@ -1654,7 +1642,7 @@ namespace ynm
     {
         VkFormat colorFormat = swapChainImageFormat;
 
-        createImage(swapChainExtent.width, swapChainExtent.height, colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colorImage, colorImageMemory, 1, MSAALevel);
+        createImage(swapChainExtent.width, swapChainExtent.height, colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colorImage, colorImageMemory, 1, VK_SAMPLE_COUNT_4_BIT);
         colorImageView = createImageView(colorImage, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
     }
 
