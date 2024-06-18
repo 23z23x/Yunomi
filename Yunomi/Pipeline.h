@@ -26,6 +26,10 @@ namespace ynm
 		//Settings
 		MSAALevel msaaLevel;
 
+		bool operator==(const PipelineProps& other) const {
+			return std::tie(Vertex, Fragment, msaaLevel) == std::tie(other.Vertex, other.Fragment, other.msaaLevel);
+		}
+
 	};
 
 
@@ -34,7 +38,7 @@ namespace ynm
 	public:
 		virtual ~Pipeline() {}
 
-		static Pipeline* Create(Instance instance, PipelineProps props);
+		static Pipeline* Create(Instance* instance, PipelineProps props, uint32_t ID);
 
 		inline PipelineProps getProps() { return props; }
 		inline uint32_t getID() { return ID; }
