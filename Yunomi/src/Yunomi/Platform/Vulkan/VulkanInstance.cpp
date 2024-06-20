@@ -184,9 +184,9 @@ namespace ynm
         createSwapChain();
 
         createImageViews();
-
+        //
         createRenderPass();
-
+        //
         createDescriptorSetLayout();
 
         createColorResources();
@@ -502,7 +502,7 @@ namespace ynm
 
         //Choose resolution from capabilities
         VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
-        //Record the minimum iamge count plus one
+        //Record the minimum image count plus one
         uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
 
         //If swap chain supports more than the minimum, set it to the maximum

@@ -266,6 +266,8 @@ namespace ynm
 
 		//Tells glfw not to start OpenGL
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		//Tells glfw not to allow the window to resize
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(m_Window);
