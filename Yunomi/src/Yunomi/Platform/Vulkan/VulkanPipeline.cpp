@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "VulkanPipeline.h"
-#include "Yunomi/Platform/Vulkan/VulkanInstance.h"
+#include "VulkanInstance.h"
 
 namespace ynm
 {
@@ -44,8 +44,24 @@ namespace ynm
 	}
 
 	VulkanPipeline::VulkanPipeline(VulkanInstance* instance, VulkanPipelineProps props)
-		: props(props), device(instance->getDevice())
+		: instance(instance)
 	{
+        //Handle settings
+        this->props = props;
+        this->props.swapChainExtent = instance->getSwapChainExtent();
+
+        VkSampleCountFlagBits maxMSAA = instance->getMaxUsableSampleCount();
+
+        if (props.msaaLevel > maxMSAA)
+        {
+            props.msaaLevel = VK_SAMPLE_COUNT_1_BIT;
+            YNM_CORE_WARN("Vulkan: The MSAA sample count asked for is not provided by hardware.");
+        }
+
+        createRenderPass();
+        createDepthResources();
+        createColorResources();
+
         //Get the source for the shader modules
         VkShaderModule vertShaderModule = createShaderModule(props.Vertex->getSpirv(), instance->getDevice());
         VkShaderModule fragShaderModule = createShaderModule(props.Fragment->getSpirv(), instance->getDevice());
@@ -188,7 +204,7 @@ namespace ynm
         pipelineInfo.pColorBlendState = &colorBlending;
         pipelineInfo.pDynamicState = &dynamicState;
         pipelineInfo.layout = pipelineLayout;
-        pipelineInfo.renderPass = *(instance->getRenderPass());
+        pipelineInfo.renderPass = renderPass;
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
@@ -208,8 +224,18 @@ namespace ynm
 
     VulkanPipeline::~VulkanPipeline()
     {
-        vkDestroyPipeline(*device, graphicsPipeline, nullptr);
-        vkDestroyPipelineLayout(*device, pipelineLayout, nullptr);
+        vkDestroyImageView(*(instance->getDevice()), colorImageView, nullptr);
+        vkDestroyImage(*(instance->getDevice()), colorImage, nullptr);
+        vkFreeMemory(*(instance->getDevice()), colorImageMemory, nullptr);
+
+        vkDestroyImageView(*(instance->getDevice()), depthImageView, nullptr);
+        vkDestroyImage(*(instance->getDevice()), depthImage, nullptr);
+        vkFreeMemory(*(instance->getDevice()), depthImageMemory, nullptr);
+
+        vkDestroyRenderPass(*(instance->getDevice()), renderPass, nullptr);
+
+        vkDestroyPipeline(*(instance->getDevice()), graphicsPipeline, nullptr);
+        vkDestroyPipelineLayout(*(instance->getDevice()), pipelineLayout, nullptr);
     }
 
 	VkShaderModule VulkanPipeline::createShaderModule(const std::vector<uint32_t>& code, VkDevice* device)
@@ -230,4 +256,123 @@ namespace ynm
 		return shaderModule;
 	}
 
+    void VulkanPipeline::createRenderPass() {
+        VkAttachmentDescription colorAttachment{};
+        colorAttachment.format = instance->getSwapChainImageFormat();
+        colorAttachment.samples = VK_SAMPLE_COUNT_4_BIT;
+        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentDescription colorAttachmentResolve{};
+        colorAttachmentResolve.format = instance->getSwapChainImageFormat();
+        colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
+        colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+        VkAttachmentDescription depthAttachment{};
+        depthAttachment.format = findDepthFormat();
+        depthAttachment.samples = VK_SAMPLE_COUNT_4_BIT;
+        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentReference colorAttachmentRef{};
+        colorAttachmentRef.attachment = 0;
+        colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentReference colorAttachmentResolveRef{};
+        colorAttachmentResolveRef.attachment = 2;
+        colorAttachmentResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentReference depthAttachmentRef{};
+        depthAttachmentRef.attachment = 1;
+        depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        VkSubpassDescription subpass{};
+        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        subpass.colorAttachmentCount = 1;
+        subpass.pColorAttachments = &colorAttachmentRef;
+        subpass.pDepthStencilAttachment = &depthAttachmentRef;
+        subpass.pResolveAttachments = &colorAttachmentResolveRef;
+
+        VkSubpassDependency dependency{};
+        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+        dependency.dstSubpass = 0;
+        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        dependency.srcAccessMask = 0;
+        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+        std::array<VkAttachmentDescription, 3> attachments = { colorAttachment, depthAttachment, colorAttachmentResolve };
+        VkRenderPassCreateInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        renderPassInfo.pAttachments = attachments.data();
+        renderPassInfo.subpassCount = 1;
+        renderPassInfo.pSubpasses = &subpass;
+        renderPassInfo.dependencyCount = 1;
+        renderPassInfo.pDependencies = &dependency;
+
+        if (vkCreateRenderPass(*(instance->getDevice()), &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+            YNM_CORE_ERROR("Vulkan: Failed to create render pass!");
+            throw std::runtime_error("");
+        }
+        YNM_CORE_INFO("Vulkan: Successfully created render pass!");
+    }
+
+    void VulkanPipeline::createDepthResources()
+    {
+        VkFormat depthFormat = findDepthFormat();
+
+        instance->createImage(props.swapChainExtent.width, props.swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory, 1, props.msaaLevel);
+        depthImageView = instance->createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
+    }
+
+    void VulkanPipeline::createColorResources()
+    {
+        VkFormat colorFormat = instance->getSwapChainImageFormat();
+
+        instance->createImage(props.swapChainExtent.width, props.swapChainExtent.height, colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colorImage, colorImageMemory, 1, props.msaaLevel);
+        colorImageView = instance->createImageView(colorImage, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+    }
+
+    VkFormat VulkanPipeline::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
+    {
+        for (VkFormat format : candidates) {
+            VkFormatProperties props;
+            vkGetPhysicalDeviceFormatProperties(*(instance->getPhysicalDevice()), format, &props);
+
+            if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
+                return format;
+            }
+            else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
+                return format;
+            }
+        }
+        YNM_CORE_ERROR("Vulkan: Failed to find supported format!");
+        throw std::runtime_error("");
+    }
+
+    VkFormat VulkanPipeline::findDepthFormat() {
+        return findSupportedFormat(
+            { VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D16_UNORM },
+            VK_IMAGE_TILING_OPTIMAL,
+            VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+        );
+    }
+
+    bool VulkanPipeline::hasStencilComponent(VkFormat format) {
+        return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+    }
 }

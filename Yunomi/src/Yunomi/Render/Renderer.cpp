@@ -163,10 +163,4 @@ namespace ynm
 		//Call instance method
 		this->instance->EndDraw();
 	}
-
-	void Renderer::FrameResize()
-	{
-		//Call instance method
-		this->instance->FrameResize();
-	}
 }

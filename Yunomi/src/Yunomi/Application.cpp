@@ -97,11 +97,9 @@ namespace ynm {
 
 		switch (e.GetEventType())
 		{
-		case EventType::WinResize:
-			renderer->FrameResize();
-			break;
 		case EventType::WinClose:
 			mainLoop = false;
+			break;
 		}
 	}
 

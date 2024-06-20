@@ -53,9 +53,6 @@ namespace ynm
         //can be passed if needed in the future. 
         static void AddDescriptors(UniformBuffer* ub, Texture* tx);
 
-        //This method is used when the window changes size.
-        static void FrameResize();
-
         //Draw methods
 
         //Method that starts recording of commands to be drawn

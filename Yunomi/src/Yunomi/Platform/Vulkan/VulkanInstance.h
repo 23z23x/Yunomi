@@ -72,9 +72,6 @@ namespace ynm
 
         void destroyTexture(VkImage textureImage, VkDeviceMemory textureImageMemory, VkImageView textureImageView, VkSampler textureSampler);
 
-        //Pipeline
-        inline void VulkanSetPipeline(VulkanPipeline* pipeline) { this->pipeline = pipeline; }
-
         //Descriptor sets
         void createDescriptorSets(std::vector<VkBuffer>* uniformBuffers, VkImageView* textureImageView, VkSampler* textureSampler);
 
@@ -85,10 +82,20 @@ namespace ynm
 
         //Getters/Setters
         inline VkDevice* getDevice() { return &device; }
-        inline VkRenderPass* getRenderPass() { return &renderPass; }
         inline VkDescriptorSetLayout* getDescriptorSetLayout() { return &descriptorSetLayout; }
         std::array<VkVertexInputBindingDescription, 2> VkgetBindingDescriptions();
         static std::array<VkVertexInputAttributeDescription, 6> VkgetAttributeDescriptions();
+        //Pipeline
+        inline void VulkanSetPipeline(VulkanPipeline* pipeline) { this->pipeline = pipeline; }
+        inline VkPhysicalDevice* getPhysicalDevice() { return &(this->physicalDevice); }
+        inline VkFormat getSwapChainImageFormat() { return this->swapChainImageFormat; }
+        inline VkExtent2D getSwapChainExtent() { return this->swapChainExtent; }
+
+        void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, uint32_t mipLevels, VkSampleCountFlagBits numSamples);
+        VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
+        VkSampleCountFlagBits getMaxUsableSampleCount();
+        //Frame buffer
+        void createFramebuffers();
 
     private:
         //Frames in flight
@@ -137,7 +144,6 @@ namespace ynm
         //Graphics pipeline
         VulkanPipeline* pipeline;
         VkDescriptorSetLayout descriptorSetLayout;
-        VkRenderPass renderPass;
 
         VkSampleCountFlagBits MaxMSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
@@ -158,16 +164,6 @@ namespace ynm
         //Variables shared between the start draw and stop draw methods
         uint32_t imageIndex = 0;
         VkResult result;
-
-        //Depth buffering
-        VkImage depthImage;
-        VkDeviceMemory depthImageMemory;
-        VkImageView depthImageView;
-
-        //Images for MSAA
-        VkImage colorImage;
-        VkDeviceMemory colorImageMemory;
-        VkImageView colorImageView;
 
 
         //Class Methods
@@ -199,19 +195,13 @@ namespace ynm
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
         void cleanupSwapChain();
-        public: void recreateSwapChain();
 
-     private:
         //Image Views
         void createImageViews();
 
-        void createRenderPass();
         void createDescriptorSetLayout();
 
         void createDescriptorPool();
-
-        //Frame buffer
-        void createFramebuffers();
 
         //Command pool/buffer
         void createCommandPool();
@@ -233,27 +223,15 @@ namespace ynm
         //Texture creation helpers
         void createTextureSampler(VkSampler* textureSampler, uint32_t mipLevels);
         void createTextureImage(std::string filename, VkImage* textureImage, VkDeviceMemory* textureImageMemory, uint32_t* mipLevels);
-        void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, uint32_t mipLevels, VkSampleCountFlagBits numSamples);
         void copyBufferToImage(VkBuffer* buffer, VkImage* image, uint32_t width, uint32_t height);
         void transitionImageLayout(VkImage* image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
-
-        //Depth buffering creation
-        void createDepthResources();
-        VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
-        VkFormat findDepthFormat();
-        bool hasStencilComponent(VkFormat format);
 
         //Mipmaps
         void generateMipmaps(VkImage* image, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
 
-        //MSAA
-        VkSampleCountFlagBits getMaxUsableSampleCount();
-        void createColorResources();
-
         //Helper Methods
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
         SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
-        VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
     };
 
 }

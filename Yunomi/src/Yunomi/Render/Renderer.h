@@ -7,7 +7,7 @@
 #include "Texture.h"
 #include "Geometry.h"
 #include "Yunomi/Game_Objects/Object.h"
-#include "../../../PipelineManager.h"
+#include "PipelineManager.h"
 
 namespace ynm
 {
@@ -39,9 +39,6 @@ namespace ynm
 		void StartDraw();
 		void UpdateUniform();
 		void EndDraw();
-
-		//Utility
-		void FrameResize();
 
 	private:
 		Instance* instance;
