@@ -6,6 +6,8 @@ namespace ynm
 {
 	Pipeline* Pipeline::Create(Instance* instance, PipelineProps props, uint32_t ID)
 	{
+        //TODO: fix this when pipeline switching is added
+        //This line does nothing. Just need to implement a virtual function in Pipeline to achieve this.
 		ID = ID;
 
 		VulkanInstance* vkInstance = (VulkanInstance*)instance;
