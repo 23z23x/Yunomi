@@ -14,6 +14,13 @@ namespace ynm
 		inline std::string getName() const { return name; }
 		inline InstanceData getInstanceData() const { return instanceData; }
 
+		//Methods that apply transformations to InstanceData
+		void Translate(glm::vec3 vector);
+		void RotateX(float degrees);
+		void RotateY(float degrees);
+		void RotateZ(float degrees);
+		void Scale(glm::vec3 vector);
+
 		//void setPosition(glm::vec3);
 	protected:
 		Object(uint32_t ID, std::string name, InstanceData instanceData);

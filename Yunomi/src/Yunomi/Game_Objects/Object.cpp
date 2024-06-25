@@ -10,6 +10,39 @@ namespace ynm
 		this->instanceData = instanceData;
 	}
 
+	void Object::Translate(glm::vec3 vector)
+	{
+		this->instanceData.modelMatrix = glm::translate(this->instanceData.modelMatrix, vector);
+	}
+
+	void Object::RotateX(float degrees)
+	{
+		float rads = glm::radians(degrees);
+		glm::vec3 axis = glm::vec3(1.0f, 0.0f, 0.0f);
+
+		this->instanceData.modelMatrix = glm::rotate(this->instanceData.modelMatrix, rads, axis);
+	}
+
+	void Object::RotateY(float degrees)
+	{
+		float rads = glm::radians(degrees);
+		glm::vec3 axis = glm::vec3(0.0f, 1.0f, 0.0f);
+
+		this->instanceData.modelMatrix = glm::rotate(this->instanceData.modelMatrix, rads, axis);
+	}
+
+	void Object::RotateZ(float degrees)
+	{
+		float rads = glm::radians(degrees);
+		glm::vec3 axis = glm::vec3(0.0f, 0.0f, 1.0f);
+
+		this->instanceData.modelMatrix = glm::rotate(this->instanceData.modelMatrix, rads, axis);
+	}
+
+	void Object::Scale(glm::vec3 vector)
+	{
+		this->instanceData.modelMatrix = glm::scale(this->instanceData.modelMatrix, vector);
+	}
 
 	TexturedObject::TexturedObject(uint32_t ID, std::string name, InstanceData instanceData, uint32_t textureID)
 		: Object(ID, name, instanceData)
