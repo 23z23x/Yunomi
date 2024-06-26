@@ -4,6 +4,7 @@
 //And RAII
 
 #include "Application.h"
+#include "Event/InputEvent.h"
 
 namespace ynm {
 
@@ -70,9 +71,9 @@ namespace ynm {
 
 		viking2.Translate(glm::vec3(3.0f, 3.0f, 0.0f));
 
-		viking3.Translate(glm::vec3(3.5f, -2.0f, 0.0f));
-		viking3.RotateX(75);
-		viking3.RotateZ(90);
+		viking3.Translate(glm::vec3(2.0f, -2.5f, 1.5f));
+		//viking3.RotateX(75);
+		//viking3.RotateZ(90);
 
 		
 
@@ -110,10 +111,22 @@ namespace ynm {
 	{
 		//YNM_CORE_INFO("{0}", e);
 
+		KeyDownEvent* kd = nullptr;
+		MouseMovedEvent* mm = nullptr;
+
+
 		switch (e.GetEventType())
 		{
 		case EventType::WinClose:
 			mainLoop = false;
+			break;
+		case EventType::KeyDown:
+			kd = (KeyDownEvent*)&e;
+			renderer->ChangePosition(kd->GetKeyCode());
+			break;
+		case EventType::MouseMove:
+			mm = (MouseMovedEvent*)&e;
+			renderer->ChangeDirection(mm->GetX(), mm->GetY());
 			break;
 		}
 	}

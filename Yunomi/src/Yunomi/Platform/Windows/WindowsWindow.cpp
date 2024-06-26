@@ -391,4 +391,9 @@ namespace ynm
 		return m_Data.VSync;
 	}
 
+	void WindowsWindow::ResetMousePosition() const
+	{
+		glfwSetCursorPos(m_Window, this->GetWidth() / 2, this->GetHeight() / 2);
+	}
+
 }

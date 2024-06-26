@@ -17,6 +17,8 @@ namespace ynm
 		this->uniformBuffer = UniformBuffer::Create(this->instance);
 
 		this->pipelineManager = new PipelineManager(this->instance);
+
+		this->ubo = new UniformBufferObject();
 	}
 
 	Renderer::~Renderer()
@@ -154,13 +156,83 @@ namespace ynm
 
 	void Renderer::UpdateUniform()
 	{
+
+		this->ubo->model = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		this->ubo->view = glm::lookAt(
+			this->position,
+			this->position + this->direction,
+			this->up
+		);
+		this->ubo->proj = glm::perspective(glm::radians(45.0f), window->GetWidth()/ (float)window->GetHeight(), 0.1f, 10.0f);
+
+		//We do this because y is inverted in glm
+		this->ubo->proj[1][1] *= -1;
+
 		//Call instance method
-		this->instance->UpdateUniform(uniformBuffer);
+		this->instance->UpdateUniform(uniformBuffer, ubo);
+
+		this->window->ResetMousePosition();
 	}
 
 	void Renderer::EndDraw()
 	{
 		//Call instance method
 		this->instance->EndDraw();
+	}
+
+	void Renderer::ChangeDirection(float xpos, float ypos)
+	{
+		static auto startTime = std::chrono::high_resolution_clock::now();
+
+		auto currentTime = std::chrono::high_resolution_clock::now();
+		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+		horizontalAngle += mouseSpeed * time * float(this->window->GetWidth() / 2 - xpos);
+		verticalAngle += mouseSpeed * time * float(this->window->GetHeight() / 2 - ypos);
+
+		this->direction = glm::vec3(
+			cos(verticalAngle) * sin(horizontalAngle),
+			sin(verticalAngle),
+			cos(verticalAngle) * cos(horizontalAngle)
+		);
+
+		// Assuming worldUp is the global up direction (0, 1, 0)
+		glm::vec3 worldUp = glm::vec3(0, 1, 0);
+
+		// Calculate the right vector
+		this->right = glm::normalize(glm::cross(this->direction, worldUp));
+
+		// Recalculate the up vector
+		this->up = glm::normalize(glm::cross(this->right, this->direction));
+	}
+
+	void Renderer::ChangePosition(int code)
+	{
+		static auto startTime = std::chrono::high_resolution_clock::now();
+
+		auto currentTime = std::chrono::high_resolution_clock::now();
+		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+		switch (code)
+		{
+		case InputCode::W:
+			this->position += direction * time * speed;
+			break;
+		case InputCode::S:
+			this->position -= direction * time * speed;
+			break;
+		case InputCode::A:
+			this->position -= right * time * speed;
+			break;
+		case InputCode::D:
+			this->position += right * time * speed;
+			break;
+		case InputCode::LFT_SHFT:
+			this->position += up * time * speed;
+			break;
+		case InputCode::LFT_CTRL:
+			this->position -= up * time * speed;
+			break;
+		}
 	}
 }

@@ -58,8 +58,8 @@ namespace ynm
         //Method that starts recording of commands to be drawn
         static void StartDraw(Buffer* vertex, Buffer* index, Buffer* instance);
 
-        //Method that updates a Uniform Buffer (For now it does a predetermined transformation, later it will be abstracted to do different ones.)
-        static void UpdateUniform(UniformBuffer* ub);
+        //Method that updates the Uniform Buffer
+        static void UpdateUniform(UniformBuffer* ub, UniformBufferObject* ubo);
         
         //Method that ends recording of commands to be drawn
         static void EndDraw();

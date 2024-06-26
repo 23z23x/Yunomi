@@ -77,7 +77,7 @@ namespace ynm
 
         //Drawing
         void VulkanStartDraw(VulkanBuffer* vertex, VulkanBuffer* index, VulkanBuffer* instance);
-        void VulkanUpdateUniform(std::vector<void*>* uniformBuffersMapped);
+        void VulkanUpdateUniform(std::vector<void*>* uniformBuffersMapped, UniformBufferObject* ubo);
         void VulkanEndDraw();
 
         //Getters/Setters
