@@ -42,7 +42,9 @@ namespace ynm
 
         //Defaults are for Vulkan, since it will work on most platforms
         VulkanInstanceProps(std::vector<const char*> validationlayers = { "VK_LAYER_KHRONOS_validation" },
-            std::vector<const char*> deviceextensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME })
+            std::vector<const char*> deviceextensions = { 
+                VK_KHR_SWAPCHAIN_EXTENSION_NAME
+            })
             : VKvalidationLayers(validationlayers), VKdeviceExtensions(deviceextensions)
         {
         }
@@ -99,7 +101,7 @@ namespace ynm
 
     private:
         //Frames in flight
-        const int MAX_FRAMES_IN_FLIGHT = 2;
+        const int MAX_FRAMES_IN_FLIGHT = 3;
 
         uint32_t nextChunkID = 0;
 

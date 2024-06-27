@@ -488,7 +488,7 @@ namespace ynm
         //Choose resolution from capabilities
         VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
         //Record the minimum image count plus one
-        uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+        uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 2;
 
         //If swap chain supports more than the minimum, set it to the maximum
         if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
@@ -502,6 +502,7 @@ namespace ynm
 
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
+        createInfo.presentMode = presentMode;
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
         createInfo.imageExtent = extent;
         createInfo.imageArrayLayers = 1;
@@ -562,7 +563,7 @@ namespace ynm
     VkPresentModeKHR VulkanInstance::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) {
         //from avalible modes, see if we have mailbox
         for (const auto& availablePresentMode : availablePresentModes) {
-            if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+            if (availablePresentMode == VK_PRESENT_MODE_FIFO_KHR) {
                 return availablePresentMode;
             }
         }
