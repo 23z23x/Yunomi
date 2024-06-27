@@ -1098,13 +1098,14 @@ namespace ynm
         samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 
-        samplerInfo.anisotropyEnable = VK_TRUE;
+        //TODO: SETTING
+        samplerInfo.anisotropyEnable = VK_FALSE;
 
         //Set up a query for this at the beginning and pass
         VkPhysicalDeviceProperties properties{};
         vkGetPhysicalDeviceProperties(physicalDevice, &properties);
 
-        samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+        samplerInfo.maxAnisotropy = 1.0f;
 
         samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
 
@@ -1274,7 +1275,6 @@ namespace ynm
             YNM_CORE_ERROR("Vulkan: Unsupported texture layout transition!");
             throw std::invalid_argument("");
         }
-        std::cout << "1277" << std::endl;
         vkCmdPipelineBarrier(
             commandBuffer,
             sourceStage, destinationStage,
@@ -1386,7 +1386,6 @@ namespace ynm
             barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
             barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
             barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-            std::cout << "1389" << std::endl;
             vkCmdPipelineBarrier(commandBuffer,
                 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
                 0, nullptr,
@@ -1423,7 +1422,6 @@ namespace ynm
         barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-        std::cout << "1437" << std::endl;
         vkCmdPipelineBarrier(commandBuffer,
             VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
             0, nullptr,
