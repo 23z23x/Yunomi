@@ -4,6 +4,9 @@
 
 namespace ynm
 {
+	//Global variable defining total number of textures a graphics API needs to consider
+	static uint8_t YNM_MAX_TEXTURES = 100;
+
 	//Forward declaration to avoid circular dependencies
 	class Instance;
 
@@ -19,7 +22,7 @@ namespace ynm
 		virtual void* getTextureSampler() const = 0;
 		inline uint32_t getID() const { return ID; }
 
-	private:
+	protected:
 		uint32_t ID;
 
 	};

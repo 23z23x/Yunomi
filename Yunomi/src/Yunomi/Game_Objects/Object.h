@@ -6,11 +6,20 @@
 
 namespace ynm
 {
+	//Struct that contains all info kept in the instance buffer for an instance
+	struct InstanceData
+	{
+		glm::mat4 modelMatrix = glm::mat4(1.0f);
+		uint32_t textureID;
+		uint32_t ID;
+	};
+
 	//Object Parent Class
 	class Object
 	{
 	public:
-		inline uint32_t getID() const { return ID; }
+		inline uint32_t getID() const { return instanceData.ID; }
+		inline uint32_t getTextureID() const { return instanceData.textureID; }
 		inline std::string getName() const { return name; }
 		inline InstanceData getInstanceData() const { return instanceData; }
 
@@ -23,30 +32,17 @@ namespace ynm
 
 		//void setPosition(glm::vec3);
 	protected:
-		Object(uint32_t ID, std::string name, InstanceData instanceData);
+		Object(std::string name, InstanceData instanceData);
 
 	private:
-		uint32_t ID;
 		std::string name;
 		InstanceData instanceData;
 	};
 
-	class TexturedObject : public Object
+	class GameObject : public Object
 	{
 	public:
-		inline uint32_t getTextureID() const { return textureID; }
-
-		void setTexture(uint32_t ID);
-	protected:
-		TexturedObject(uint32_t ID, std::string name, InstanceData instanceData, uint32_t textureID);
-	private:
-		uint32_t textureID;
-	};
-
-	class GameObject : public TexturedObject
-	{
-	public:
-		GameObject(uint32_t ID, std::string name, InstanceData instanceData, uint32_t textureID, Mesh* shape);
+		GameObject(std::string name, InstanceData instanceData, Mesh* shape);
 		~GameObject();
 
 		inline Mesh* getShape() const { return shape; }

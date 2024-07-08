@@ -54,12 +54,28 @@ namespace ynm {
 		Mesh quad = renderer->CreateQuad(-0.5f, 0.5f, 0.5f, -0.5f, 0.0f);
 		Mesh mesh = renderer->CreateMesh("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.obj");
 
-		InstanceData defaultData;
-		GameObject shiz = GameObject(0, "Shiz", defaultData, shizID, &quad);
-		GameObject fish = GameObject(1, "Fish", defaultData, fishID, &quad);
-		GameObject viking = GameObject(2, "Viking", defaultData, vikingID, &mesh);
-		GameObject viking2 = GameObject(3, "Viking2", defaultData, vikingID, &mesh);
-		GameObject viking3 = GameObject(4, "Vking3", defaultData, vikingID, &mesh);
+		InstanceData shizData;
+		shizData.ID = 0;
+		shizData.textureID = shizID;
+		std::cout << shizID << std::endl;
+
+		InstanceData fishData;
+		fishData.ID = 1;
+		fishData.textureID = fishID;
+		std::cout << fishID << std::endl;
+
+		InstanceData vikingData;
+		vikingData.ID = 2;
+		vikingData.textureID = vikingID;
+		std::cout << vikingID << std::endl;
+
+
+
+		GameObject shiz = GameObject("Shiz", shizData, &quad);
+		GameObject fish = GameObject("Fish", fishData, &quad);
+		GameObject viking = GameObject("Viking", vikingData, &mesh);
+		GameObject viking2 = GameObject("Viking2", vikingData, &mesh);
+		GameObject viking3 = GameObject("Vking3", vikingData, &mesh);
 
 		shiz.Translate(glm::vec3(2.0f, 1.0f, 1.5f));
 		shiz.RotateX(20.0);

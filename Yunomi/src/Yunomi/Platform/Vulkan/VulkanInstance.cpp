@@ -5,6 +5,7 @@
 #include <stb_image.h>
 #include "VulkanBuffer.h"
 #include "VulkanPipeline.h"
+#include <Yunomi/Game_Objects/Object.h>
 
 namespace ynm
 {
@@ -31,8 +32,8 @@ namespace ynm
 
     //Attribute descriptions
 
-    static std::array<VkVertexInputAttributeDescription, 6> getAttributeDescriptions() {
-        std::array<VkVertexInputAttributeDescription, 6> attributeDescriptions{};
+    static std::array<VkVertexInputAttributeDescription, 8> getAttributeDescriptions() {
+        std::array<VkVertexInputAttributeDescription, 8> attributeDescriptions{};
         
         //Object coordinates
         attributeDescriptions[0].binding = 0;
@@ -54,6 +55,16 @@ namespace ynm
             attributeDescriptions[2 + i].format = VK_FORMAT_R32G32B32A32_SFLOAT;
             attributeDescriptions[2 + i].offset = offsetof(InstanceData, modelMatrix) + i * sizeof(glm::vec4);
         }
+
+        attributeDescriptions[6].binding = 1;
+        attributeDescriptions[6].location = 6;
+        attributeDescriptions[6].format = VK_FORMAT_R32_UINT;
+        attributeDescriptions[6].offset = offsetof(InstanceData, textureID);
+
+        attributeDescriptions[7].binding = 1;
+        attributeDescriptions[7].location = 7;
+        attributeDescriptions[7].format = VK_FORMAT_R32_UINT;
+        attributeDescriptions[7].offset = offsetof(InstanceData, ID);
 
         return attributeDescriptions;
     }
@@ -87,10 +98,20 @@ namespace ynm
         instance->createFramebuffers();
     }
 
-    void Instance::AddDescriptors(UniformBuffer* ub, Texture* tx)
+    void Instance::AddDescriptors(UniformBuffer* ub, std::vector<Texture*> tx)
     {
         VulkanInstance* instance = (VulkanInstance*) instanceref;
-        instance->createDescriptorSets((std::vector<VkBuffer>*)ub->getBuffer(), (VkImageView*) tx->getImageView(), (VkSampler*) tx->getTextureSampler());
+
+        std::vector<VkImageView*> imageViews;
+        std::vector<VkSampler*> imageSamplers;
+
+        for (Texture* texture : tx)
+        {
+            imageViews.push_back((VkImageView*)texture->getImageView());
+            imageSamplers.push_back((VkSampler*)texture->getTextureSampler());
+        }
+
+        instance->createDescriptorSets((std::vector<VkBuffer>*)ub->getBuffer(), imageViews, imageSamplers, tx.size());
     }
 
     void Instance::StartDraw(Buffer* vertex, Buffer* index, Buffer* instance)
@@ -636,14 +657,13 @@ namespace ynm
         uboLayoutBinding.pImmutableSamplers = nullptr;
         uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-        VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-        samplerLayoutBinding.binding = 1;
-        samplerLayoutBinding.descriptorCount = 1;
-        samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        samplerLayoutBinding.pImmutableSamplers = nullptr;
-        samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        VkDescriptorSetLayoutBinding textureBinding = {};
+        textureBinding.binding = 1;
+        textureBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        textureBinding.descriptorCount = YNM_MAX_TEXTURES; // Define the maximum number of textures you want to support
+        textureBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-        std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
+        std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, textureBinding };
         VkDescriptorSetLayoutCreateInfo layoutInfo{};
         layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
@@ -661,7 +681,7 @@ namespace ynm
         poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
         poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+        poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT) * YNM_MAX_TEXTURES;
 
         VkDescriptorPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -675,7 +695,7 @@ namespace ynm
         }
     }
 
-    void VulkanInstance::createDescriptorSets(std::vector<VkBuffer>* uniformBuffers, VkImageView* textureImageView, VkSampler* textureSampler) {
+    void VulkanInstance::createDescriptorSets(std::vector<VkBuffer>* uniformBuffers, std::vector<VkImageView*> textureImageViews, std::vector<VkSampler*> textureSamplers, uint32_t activeTextureCount) {
         std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -697,10 +717,20 @@ namespace ynm
             bufferInfo.offset = 0;
             bufferInfo.range = sizeof(UniformBufferObject);
 
-            VkDescriptorImageInfo imageInfo{};
-            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = *textureImageView;
-            imageInfo.sampler = *textureSampler;
+            std::vector<VkDescriptorImageInfo> imageInfos(YNM_MAX_TEXTURES);
+            for (size_t j = 0; j < activeTextureCount; ++j) {
+                imageInfos[j].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                imageInfos[j].imageView = *textureImageViews[j];
+                imageInfos[j].sampler = *textureSamplers[j];
+                std::cout << j << std::endl;
+            }
+            // Set the rest of the imageInfos to default values
+            for (size_t j = activeTextureCount; j < YNM_MAX_TEXTURES; ++j) {
+                imageInfos[j] = {};
+                imageInfos[j].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                imageInfos[j].imageView = VK_NULL_HANDLE;
+                imageInfos[j].sampler = VK_NULL_HANDLE;
+            }
 
             std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
@@ -717,8 +747,8 @@ namespace ynm
             descriptorWrites[1].dstBinding = 1;
             descriptorWrites[1].dstArrayElement = 0;
             descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            descriptorWrites[1].descriptorCount = 1;
-            descriptorWrites[1].pImageInfo = &imageInfo;
+            descriptorWrites[1].descriptorCount = YNM_MAX_TEXTURES;
+            descriptorWrites[1].pImageInfo = imageInfos.data();
 
             vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
         }
@@ -1545,7 +1575,7 @@ namespace ynm
         return bindingDescriptions;
     }
 
-    std::array<VkVertexInputAttributeDescription, 6> VulkanInstance::VkgetAttributeDescriptions()
+    std::array<VkVertexInputAttributeDescription, 8> VulkanInstance::VkgetAttributeDescriptions()
     {
         return getAttributeDescriptions();
     }

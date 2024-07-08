@@ -9,7 +9,7 @@ namespace ynm
 	{
 	public:
 		//Instance, filename to create texture from
-		VulkanTexture(VulkanInstance* instance, std::string filename);
+		VulkanTexture(VulkanInstance* instance, std::string filename, uint32_t ID);
 		~VulkanTexture();
 
 		inline std::string getFilename() const override { return filename; }

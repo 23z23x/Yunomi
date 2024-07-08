@@ -40,12 +40,6 @@ namespace std {
 
 namespace ynm
 {
-	//Struct that contains all info kept in the instance buffer for an instance
-	struct InstanceData
-	{
-		glm::mat4 modelMatrix = glm::mat4(1.0f);
-	};
-
 	//Class all geometry should inherit from
 	class Geometry
 	{

@@ -114,7 +114,7 @@ namespace ynm
 	void Renderer::AddDescriptors()
 	{
 		//Just call the instance descriptors method
-		instance->AddDescriptors(uniformBuffer, textures[0]);
+		instance->AddDescriptors(uniformBuffer, textures);
 	}
 
 	uint32_t Renderer::CreateTexture(std::string filename)

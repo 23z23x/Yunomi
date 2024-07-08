@@ -3,9 +3,8 @@
 
 namespace ynm
 {
-	Object::Object(uint32_t ID, std::string name, InstanceData instanceData)
+	Object::Object(std::string name, InstanceData instanceData)
 	{
-		this->ID = ID;
 		this->name = name;
 		this->instanceData = instanceData;
 	}
@@ -44,19 +43,8 @@ namespace ynm
 		this->instanceData.modelMatrix = glm::scale(this->instanceData.modelMatrix, vector);
 	}
 
-	TexturedObject::TexturedObject(uint32_t ID, std::string name, InstanceData instanceData, uint32_t textureID)
-		: Object(ID, name, instanceData)
-	{
-		this->textureID = textureID;
-	}
-
-	void TexturedObject::setTexture(uint32_t ID)
-	{
-		this->textureID = ID;
-	}
-
-	GameObject::GameObject(uint32_t ID, std::string name, InstanceData instanceData, uint32_t textureID, Mesh* shape)
-		: TexturedObject(ID, name, instanceData, textureID)
+	GameObject::GameObject(std::string name, InstanceData instanceData, Mesh* shape)
+		: Object(name, instanceData)
 	{
 		this->shape = shape;
 	}

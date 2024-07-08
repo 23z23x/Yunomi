@@ -75,7 +75,7 @@ namespace ynm
         void destroyTexture(VkImage textureImage, VkDeviceMemory textureImageMemory, VkImageView textureImageView, VkSampler textureSampler);
 
         //Descriptor sets
-        void createDescriptorSets(std::vector<VkBuffer>* uniformBuffers, VkImageView* textureImageView, VkSampler* textureSampler);
+        void createDescriptorSets(std::vector<VkBuffer>* uniformBuffers, std::vector<VkImageView*> textureImageViews, std::vector<VkSampler*> textureSamplers, uint32_t activeTextureCount);
 
         //Drawing
         void VulkanStartDraw(VulkanBuffer* vertex, VulkanBuffer* index, VulkanBuffer* instance);
@@ -86,7 +86,7 @@ namespace ynm
         inline VkDevice* getDevice() { return &device; }
         inline VkDescriptorSetLayout* getDescriptorSetLayout() { return &descriptorSetLayout; }
         std::array<VkVertexInputBindingDescription, 2> VkgetBindingDescriptions();
-        static std::array<VkVertexInputAttributeDescription, 6> VkgetAttributeDescriptions();
+        static std::array<VkVertexInputAttributeDescription, 8> VkgetAttributeDescriptions();
         //Pipeline
         inline void VulkanSetPipeline(VulkanPipeline* pipeline) { this->pipeline = pipeline; }
         inline VkPhysicalDevice* getPhysicalDevice() { return &(this->physicalDevice); }

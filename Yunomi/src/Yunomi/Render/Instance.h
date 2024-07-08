@@ -51,7 +51,7 @@ namespace ynm
         //
         //Plan is to eventually pass this a struct with all of the Uniform Buffers and Textures that will be used. That way additional info
         //can be passed if needed in the future. 
-        static void AddDescriptors(UniformBuffer* ub, Texture* tx);
+        static void AddDescriptors(UniformBuffer* ub, std::vector<Texture*> tx);
 
         //Draw methods
 
