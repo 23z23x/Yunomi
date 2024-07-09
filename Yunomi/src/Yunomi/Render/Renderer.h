@@ -72,5 +72,8 @@ namespace ynm
 		float mouseSpeed = 0.00005f;
 		float speed = 0.005f;
 
+		//A texture used when a texture ID cannot be found, or was not allocated.
+		Texture* defaultText;
+
 	};
 }

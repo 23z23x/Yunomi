@@ -19,6 +19,10 @@ namespace ynm
 		this->pipelineManager = new PipelineManager(this->instance);
 
 		this->ubo = new UniformBufferObject();
+
+		this->defaultText = Texture::Create(this->instance, "C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/Y.png", nextTextureID);
+		this->textures.push_back(defaultText);
+		this->nextTextureID++;
 	}
 
 	Renderer::~Renderer()

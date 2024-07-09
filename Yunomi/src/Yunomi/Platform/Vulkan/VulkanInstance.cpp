@@ -728,8 +728,8 @@ namespace ynm
             for (size_t j = activeTextureCount; j < YNM_MAX_TEXTURES; ++j) {
                 imageInfos[j] = {};
                 imageInfos[j].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                imageInfos[j].imageView = VK_NULL_HANDLE;
-                imageInfos[j].sampler = VK_NULL_HANDLE;
+                imageInfos[j].imageView = *textureImageViews[0];
+                imageInfos[j].sampler = *textureSamplers[0];
             }
 
             std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
