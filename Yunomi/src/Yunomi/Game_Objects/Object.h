@@ -7,7 +7,7 @@
 namespace ynm
 {
 	//Struct that contains all info kept in the instance buffer for an instance
-	struct InstanceData
+	struct YNM_API InstanceData
 	{
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
 		uint32_t textureID;
@@ -15,7 +15,7 @@ namespace ynm
 	};
 
 	//Object Parent Class
-	class Object
+	class YNM_API Object
 	{
 	public:
 		inline uint32_t getID() const { return instanceData.ID; }
@@ -39,7 +39,7 @@ namespace ynm
 		InstanceData instanceData;
 	};
 
-	class GameObject : public Object
+	class YNM_API GameObject : public Object
 	{
 	public:
 		GameObject(std::string name, InstanceData instanceData, Mesh* shape);

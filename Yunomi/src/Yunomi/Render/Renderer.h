@@ -11,7 +11,7 @@
 
 namespace ynm
 {
-	class Renderer
+	class YNM_API Renderer
 	{
 	public:
 		//Creates a Renderer object. Shaders are to be moved to a pipeline creation method when pipeline creation is decoupled from instance creation
@@ -69,8 +69,8 @@ namespace ynm
 
 		float horizontalAngle = 0.0f;
 		float verticalAngle = 0.0f;
-		float mouseSpeed = 0.00005f;
-		float speed = 0.005f;
+		float mouseSpeed = 0.0001f;
+		float speed = 0.01f;
 
 		//A texture used when a texture ID cannot be found, or was not allocated.
 		Texture* defaultText;

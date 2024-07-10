@@ -167,7 +167,7 @@ namespace ynm
 			this->position + this->direction,
 			this->up
 		);
-		this->ubo->proj = glm::perspective(glm::radians(45.0f), window->GetWidth()/ (float)window->GetHeight(), 0.1f, 10.0f);
+		this->ubo->proj = glm::perspective(glm::radians(45.0f), window->GetWidth()/ (float)window->GetHeight(), 0.1f, 50.0f);
 
 		//We do this because y is inverted in glm
 		this->ubo->proj[1][1] *= -1;

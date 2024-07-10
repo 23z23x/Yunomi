@@ -55,7 +55,7 @@ namespace ynm
 
 
 	//Class for objects of arbitrary shape
-	class Mesh : public Geometry
+	class YNM_API Mesh : public Geometry
 	{
 	public:
 		Mesh(std::string filename, uint32_t ID);

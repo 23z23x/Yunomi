@@ -16,12 +16,13 @@ namespace ynm {
 
 		void Run();
 
-		void OnEvent(Event& e);
-	private:
-		bool moved;
+		virtual void OnEvent(Event& e) = 0;
+
 		Window* window;
 		Renderer* renderer;
 		bool mainLoop = true;
+	private:
+		bool moved;
 
 	};
 
