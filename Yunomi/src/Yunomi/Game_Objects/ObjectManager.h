@@ -27,7 +27,7 @@ namespace ynm
 			Returns obj ID if successful, -1 if error
 		*/
 
-		uint32_t createObject(std::string meshFile, std::vector<std::string> materials, std::string name);
+		uint32_t CreateObject(std::string meshFile, std::vector<std::string> materials, std::string name);
 
 		/*
 		Arguments
@@ -37,7 +37,7 @@ namespace ynm
 			Adds the object with the given ID to the current scene
 		*/
 
-		void addObject(uint32_t ID);
+		//void AddObject(uint32_t ID);
 
 		/*
 		Arguments
@@ -47,7 +47,7 @@ namespace ynm
 			Removes the object with the given ID from the current scene
 		*/
 
-		void removeObject(uint32_t ID);
+		//void RemoveObject(uint32_t ID);
 
 		/*
 		Arguments
@@ -63,7 +63,10 @@ namespace ynm
 			-1 if error (filename not found, syntax error) or the number of objects created
 		*/
 
-		uint32_t createScene(std::string filename);
+		uint32_t CreateScene(std::string filename);
+
+		//This overload just creates a scene with the objects already in the objects vector, for hardcoded testing
+		uint32_t CreateScene();
 
 		/*
 		Arguments
@@ -74,7 +77,7 @@ namespace ynm
 			Translates the specified object according to the provided vector
 		*/
 
-		void changeTranslateObject(uint32_t ID, glm::vec3 vector);
+		void ChangeTranslateObject(uint32_t ID, glm::vec3 vector);
 
 		/*
 		Arguments
@@ -86,7 +89,7 @@ namespace ynm
 			Rotates the specified object according to the provided parameters
 		*/
 
-		void changeRotateObject(uint32_t ID, uint32_t axis, float degrees);
+		void ChangeRotateObject(uint32_t ID, uint32_t axis, float degrees);
 
 		/*
 		Arguments
@@ -97,7 +100,7 @@ namespace ynm
 			Scales the specified object according to the provided vector
 		*/
 
-		void changeScaleObject(uint32_t ID, glm::vec3 vector);
+		void ChangeScaleObject(uint32_t ID, glm::vec3 vector);
 
 		/*
 		Arguments
@@ -110,7 +113,7 @@ namespace ynm
 			Same rules apply as Object creation, filenames should be in order specified by mesh file
 		*/
 
-		void changeObjectMaterials(uint32_t ID, std::vector<std::string> filenames);
+		//void ChangeObjectMaterials(uint32_t ID, std::vector<std::string> filenames);
 
 		//DATA
 
