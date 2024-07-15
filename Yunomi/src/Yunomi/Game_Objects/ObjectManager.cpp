@@ -80,4 +80,41 @@ namespace ynm
 		renderer->LoadObjects(this->objects);
 	}
 
+	//These functions are simple wrappers around the simmilar GameObject methods, which will call a renderer update method one it is implemented
+	void ObjectManager::ChangeTranslateObject(uint32_t ID, glm::vec3 vector)
+	{
+		objects[ID].Translate(vector);
+
+		//Update
+	}
+
+	void ObjectManager::ChangeRotateObject(uint32_t ID, uint32_t axis, float degrees)
+	{
+		switch (axis)
+		{
+		case 0:
+			objects[ID].RotateX(degrees);
+			break;
+		case 1:
+			objects[ID].RotateY(degrees);
+			break;
+		case 2:
+			objects[ID].RotateZ(degrees);
+			break;
+		default:
+			throw YunomiError("Object Manager: invalid rotation axis provided", "105");
+		}
+
+		//Update
+	}
+
+	void ObjectManager::ChangeScaleObject(uint32_t ID, glm::vec3 vector)
+	{
+		objects[ID].Scale(vector);
+
+		//Update
+	}
+
+
+
 }
