@@ -62,15 +62,15 @@ namespace ynm
 
 		//Variables for camera
 
-		glm::vec3 position = glm::vec3(2.0f, 2.0f, 2.0f);
-		glm::vec3 direction = glm::normalize(glm::vec3(0.0f, 0.0f, 0.0f) - this->position);
+		glm::vec3 position = glm::vec3(1.0f, 1.0f, 1.0f);
+		glm::vec3 direction = glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f) - this->position);
 		glm::vec3 right;
 		glm::vec3 up;
 
 		float horizontalAngle = 0.0f;
 		float verticalAngle = 0.0f;
-		float mouseSpeed = 0.0001f;
-		float speed = 0.01f;
+		float mouseSpeed = 0.00005f;
+		float speed = 0.005f;
 
 		//A texture used when a texture ID cannot be found, or was not allocated.
 		Texture* defaultText;
