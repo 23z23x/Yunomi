@@ -8,8 +8,7 @@ namespace ynm
         std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
         if (!file.is_open()) {
-            YNM_CORE_ERROR("Utility: Failed to open file {0}", filename);
-            throw std::runtime_error("");
+            throw YunomiError("Utility: Failed to open file", "11");
         }
 
         size_t fileSize = (size_t)file.tellg();
@@ -21,5 +20,28 @@ namespace ynm
         file.close();
 
         return buffer;
+    }
+
+    //Reads a whole file, returning a string for each line in the file
+    std::vector<std::string> readLines(const std::string& filename)
+    {
+        std::ifstream file(filename);
+
+        if (!file.is_open())
+        {
+            throw YunomiError("Utility: Failed to open file", "33");
+        }
+
+        std::vector<std::string> retVec;
+        std::string line;
+
+        while (getline(file, line))
+        {
+            retVec.push_back(line);
+        }
+
+        file.close();
+
+        return retVec;
     }
 }
