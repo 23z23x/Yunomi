@@ -52,7 +52,7 @@ namespace ynm
 		/*
 		Arguments
 			1) name of a file to read from, which describes a scene. Each line should be in the following format
-				Objname|ObjID|Meshfilename|tex1filename| ... |texNfilename
+				Objname|Meshfilename|tex1filename| ... |texNfilename
 
 				(Initial transform data to be added)
 
@@ -60,7 +60,7 @@ namespace ynm
 			Reads in a file written in the above format. All objects described are automatically created and added to render.
 
 		Return
-			-1 if error (filename not found, duplicate ID, syntax error) or the number of objects created
+			-1 if error (filename not found, syntax error) or the number of objects created
 		*/
 
 		uint32_t createScene(std::string filename);
