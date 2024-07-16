@@ -31,9 +31,9 @@ namespace ynm
 		//Creates a texture from filename
 		uint32_t CreateTexture(std::string filename);
 		//Creates a mesh from a filename
-		Mesh CreateMesh(std::string filename);
+		Mesh* CreateMesh(std::string filename);
 		//Creates a quad from given parameters
-		Mesh CreateQuad(float x1, float x2, float y1, float y2, float depth);
+		Mesh* CreateQuad(float x1, float x2, float y1, float y2, float depth);
 
 		//Draw
 		void StartDraw();

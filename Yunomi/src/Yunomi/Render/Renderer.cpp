@@ -132,20 +132,20 @@ namespace ynm
 		return text->getID();
 	}
 
-	Mesh Renderer::CreateMesh(std::string filename)
+	Mesh* Renderer::CreateMesh(std::string filename)
 	{
 		//Use the Mesh constructor
-		Mesh mesh = Mesh(filename, nextMeshID);
+		Mesh* mesh = new Mesh(filename, nextMeshID);
 		//Incrememnt ID
 		this->nextMeshID++;
 		//Return the mesh
 		return mesh;
 	}
 
-	Mesh Renderer::CreateQuad(float x1, float x2, float y1, float y2, float depth)
+	Mesh* Renderer::CreateQuad(float x1, float x2, float y1, float y2, float depth)
 	{
 		//Use the Mesh constructor for quads
-		Mesh quad = Mesh(x1, x2, y1, y2, depth, nextMeshID);
+		Mesh* quad = new Mesh(x1, x2, y1, y2, depth, nextMeshID);
 		//Increment ID
 		this->nextMeshID++;
 		//Return the quad
