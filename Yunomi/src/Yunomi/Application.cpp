@@ -22,6 +22,7 @@ namespace ynm {
 			window = Window::Create();
 			window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 			renderer = new Renderer(window);
+			objManager = new ObjectManager(renderer);
 
 			PipelineProps pipelineProps;
 			pipelineProps.Vertex = vertShader;

@@ -3,6 +3,7 @@
 #include "Render/Window.h"
 #include "Render/Renderer.h"
 #include "Render/Geometry.h"
+#include "Game_Objects/ObjectManager.h"
 
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
@@ -20,6 +21,8 @@ namespace ynm {
 
 		Window* window;
 		Renderer* renderer;
+		ObjectManager* objManager;
+
 		bool mainLoop = true;
 	private:
 		bool moved;
