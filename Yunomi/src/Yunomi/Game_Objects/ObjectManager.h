@@ -4,7 +4,7 @@
 namespace ynm
 {
 	//Class that creates and stores objects
-	class ObjectManager
+	class YNM_API ObjectManager
 	{
 	public:
 		/*

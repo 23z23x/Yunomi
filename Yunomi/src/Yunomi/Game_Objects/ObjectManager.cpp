@@ -19,7 +19,7 @@ namespace ynm
 		//Eventually, this will be a loop that has the renderer create all the needed materials, checking if they already exist
 		uint32_t groundID = renderer->CreateTexture(materials[0]);
 
-		ynm::Mesh mesh = renderer->CreateMesh(meshFile);
+		ynm::Mesh* mesh = renderer->CreateMesh(meshFile);
 
 		ynm::InstanceData newData;
 		newData.ID = nextID;
@@ -28,7 +28,7 @@ namespace ynm
 		newData.textureID = groundID;
 
 		//Use Object constructor
-		ynm::GameObject newObj = ynm::GameObject(name, newData, &mesh);
+		ynm::GameObject newObj = ynm::GameObject(name, newData, mesh);
 
 		//Add new object to vector
 		objects.push_back(newObj);
@@ -72,12 +72,14 @@ namespace ynm
 		//Now that all objects are created, have them rendered.
 		renderer->LoadObjects(this->objects);
 
-
+		return this->objects.size();
 	}
 
 	uint32_t ObjectManager::CreateScene()
 	{
 		renderer->LoadObjects(this->objects);
+
+		return this->objects.size();
 	}
 
 	//These functions are simple wrappers around the simmilar GameObject methods, which will call a renderer update method one it is implemented
