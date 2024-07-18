@@ -47,19 +47,20 @@ namespace ynm
         attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
         attributeDescriptions[1].offset = offsetof(Vertex, texCoord);
 
+        //Texture ID for vertex
+        attributeDescriptions[2].binding = 0;
+        attributeDescriptions[2].location = 2;
+        attributeDescriptions[2].format = VK_FORMAT_R32_UINT;
+        attributeDescriptions[2].offset = offsetof(Vertex, texID);
+
         // Instance attributes
         //Model matrix
         for (uint32_t i = 0; i < 4; ++i) {
-            attributeDescriptions[2 + i].binding = 1;
-            attributeDescriptions[2 + i].location = 2 + i;
-            attributeDescriptions[2 + i].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-            attributeDescriptions[2 + i].offset = offsetof(InstanceData, modelMatrix) + i * sizeof(glm::vec4);
+            attributeDescriptions[3 + i].binding = 1;
+            attributeDescriptions[3 + i].location = 3 + i;
+            attributeDescriptions[3 + i].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+            attributeDescriptions[3 + i].offset = offsetof(InstanceData, modelMatrix) + i * sizeof(glm::vec4);
         }
-
-        attributeDescriptions[6].binding = 1;
-        attributeDescriptions[6].location = 6;
-        attributeDescriptions[6].format = VK_FORMAT_R32_UINT;
-        attributeDescriptions[6].offset = offsetof(InstanceData, textureID);
 
         attributeDescriptions[7].binding = 1;
         attributeDescriptions[7].location = 7;
