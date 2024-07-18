@@ -17,15 +17,18 @@ namespace ynm
 		//Basically, we are just asking the renderer to do a lot of stuff for us
 
 		//Eventually, this will be a loop that has the renderer create all the needed materials, checking if they already exist
-		uint32_t groundID = renderer->CreateTexture(materials[0]);
+		uint32_t textID = renderer->CreateTexture(materials[0]);
+
+		std::vector<uint32_t> IDs;
+		IDs.push_back(textID);
 
 		ynm::Mesh* mesh = renderer->CreateMesh(meshFile);
+
+		MapTextureToMesh(mesh, IDs);
 
 		ynm::InstanceData newData;
 		newData.ID = nextID;
 		nextID++;
-		//Again, this will be changed when new multiple material system is implemented
-		newData.textureID = groundID;
 
 		//Use Object constructor
 		ynm::GameObject newObj = ynm::GameObject(name, newData, mesh);
@@ -117,6 +120,14 @@ namespace ynm
 		//Update
 	}
 
-
+	void ObjectManager::MapTextureToMesh(Mesh* mesh, std::vector<uint32_t> IDs)
+	{
+		//For each vertex in mesh, extract texture ID, and then set this element to the real texture ID provided in the vector
+		for (Vertex vertex : mesh->getVertices())
+		{
+			uint32_t element = vertex.texID;
+			vertex.texID = IDs[element];
+		}
+	}
 
 }

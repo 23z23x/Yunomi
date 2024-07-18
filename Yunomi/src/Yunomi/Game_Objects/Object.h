@@ -10,7 +10,6 @@ namespace ynm
 	struct YNM_API InstanceData
 	{
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
-		uint32_t textureID;
 		uint32_t ID;
 	};
 
@@ -19,7 +18,6 @@ namespace ynm
 	{
 	public:
 		inline uint32_t getID() const { return instanceData.ID; }
-		inline uint32_t getTextureID() const { return instanceData.textureID; }
 		inline std::string getName() const { return name; }
 		inline InstanceData getInstanceData() const { return instanceData; }
 
