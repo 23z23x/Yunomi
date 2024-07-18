@@ -20,6 +20,8 @@ namespace ynm
 		glm::vec3 pos;
 		//Where on the texture this vertex maps to
 		glm::vec2 texCoord;
+		//Texture that should be used at this Vertex
+		uint32_t texID;
 
 		//Implementation of the comparison operator
 		bool operator==(const Vertex& other) const {
@@ -33,7 +35,8 @@ namespace std {
 	template<> struct hash<ynm::Vertex> {
 		size_t operator()(ynm::Vertex const& vertex) const {
 			return ((hash<glm::vec3>()(vertex.pos) ^
-				(hash<glm::vec2>()(vertex.texCoord) << 1)));
+				(hash<glm::vec2>()(vertex.texCoord) << 1)) ^
+				(hash<uint32_t>()(vertex.texID) << 2));
 		}
 	};
 }

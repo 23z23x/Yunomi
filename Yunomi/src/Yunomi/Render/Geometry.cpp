@@ -12,46 +12,66 @@ namespace ynm
         //Set the ID
         this->ID = ID;
 
-        //tinyobj variable declaration
-        tinyobj::attrib_t attrib;
-        std::vector<tinyobj::shape_t> shapes;
-        std::vector<tinyobj::material_t> materials;
-        std::string warn, err;
+        std::stringstream ss(filename);
 
-        //Load geometry
-        if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str())) {
-            throw std::runtime_error(warn + err);
+        std::string extension = "";
+        getline(ss, extension, '.');
+
+        
+        if (extension.compare("obj"))
+        {
+            //tinyobj variable declaration
+            tinyobj::attrib_t attrib;
+            std::vector<tinyobj::shape_t> shapes;
+            std::vector<tinyobj::material_t> materials;
+            std::string warn, err;
+
+            //Load geometry
+            if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str())) {
+                throw std::runtime_error(warn + err);
+            }
+
+            //Unique vertices in shape
+            std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+
+            //for all the shapes in the object (triangles)
+            for (const auto& shape : shapes) {
+                //For every index in the shape
+                for (const auto& index : shape.mesh.indices) {
+                    Vertex vertex{};
+
+                    //Set the position of a vertex to be the position in 3D space
+                    vertex.pos = {
+                        attrib.vertices[3 * index.vertex_index + 0],
+                        attrib.vertices[3 * index.vertex_index + 1],
+                        attrib.vertices[3 * index.vertex_index + 2]
+                    };
+                    //Set the texture coordinate
+                    vertex.texCoord = {
+                        attrib.texcoords[2 * index.texcoord_index + 0],
+                        1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+                    };
+
+                    //For OBJ files, material data is not included, so set texID to 0
+                    vertex.texID = 0;
+
+                    //If this vertex has never been seen before, add it to unique. Otherwise, just add this repeated vertex to indices
+                    if (uniqueVertices.count(vertex) == 0) {
+                        uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+                        vertices.push_back(vertex);
+                    }
+
+                    indices.push_back(uniqueVertices[vertex]);
+                }
+            }
+
+            return;
         }
 
-        //Unique vertices in shape
-        std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+        if (extension.compare("fbx"))
+        {
 
-        //for all the shapes in the object (triangles)
-        for (const auto& shape : shapes) {
-            //For every index in the shape
-            for (const auto& index : shape.mesh.indices) {
-                Vertex vertex{};
-
-                //Set the position of a vertex to be the position in 3D space
-                vertex.pos = {
-                    attrib.vertices[3 * index.vertex_index + 0],
-                    attrib.vertices[3 * index.vertex_index + 1],
-                    attrib.vertices[3 * index.vertex_index + 2]
-                };
-                //Set the texture coordinate
-                vertex.texCoord = {
-                    attrib.texcoords[2 * index.texcoord_index + 0],
-                    1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-                };
-
-                //If this vertex has never been seen before, add it to unique. Otherwise, just add this repeated vertex to indices
-                if (uniqueVertices.count(vertex) == 0) {
-                    uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-                    vertices.push_back(vertex);
-                }
-
-                indices.push_back(uniqueVertices[vertex]);
-            }
+            return;
         }
 	}
 
