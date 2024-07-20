@@ -123,18 +123,6 @@ namespace ynm
 		uint32_t nextID = 0;
 
 		Renderer* renderer;
-
-		/*
-		Arguments
-			1) Mesh pointer
-			2) vector of textures, which are mapped to be applied in order to the mesh
-
-		Description
-			Takes in a mesh that has been created, which currently had vertex data that describes what texture in a list should be applied to the vertex. The ID is then
-			mapped to each respective element of the provided texture vector.
-		*/
-
-		void MapTextureToMesh(Mesh* mesh, std::vector<uint32_t> IDs);
 	};
 
 }

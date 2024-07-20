@@ -24,7 +24,18 @@ namespace ynm
 
 		ynm::Mesh* mesh = renderer->CreateMesh(meshFile);
 
-		MapTextureToMesh(mesh, IDs);
+		for (Vertex& vertex : mesh->getVertices())
+		{
+			uint32_t element = vertex.texID;
+			if (element < IDs.size())
+			{
+				vertex.texID = IDs[element];
+			}
+			else
+			{
+				vertex.texID = 0;
+			}
+		}
 
 		ynm::InstanceData newData;
 		newData.ID = nextID;
@@ -118,16 +129,6 @@ namespace ynm
 		objects[ID].Scale(vector);
 
 		//Update
-	}
-
-	void ObjectManager::MapTextureToMesh(Mesh* mesh, std::vector<uint32_t> IDs)
-	{
-		//For each vertex in mesh, extract texture ID, and then set this element to the real texture ID provided in the vector
-		for (Vertex vertex : mesh->getVertices())
-		{
-			uint32_t element = vertex.texID;
-			vertex.texID = IDs[element];
-		}
 	}
 
 }
