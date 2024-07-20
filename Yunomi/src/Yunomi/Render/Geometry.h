@@ -25,7 +25,7 @@ namespace ynm
 
 		//Implementation of the comparison operator
 		bool operator==(const Vertex& other) const {
-			return pos == other.pos && texCoord == other.texCoord;
+			return pos == other.pos && texCoord == other.texCoord && texID == other.texID;
 		}
 	};
 }
@@ -47,7 +47,7 @@ namespace ynm
 	class Geometry
 	{
 	public:
-		inline std::vector<Vertex> getVertices() const { return vertices; }
+		inline std::vector<Vertex>& getVertices() { return vertices; }
 		inline std::vector<uint32_t> getIndices() const { return indices; }
 		inline uint32_t getID() const { return ID; }
 	protected:
