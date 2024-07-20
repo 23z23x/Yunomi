@@ -13,10 +13,20 @@ layout(location = 2) flat in uint objID;
 layout(location = 0) out vec4 outColor;
 
 void main() {
-    if (textureID >= 0 && textureID < 100) {
+    
+    //if (textureID == 0)
+    //{
+    //    outColor = texture(textures[textureID], fragTexCoord);
+    //}
+    
+    if (textureID >= 0 && textureID < 100) 
+    {
         //outColor = vec4(fragTexCoord, 0.0, 1.0);
         outColor = texture(textures[textureID], fragTexCoord);
-    } else {
+    } 
+    
+    else 
+    {
         outColor = vec4(1.0, 0.0, 1.0, 1.0); // Output magenta for invalid texture IDs
     }
 }
