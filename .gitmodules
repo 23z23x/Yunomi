@@ -10,3 +10,6 @@
 [submodule "Yunomi/vendor/glm"]
 	path = Yunomi/vendor/glm
 	url = https://github.com/icaven/glm
+[submodule "Yunomi/vendor/OpenFBX"]
+	path = Yunomi/vendor/OpenFBX
+	url = https://github.com/nem0/OpenFBX

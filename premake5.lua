@@ -33,7 +33,10 @@ project "Yunomi"
         "%{prj.name}/vendor/glm/glm/**.hpp",
         "%{prj.name}/vendor/glm/glm/**.inl",
         "%{prj.name}/vendor/stb_image.h",
-        "%{prj.name}/vendor/tiny_obj_loader.h"
+        "%{prj.name}/vendor/tiny_obj_loader.h",
+        "%{prj.name}/vendor/OpenFBX/src/**.cpp",
+        "%{prj.name}/vendor/OpenFBX/src/**.c",
+        "%{prj.name}/vendor/OpenFBX/src/**.h"
     }
 
     includedirs
