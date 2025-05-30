@@ -12,6 +12,7 @@ Yunomi/src/Yunomi/TestAssets/
 #Codelite
 .codelite/
 .ctagsd/
+.cache/
 
 # File types
 
@@ -25,3 +26,5 @@ Yunomi/src/Yunomi/TestAssets/
 *.project
 *.workspace
 compile_commands.json
+Makefile
+*Yunomi.mk
