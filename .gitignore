@@ -1,11 +1,17 @@
 # Directories
+
+#Visual Studio
 .vs/
 bin/
 bin-int/
 Vendor/
-Yunomi/Vendor/
-Sandbox/Vendor/
+Yunomi/vendor/
+Sandbox/vendor/
 Yunomi/src/Yunomi/TestAssets/
+
+#Codelite
+.codelite/
+.ctagsd/
 
 # File types
 
@@ -14,3 +20,8 @@ Yunomi/src/Yunomi/TestAssets/
 *.vcxproj.filters
 *.vcxproj.user
 *.sln
+
+#Codelite
+*.project
+*.workspace
+compile_commands.json
