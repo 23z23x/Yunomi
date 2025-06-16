@@ -39,7 +39,7 @@ namespace ynm
 	private:
 
 	public:
-		ApplicationError(char* message) : YunomiError(message, line) {}
+		ApplicationError(char* message, char* line) : YunomiError(message, line) {}
 		const char* what() const noexcept override;
 	};
 }
