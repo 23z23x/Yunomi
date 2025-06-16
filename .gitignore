@@ -29,4 +29,5 @@ compile_commands.json
 Makefile
 *.mk
 *.pch
+*.txt
 
