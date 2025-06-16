@@ -27,7 +27,7 @@ namespace ynm
 		//Loads a vector of gameobjects to be rendered. Calling this again removes all current objects and replaces it with new objects
 		void LoadObjects(std::vector<GameObject> objects);
 		//Adds the descriptors to be used
-		void Renderer::AddDescriptors();
+		void AddDescriptors();
 		//Creates a texture from filename
 		uint32_t CreateTexture(std::string filename);
 		//Creates a mesh from a filename
