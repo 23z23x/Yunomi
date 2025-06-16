@@ -8,7 +8,8 @@
 		#define YNM_API __declspec(dllimport)
 	#endif
 #else
-	#error Platform not windows
+	//#error Platform not windows
+	#define YNM_API
 #endif
 
 #ifdef YNM_ENABLE_ASSERTS
