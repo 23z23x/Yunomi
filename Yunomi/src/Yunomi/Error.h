@@ -13,7 +13,7 @@ namespace ynm
 	public:
 		YunomiError(char* message, char* line)
 			: message(message), line(line) {}
-		char* what();
+		const char* what() const noexcept override;
 	};
 
 	class VulkanError : public YunomiError
@@ -22,7 +22,7 @@ namespace ynm
 
 	public:
 		VulkanError(char* message, char* line) : YunomiError(message, line) {}
-		char* what();
+		const char* what() const noexcept override;
 	};
 
 	class GLFWError : public YunomiError
@@ -31,7 +31,7 @@ namespace ynm
 
 	public:
 		GLFWError(char* message, char* line) : YunomiError(message, line) {}
-		char* what();
+		const char* what() const noexcept override;
 	};
 
 	class ApplicationError : public YunomiError
@@ -40,6 +40,6 @@ namespace ynm
 
 	public:
 		ApplicationError(char* message) : YunomiError(message, line) {}
-		char* what();
+		const char* what() const noexcept override;
 	};
 }
