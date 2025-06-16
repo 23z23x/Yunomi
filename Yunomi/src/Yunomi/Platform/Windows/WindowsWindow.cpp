@@ -260,7 +260,7 @@ namespace ynm
 			// TODO: glfwTerminate on system shutdown
 			int success = glfwInit();
 			YNM_CORE_ASSERT(success, "GLFW: Failed to initialize!");
-
+			(void)success;
 			s_GLFWInit = true;
 		}
 
