@@ -14,7 +14,6 @@ IncludeDir = {}
 IncludeDir["GLFW"] = "Yunomi/vendor/GLFW/include"
 if os.host() == "windows" then
     IncludeDir["Vulkan"] = "C:/VulkanSDK/1.3.280.0/Include"
-    LibraryDir_Vulkan = "C:/VulkanSDK/1.3.280.0/Lib"
 else
     IncludeDir["Vulkan"] = "/usr/include" -- Vulkan installed via pacman
 end
@@ -54,12 +53,13 @@ project "Yunomi"
     }
 -- links
     filter "system:windows"
+        libdirs { "C:/VulkanSDK/1.3.280.0/Lib" }
         links 
         {
             "GLFW",
             "opengl32.lib",
-            LibraryDir_Vulkan .. "/vulkan-1.lib",
-            LibraryDir_Vulkan .. "/shaderc_shared.lib"
+            "vulkan-1.lib",
+            "shaderc_shared.lib"
         }
 
     filter "system:linux"
