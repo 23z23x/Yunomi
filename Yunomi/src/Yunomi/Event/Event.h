@@ -191,7 +191,7 @@ namespace ynm
 		bool Dispatch(EventFn<T> func)
 		{
 			//If the event is the same type as the function, handle it
-			if (m_Event.getEventType() == T::GetStaticType())
+			if (m_Event.GetEventType() == T::GetStaticType())
 			{
 				m_Event.m_Handled = func(*(T*)&m_Event);
 				return true;
