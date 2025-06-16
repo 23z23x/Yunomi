@@ -27,4 +27,6 @@ Yunomi/src/Yunomi/TestAssets/
 *.workspace
 compile_commands.json
 Makefile
-*Yunomi.mk
+*.mk
+*.pch
+
