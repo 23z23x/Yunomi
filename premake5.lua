@@ -10,8 +10,15 @@ workspace "Yunomi"
 outputdir = "%{cfg.buildcfg}%{cfg.system}%{cfg.architecture}"
 
 IncludeDir = {}
+
 IncludeDir["GLFW"] = "Yunomi/vendor/GLFW/include"
-IncludeDir["Vulkan"] = "C:/VulkanSDK/1.3.280.0/Include"
+if os.host() == "windows" then
+    IncludeDir["Vulkan"] = "C:/VulkanSDK/1.3.280.0/Include"
+    LibraryDir_Vulkan = "C:/VulkanSDK/1.3.280.0/Lib"
+else
+    IncludeDir["Vulkan"] = "/usr/include" -- Vulkan installed via pacman
+end
+
 
 include "Yunomi/vendor/GLFW"             
 
@@ -45,15 +52,26 @@ project "Yunomi"
         "%{IncludeDir.Vulkan}",
         "%{prj.name}/vendor"
     }
+-- links
+    filter "system:windows"
+        links 
+        {
+            "GLFW",
+            "opengl32.lib",
+            LibraryDir_Vulkan .. "/vulkan-1.lib",
+            LibraryDir_Vulkan .. "/shaderc_shared.lib"
+        }
 
-    links
-    {
-        "GLFW",
-        "opengl32.lib",
-        "C:/VulkanSDK/1.3.280.0/Lib/vulkan-1.lib",
-        "C:/VulkanSDK/1.3.280.0/Lib/shaderc_shared.lib"
-    }
-
+    filter "system:linux"
+        links 
+        {
+            "GL",
+            "GLFW",
+            "vulkan",
+            "dl",
+            "pthread"
+        }
+-- platform specific defines/commands
     filter "system:windows"
         cppdialect "C++17"
         staticruntime "On"
@@ -70,6 +88,12 @@ project "Yunomi"
             "UNICODE"
         }
 
+    filter "system:linux"
+        cppdialect "C++17"
+        systemversion "latest"
+        buildoptions { "-Wall" }
+-- postbuild commands
+    filter "system:windows"
         postbuildcommands
         {
             "{RMDIR} ../bin/" .. outputdir .. "/Sandbox",
@@ -77,6 +101,12 @@ project "Yunomi"
             "{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox"
         }
 
+    filter "system:linux"
+        postbuildcommands 
+        {
+            "{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox/"
+        }
+-- build configurations
     filter "configurations:Debug"
         defines { "YNM_DEBUG" }
         symbols "On"
@@ -129,6 +159,11 @@ project "Sandbox"
                 "_UNICODE",
                 "UNICODE"
             }
+
+        filter "system:linux"
+            cppdialect "C++17"
+            systemversion "latest"
+            buildoptions { "-Wall" }
     
         filter "configurations:Debug"
             defines { "YNM_DEBUG" }
