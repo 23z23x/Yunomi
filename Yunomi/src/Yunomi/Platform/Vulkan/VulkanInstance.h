@@ -101,7 +101,7 @@ namespace ynm
 
     private:
         //Frames in flight
-        const int MAX_FRAMES_IN_FLIGHT = 3;
+        const unsigned int MAX_FRAMES_IN_FLIGHT = 3;
 
         uint32_t nextChunkID = 0;
 

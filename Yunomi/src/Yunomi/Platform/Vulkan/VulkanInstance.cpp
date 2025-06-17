@@ -868,7 +868,7 @@ namespace ynm
         vkCmdBindIndexBuffer(commandBuffer, index->getChunks()[0]->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
         //For all meshes being rendered
-        for (int i = 0; i < instance->getChunks().size(); i++)
+        for (unsigned int i = 0; i < instance->getChunks().size(); i++)
         {
             //Bind the vertex buffer, and the current instance buffer
             VkBuffer vertexBuffers[] = { vertex->getChunks()[0]->getBuffer(), instance->getChunks()[i]->getBuffer() };
