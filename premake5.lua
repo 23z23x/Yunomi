@@ -7,8 +7,6 @@ workspace "Yunomi"
         "Release"
     }
 
-outputdir = "%{cfg.buildcfg}%{cfg.system}%{cfg.architecture}"
-
 IncludeDir = {}
 
 IncludeDir["GLFW"] = "Yunomi/vendor/GLFW/include"
@@ -18,7 +16,6 @@ else
     IncludeDir["Vulkan"] = "/usr/include" -- Vulkan installed via pacman
 end
 
-
 include "Yunomi/vendor/GLFW"             
 
 project "Yunomi"
@@ -26,8 +23,8 @@ project "Yunomi"
     kind "SharedLib"
     language "C++"
 
-    targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+    targetdir ("bin/%{cfg.buildcfg}/%{cfg.system}/%{cfg.architecture}/%{prj.name}")
+    objdir ("bin-int/%{cfg.buildcfg}/%{cfg.system}/%{cfg.architecture}/%{prj.name}")
 
     pchheader "pch.h"
     pchsource "Yunomi/src/pch.cpp"
@@ -51,7 +48,7 @@ project "Yunomi"
         "%{IncludeDir.Vulkan}",
         "%{prj.name}/vendor"
     }
--- links
+
     filter "system:windows"
         libdirs { "C:/VulkanSDK/1.3.280.0/Lib" }
         links 
@@ -71,7 +68,7 @@ project "Yunomi"
             "dl",
             "pthread"
         }
--- platform specific defines/commands
+
     filter "system:windows"
         cppdialect "C++17"
         staticruntime "On"
@@ -92,21 +89,21 @@ project "Yunomi"
         cppdialect "C++17"
         systemversion "latest"
         buildoptions { "-Wall" }
--- postbuild commands
+
     filter "system:windows"
         postbuildcommands
         {
-            "{RMDIR} ../bin/" .. outputdir .. "/Sandbox",
-            "{MKDIR} ../bin/" .. outputdir .. "/Sandbox",
-            "{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox"
+            "{RMDIR} ../bin/%{cfg.buildcfg}/%{cfg.system}/%{cfg.architecture}/Sandbox",
+            "{MKDIR} ../bin/%{cfg.buildcfg}/%{cfg.system}/%{cfg.architecture}/Sandbox",
+            "{COPY} %{cfg.buildtarget.relpath} ../bin/%{cfg.buildcfg}/%{cfg.system}/%{cfg.architecture}/Sandbox"
         }
 
     filter "system:linux"
         postbuildcommands 
         {
-            "{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox/"
+            "{COPY} %{cfg.buildtarget.relpath} ../bin/%{cfg.buildcfg}/%{cfg.system}/%{cfg.architecture}/Sandbox/"
         }
--- build configurations
+
     filter "configurations:Debug"
         defines { "YNM_DEBUG" }
         symbols "On"
@@ -116,59 +113,59 @@ project "Yunomi"
         optimize "On"
 
 project "Sandbox"
-        location "Sandbox"
-        kind "ConsoleApp"
-        language "C++"
+    location "Sandbox"
+    kind "ConsoleApp"
+    language "C++"
 
-        targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-        objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
-    
-        files
+    targetdir ("bin/%{cfg.buildcfg}/%{cfg.system}/%{cfg.architecture}/%{prj.name}")
+    objdir ("bin-int/%{cfg.buildcfg}/%{cfg.system}/%{cfg.architecture}/%{prj.name}")
+
+    files
+    {
+        "%{prj.name}/src/**.h",
+        "%{prj.name}/src/**.cpp",
+        "%{prj.name}/vendor/glm/glm/**.hpp",
+        "%{prj.name}/vendor/glm/glm/**.inl"
+    }
+
+    includedirs
+    {
+        "Yunomi/vendor/spdlog/include",
+        "Yunomi/src",
+        "%{IncludeDir.GLFW}",
+        "%{IncludeDir.Vulkan}",
+        "Yunomi/vendor/glm",
+        "Yunomi/vendor"
+    }
+
+    links
+    {
+        "Yunomi"
+    }
+
+    filter "system:windows"
+        cppdialect "C++17"
+        staticruntime "On"
+        systemversion "latest"
+
+        defines
         {
-            "%{prj.name}/src/**.h",
-            "%{prj.name}/src/**.cpp",
-            "%{prj.name}/vendor/glm/glm/**.hpp",
-            "%{prj.name}/vendor/glm/glm/**.inl"
-        }
-    
-        includedirs
-        {
-            "Yunomi/vendor/spdlog/include",
-            "Yunomi/src",
-            "%{IncludeDir.GLFW}",
-            "%{IncludeDir.Vulkan}",
-            "Yunomi/vendor/glm",
-            "Yunomi/vendor"
+            "YNM_PLATFORM_WINDOWS",
+            "_SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS",
+            "_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING",
+            "_UNICODE",
+            "UNICODE"
         }
 
-        links
-        {
-            "Yunomi"
-        }
-    
-        filter "system:windows"
-            cppdialect "C++17"
-            staticruntime "On"
-            systemversion "latest"
-    
-            defines
-            {
-                "YNM_PLATFORM_WINDOWS",
-                "_SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS",
-                "_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING",
-                "_UNICODE",
-                "UNICODE"
-            }
+    filter "system:linux"
+        cppdialect "C++17"
+        systemversion "latest"
+        buildoptions { "-Wall" }
 
-        filter "system:linux"
-            cppdialect "C++17"
-            systemversion "latest"
-            buildoptions { "-Wall" }
-    
-        filter "configurations:Debug"
-            defines { "YNM_DEBUG" }
-            symbols "On"
-    
-        filter "configurations:Release"
-            defines { "YNM_RELEASE" }
-            optimize "On"
+    filter "configurations:Debug"
+        defines { "YNM_DEBUG" }
+        symbols "On"
+
+    filter "configurations:Release"
+        defines { "YNM_RELEASE" }
+        optimize "On"
