@@ -7,11 +7,11 @@ namespace ynm
 	class YunomiError : public std::exception
 	{
 	protected:
-		char* message;
-		char* line;
+		const char* message;
+		const char* line;
 
 	public:
-		YunomiError(char* message, char* line)
+		YunomiError(const char* message, const char* line)
 			: message(message), line(line) {}
 		const char* what() const noexcept override;
 	};
@@ -21,7 +21,7 @@ namespace ynm
 	private:
 
 	public:
-		VulkanError(char* message, char* line) : YunomiError(message, line) {}
+		VulkanError(const char* message, const char* line) : YunomiError(message, line) {}
 		const char* what() const noexcept override;
 	};
 
@@ -30,7 +30,7 @@ namespace ynm
 	private:
 
 	public:
-		GLFWError(char* message, char* line) : YunomiError(message, line) {}
+		GLFWError(const char* message, const char* line) : YunomiError(message, line) {}
 		const char* what() const noexcept override;
 	};
 
@@ -39,7 +39,7 @@ namespace ynm
 	private:
 
 	public:
-		ApplicationError(char* message, char* line) : YunomiError(message, line) {}
+		ApplicationError(const char* message, const char* line) : YunomiError(message, line) {}
 		const char* what() const noexcept override;
 	};
 }
