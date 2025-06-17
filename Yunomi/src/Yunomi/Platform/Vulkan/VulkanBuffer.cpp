@@ -78,13 +78,15 @@ namespace ynm
 	void VulkanBuffer::DeleteVulkanChunk(uint32_t ID)
 	{
 		//iterator finds chunk in vector, then deletes it
-		auto it = std::find_if(chunks.begin(), chunks.end(), [ID](const VulkanChunk* obj) {
+		std::find_if(chunks.begin(), chunks.end(), [ID](const VulkanChunk* obj) {
 			if (obj->getID() == ID)
 			{
 				obj->~VulkanChunk();
 				return 0;
 			}
 			});
+		//If not found, return error.
+		return -1;
 	}
 
 	UniformBuffer* UniformBuffer::Create(Instance* instance)
