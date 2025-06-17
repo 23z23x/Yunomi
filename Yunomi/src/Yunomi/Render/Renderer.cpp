@@ -49,7 +49,7 @@ namespace ynm
 		std::vector<std::vector<InstanceData>> instData;
 
 		//For all game objects, if their mesh has not yet been added, add it. Then, add InstanceData to the proper index in the array
-		for (const GameObject obj : objects)
+		for (const GameObject& obj : objects)
 		{
 			int index = 0;
 			bool found = false;
@@ -57,7 +57,7 @@ namespace ynm
 			if (meshes.size() > 0)
 			{
 				//For all meshes already seen, check if this object's mesh is in the list
-				for (index = 0; index < meshes.size(); index++)
+				for (size_t index = 0; index < meshes.size(); index++)
 				{
 					//Compare the IDs
 					if (obj.getShape()->getID() == meshes[index]->getID())
