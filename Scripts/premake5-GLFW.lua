@@ -19,7 +19,18 @@ project "GLFW"
         "src/monitor.c",
         "src/platform.c",
         "src/vulkan.c",
-        "src/window.c"
+        "src/window.c",
+        "src/egl_context.c",
+        "src/glx_context.c",
+        "src/osmesa_context.c",
+        "src/null_platform.h",
+        "src/null_init.c",
+        "src/null_monitor.c",
+        "src/null_window.c",
+        "src/posix_poll.c",
+        "src/null_joystick.c",
+        "src/null_joystick.h"
+
     }
 
     filter "system:linux"
@@ -42,10 +53,22 @@ project "GLFW"
         }
 
         defines { "_GLFW_X11" }
-        links { "X11", "pthread", "dl", "m" }
+
+        links {
+            "X11",
+            "Xrandr",
+            "Xi",
+            "Xxf86vm",
+            "Xcursor",
+            "Xinerama",
+            "pthread",
+            "dl",
+            "m",
+            "GL"
+        }
 
     filter "system:windows"
-        buildoptions { "-std=c11", "-lgdi32" }
+        buildoptions { "-std=c11" }
         systemversion "latest"
         staticruntime "On"
 
@@ -56,10 +79,7 @@ project "GLFW"
             "src/win32_time.c",
             "src/win32_thread.c",
             "src/win32_window.c",
-            "src/win32_module.c",
-            "src/wgl_context.c",
-            "src/egl_context.c",
-            "src/osmesa_context.c"
+            "src/win32_module.c"
         }
 
         defines {

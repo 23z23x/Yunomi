@@ -1,5 +1,6 @@
 workspace "Yunomi"
     architecture "x64"
+    startproject "Sandbox"
 
     configurations
     {
@@ -8,20 +9,20 @@ workspace "Yunomi"
     }
 
 IncludeDir = {}
-
 IncludeDir["GLFW"] = "Yunomi/vendor/GLFW/include"
 if os.host() == "windows" then
     IncludeDir["Vulkan"] = "C:/VulkanSDK/1.3.280.0/Include"
 else
-    IncludeDir["Vulkan"] = "/usr/include" -- Vulkan installed via pacman
+    IncludeDir["Vulkan"] = "/usr/include"
 end
 
-include "Yunomi/vendor/GLFW"             
+include "Yunomi/vendor/GLFW"
 
 project "Yunomi"
     location "Yunomi"
     kind "SharedLib"
     language "C++"
+    cppdialect "C++17"
 
     targetdir ("bin/%{cfg.buildcfg}/%{cfg.system}/%{cfg.architecture}/%{prj.name}")
     objdir ("bin-int/%{cfg.buildcfg}/%{cfg.system}/%{cfg.architecture}/%{prj.name}")
@@ -50,30 +51,8 @@ project "Yunomi"
     }
 
     filter "system:windows"
-        libdirs { "C:/VulkanSDK/1.3.280.0/Lib" }
-        links 
-        {
-            "GLFW",
-            "opengl32.lib",
-            "vulkan-1.lib",
-            "shaderc_shared.lib"
-        }
-
-    filter "system:linux"
-        links 
-        {
-            "GL",
-            "GLFW",
-            "vulkan",
-            "dl",
-            "pthread"
-        }
-
-    filter "system:windows"
-        cppdialect "C++17"
         staticruntime "On"
         systemversion "latest"
-
         defines
         {
             "YNM_PLATFORM_WINDOWS",
@@ -84,24 +63,43 @@ project "Yunomi"
             "_UNICODE",
             "UNICODE"
         }
-
-    filter "system:linux"
-        cppdialect "C++17"
-        systemversion "latest"
-        buildoptions { "-Wall" }
-
-    filter "system:windows"
-        postbuildcommands
+        libdirs { "C:/VulkanSDK/1.3.280.0/Lib" }
+        links
         {
-            "{RMDIR} ../bin/%{cfg.buildcfg}/%{cfg.system}/%{cfg.architecture}/Sandbox",
-            "{MKDIR} ../bin/%{cfg.buildcfg}/%{cfg.system}/%{cfg.architecture}/Sandbox",
-            "{COPY} %{cfg.buildtarget.relpath} ../bin/%{cfg.buildcfg}/%{cfg.system}/%{cfg.architecture}/Sandbox"
+            "GLFW",
+            "opengl32.lib",
+            "vulkan-1.lib",
+            "shaderc_shared.lib"
         }
 
     filter "system:linux"
-        postbuildcommands 
+        staticruntime "On"
+        buildoptions { "-Wall" }
+        links
         {
-            "{COPY} %{cfg.buildtarget.relpath} ../bin/%{cfg.buildcfg}/%{cfg.system}/%{cfg.architecture}/Sandbox/"
+            "pthread",
+            "dl",
+            "X11",
+            "Xrandr",
+            "Xi",
+            "Xxf86vm",
+            "Xcursor",
+            "Xinerama",
+            "GL",
+            "m",
+            "vulkan",
+            "shaderc_shared"
+        }
+        defines { "YNM_PLATFORM_LINUX" }
+        systemversion "latest"
+
+        -- Link GLFW static library with whole archive to pull in all symbols
+        linkoptions {
+            "-Wl,--whole-archive",
+            "/home/zach/Source/Yunomi/Yunomi/vendor/GLFW/bin/Debug/linux/x86_64/GLFW/libGLFW.a",
+            -- "Yunomi/vendor/GLFW/bin/Debug/linux/x86_64/GLFW/libGLFW.a",
+            "-Wl,--no-whole-archive",
+            "-Wl,--export-dynamic"
         }
 
     filter "configurations:Debug"
@@ -112,13 +110,15 @@ project "Yunomi"
         defines { "YNM_RELEASE" }
         optimize "On"
 
+
 project "Sandbox"
     location "Sandbox"
     kind "ConsoleApp"
     language "C++"
+    cppdialect "C++17"
 
-    targetdir ("bin/%{cfg.buildcfg}/%{cfg.system}/%{cfg.architecture}/%{prj.name}")
-    objdir ("bin-int/%{cfg.buildcfg}/%{cfg.system}/%{cfg.architecture}/%{prj.name}")
+    targetdir ("bin/%{cfg.buildcfg}/%{cfg.system}/%{cfg.architecture}")
+    objdir ("bin-int/%{cfg.buildcfg}/%{cfg.system}/%{cfg.architecture}/Sandbox")
 
     files
     {
@@ -138,16 +138,19 @@ project "Sandbox"
         "Yunomi/vendor"
     }
 
-    links
-    {
-        "Yunomi"
-    }
+    filter "system:linux"
+        links
+        {
+            "Yunomi",      -- Link to your shared library
+            "pthread",
+            "dl",
+            "vulkan",
+            "shaderc_shared"
+        }
 
     filter "system:windows"
-        cppdialect "C++17"
         staticruntime "On"
         systemversion "latest"
-
         defines
         {
             "YNM_PLATFORM_WINDOWS",
@@ -156,11 +159,13 @@ project "Sandbox"
             "_UNICODE",
             "UNICODE"
         }
-
-    filter "system:linux"
-        cppdialect "C++17"
-        systemversion "latest"
-        buildoptions { "-Wall" }
+        links
+        {
+            "Yunomi",
+            "opengl32.lib",
+            "vulkan-1.lib",
+            "shaderc_shared.lib"
+        }
 
     filter "configurations:Debug"
         defines { "YNM_DEBUG" }
