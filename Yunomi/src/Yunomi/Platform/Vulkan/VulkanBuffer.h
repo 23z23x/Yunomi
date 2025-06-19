@@ -29,14 +29,16 @@ namespace ynm
 	private:
 		VulkanInstance* instance;
 
-		VkBuffer buffer;
-		VkDeviceMemory bufferMemory;
 		uint32_t size;
 		std::vector<uint32_t> offsets;
-		uint32_t ID;
-
+		
 		//Number of distinct items of type in buffer
 		uint32_t count;
+		
+		VkBuffer buffer;
+		VkDeviceMemory bufferMemory;
+		uint32_t ID;
+
 	};
 
 	class VulkanBuffer : public Buffer

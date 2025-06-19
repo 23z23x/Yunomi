@@ -5,7 +5,7 @@
 namespace ynm
 {
 	VulkanChunk::VulkanChunk(VulkanInstance* instance, uint32_t size, std::vector<uint32_t> offsets, void* data, VkBufferUsageFlagBits vkType, BufferType type, uint32_t count)
-		: size(size), offsets(offsets), instance(instance), count(count)
+		: instance(instance), size(size), offsets(offsets), count(count)
 	{
 		instance->CreateChunk(size, &(this->buffer), &(this->bufferMemory), &ID, data, vkType, type);
 	}
@@ -77,17 +77,18 @@ namespace ynm
 
 	void VulkanBuffer::DeleteVulkanChunk(uint32_t ID)
 	{
-		//iterator finds chunk in vector, then deletes it
-		std::find_if(chunks.begin(), chunks.end(), [ID](const VulkanChunk* obj) {
-			if (obj->getID() == ID)
-			{
-				obj->~VulkanChunk();
-				return 0;
-			}
+		auto it = std::find_if(chunks.begin(), chunks.end(),
+			[ID](const VulkanChunk* obj) {
+				return obj->getID() == ID;
 			});
-		//If not found, return error.
-		return -1;
+
+		if (it != chunks.end()) {
+			delete *it;
+			chunks.erase(it);
+		}
+		return;
 	}
+
 
 	UniformBuffer* UniformBuffer::Create(Instance* instance)
 	{

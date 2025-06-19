@@ -2,6 +2,7 @@
 #include "VulkanInstance.h"
 
 #define STB_IMAGE_IMPLEMENTATION
+#define STBI_NO_SIMD
 #include <stb_image.h>
 #include "VulkanBuffer.h"
 #include "VulkanPipeline.h"
@@ -963,6 +964,7 @@ namespace ynm
         }
 
         YNM_CORE_ERROR("Vulkan: Failed to find suitable memory type!");
+		return UINT32_MAX;
     }
 
     //For now, each call to copyBuffer is going to create a command buffer and use the SingleTimeCommands() method. Need
