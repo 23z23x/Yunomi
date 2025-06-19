@@ -1,5 +1,9 @@
 # Directories
 
+#Everywhere
+
+TestAssets/
+
 #Visual Studio
 .vs/
 bin/
@@ -30,4 +34,4 @@ Makefile
 *.mk
 *.pch
 *.txt
-
+*.make
