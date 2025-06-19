@@ -18,11 +18,11 @@ Sandbox::Sandbox() {
 		renderer->LoadObjects(objs);*/
 
 		std::vector<std::string> test;
-		test.push_back("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.png");
+		test.push_back("TestAssets/viking_room.png");
 
-		uint32_t ID1 = objManager->CreateObject("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.obj", test, "vikingroom1");
-		uint32_t ID2 = objManager->CreateObject("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.obj", test, "vikingroom2");
-		uint32_t ID3 = objManager->CreateObject("C:/repos/Yunomi/Yunomi/src/Yunomi/TestAssets/viking_room.obj", test, "vikingroom3");
+		uint32_t ID1 = objManager->CreateObject("TestAssets/viking_room.obj", test, "vikingroom1");
+		uint32_t ID2 = objManager->CreateObject("TestAssets/viking_room.obj", test, "vikingroom2");
+		uint32_t ID3 = objManager->CreateObject("TestAssets/viking_room.obj", test, "vikingroom3");
 
 		objManager->ChangeTranslateObject(ID1, glm::vec3(1.5, 1.5, 0));
 
@@ -62,6 +62,9 @@ void Sandbox::OnEvent(ynm::Event& e)
 		case ynm::EventType::MouseMove:
 			mm = (ynm::MouseMovedEvent*)&e;
 			renderer->ChangeDirection(mm->GetX(), mm->GetY());
+			break;
+			
+		default:
 			break;
 		}
 	}
